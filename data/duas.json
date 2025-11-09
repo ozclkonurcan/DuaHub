@@ -1,0 +1,169 @@
+{
+    "duas": [
+        {
+            "id": "1",
+            "title": "Sabah Duası",
+            "arabic": "أَصْبَحْنَا وَأَصْبَحَ الْمُلْكُ لِلَّهِ وَالْحَمْدُ لِلَّهِ",
+            "transliteration": "Esbehnâ ve esbeha'l-mülkü lillâhi ve'l-hamdü lillâh",
+            "meaning": "Sabahlara erdik ve mülk Allah'ındır, hamd Allah'adır.",
+            "category": "sabah-aksam",
+            "benefit": "Güne bereketli başlamak ve Allah'a hamd etmek için sabahları okunur.",
+            "source": "Müslim, Zikir 39",
+            "isPremium": false,
+            "tags": [
+                "sabah",
+                "güne başlama",
+                "bereket"
+            ]
+        },
+        {
+            "id": "2",
+            "title": "Ayetel Kürsi",
+            "arabic": "اللَّهُ لَا إِلَٰهَ إِلَّا هُوَ الْحَيُّ الْقَيُّومُ ۚ لَا تَأْخُذُهُ سِنَةٌ وَلَا نَوْمٌ",
+            "transliteration": "Allâhu lâ ilâhe illâ huve'l-hayyu'l-kayyûm. Lâ te'huzühû sinetün ve lâ nevm",
+            "meaning": "Allah ki, O'ndan başka ilah yoktur. Diridir, kayyumdur. O'nu ne uyuklama tutar ne de uyku.",
+            "category": "koruma",
+            "benefit": "Sabah-akşam ve yatmadan önce okunduğunda korunma sağlar.",
+            "source": "Bakara Suresi, 255",
+            "isPremium": false,
+            "tags": [
+                "ayetel kürsi",
+                "koruma",
+                "gece",
+                "sabah"
+            ]
+        },
+        {
+            "id": "3",
+            "title": "Namaz Duası",
+            "arabic": "رَبَّنَا تَقَبَّلْ مِنَّا إِنَّكَ أَنتَ السَّمِيعُ الْعَلِيمُ",
+            "transliteration": "Rabbenâ tekabbel minnâ inneke ente's-semîu'l-alîm",
+            "meaning": "Rabbimiz! Bizden kabul buyur. Şüphesiz sen her şeyi işiten, her şeyi bilensin.",
+            "category": "namaz",
+            "benefit": "Namaz sonrası yapılan duaların en önemlilerinden biridir.",
+            "source": "Bakara Suresi, 127",
+            "isPremium": false,
+            "tags": [
+                "namaz",
+                "dua",
+                "kabul"
+            ]
+        },
+        {
+            "id": "4",
+            "title": "Şifa Duası",
+            "arabic": "اللَّهُمَّ رَبَّ النَّاسِ أَذْهِبِ الْبَأْسَ اشْفِ أَنْتَ الشَّافِي",
+            "transliteration": "Allâhümme rabbe'n-nâsi ezhibe'l-be'se işfi ente'ş-şâfî",
+            "meaning": "Allah'ım! İnsanların Rabbi, hastalığı gider, şifa ver. Sen şifa verensin.",
+            "category": "sifa",
+            "benefit": "Hasta olan kimse için veya kendisi için şifa dilerken okunur.",
+            "source": "Buhari, Tıb 38",
+            "isPremium": false,
+            "tags": [
+                "şifa",
+                "hastalık",
+                "sağlık"
+            ]
+        },
+        {
+            "id": "5",
+            "title": "Rızık Duası",
+            "arabic": "رَبِّ اشْرَحْ لِي صَدْرِي وَيَسِّرْ لِي أَمْرِي",
+            "transliteration": "Rabbi'şrah lî sadrî ve yessir lî emrî",
+            "meaning": "Rabbim! Göğsümü genişlet ve işimi kolaylaştır.",
+            "category": "rizik-bereket",
+            "benefit": "İşlerin kolaylaşması ve rızık genişliği için okunur.",
+            "source": "Taha Suresi, 25-26",
+            "isPremium": false,
+            "tags": [
+                "rızık",
+                "bereket",
+                "iş",
+                "kolaylık"
+            ]
+        },
+        {
+            "id": "6",
+            "title": "Yolculuk Duası",
+            "arabic": "سُبْحَانَ الَّذِي سَخَّرَ لَنَا هَٰذَا وَمَا كُنَّا لَهُ مُقْرِنِينَ",
+            "transliteration": "Sübhâne'llezî sehhara lenâ hâzâ ve mâ künnâ lehû mukriniyn",
+            "meaning": "Bunu bize boyun eğdiren Allah'ı tesbih ederim. Biz buna güç yetiremezdik.",
+            "category": "yolculuk",
+            "benefit": "Yola çıkarken araçta okunur, yolculuğun hayırlı olması için dua edilir.",
+            "source": "Zuhruf Suresi, 13",
+            "isPremium": false,
+            "tags": [
+                "yolculuk",
+                "yol",
+                "araba",
+                "uçak"
+            ]
+        },
+        {
+            "id": "7",
+            "title": "Uyku Duası",
+            "arabic": "بِاسْمِكَ اللَّهُمَّ أَمُوتُ وَأَحْيَا",
+            "transliteration": "Bismikellâhümme emûtü ve ahyâ",
+            "meaning": "Allah'ım! Senin adınla ölürüm ve dirilirim.",
+            "category": "uyku",
+            "benefit": "Yatağa uzanırken, uyumadan önce okunur.",
+            "source": "Buhari, Deavât 6",
+            "isPremium": false,
+            "tags": [
+                "uyku",
+                "gece",
+                "yatmadan önce"
+            ]
+        },
+        {
+            "id": "8",
+            "title": "Sıkıntı Duası",
+            "arabic": "لَا إِلَهَ إِلَّا أَنْتَ سُبْحَانَكَ إِنِّي كُنْتُ مِنَ الظَّالِمِينَ",
+            "transliteration": "Lâ ilâhe illâ ente sübhâneke innî küntü mine'z-zâlimîyn",
+            "meaning": "Senden başka ilah yoktur, seni tesbih ederim. Şüphesiz ben zalimlerden oldum.",
+            "category": "sikinti-dert",
+            "benefit": "Sıkıntılı anlarda, darlıkta, zorlukta okunur. Hz. Yunus'un duasıdır.",
+            "source": "Enbiya Suresi, 87",
+            "isPremium": false,
+            "tags": [
+                "sıkıntı",
+                "dert",
+                "zorluk",
+                "yunus"
+            ]
+        },
+        {
+            "id": "9",
+            "title": "Şükür Duası",
+            "arabic": "الْحَمْدُ لِلَّهِ الَّذِي أَطْعَمَنَا وَسَقَانَا",
+            "transliteration": "Elhamdü lillâhillezî et'amenâ ve sekānâ",
+            "meaning": "Bizi yediren ve içiren Allah'a hamdolsun.",
+            "category": "sukur",
+            "benefit": "Yemek yedikten sonra şükretmek için okunur.",
+            "source": "Ebu Davud, Et'ime 52",
+            "isPremium": false,
+            "tags": [
+                "şükür",
+                "yemek",
+                "hamd"
+            ]
+        },
+        {
+            "id": "10",
+            "title": "Evlilik Duası",
+            "arabic": "رَبَّنَا هَبْ لَنَا مِنْ أَزْوَاجِنَا وَذُرِّيَّاتِنَا قُرَّةَ أَعْيُنٍ",
+            "transliteration": "Rabbenâ heb lenâ min ezvâcinâ ve zürriyyâtinâ kurrate a'yun",
+            "meaning": "Rabbimiz! Bize eşlerimizden ve çocuklarımızdan gözümüzün nuru olanları bağışla.",
+            "category": "evlilik-aile",
+            "benefit": "Aile huzuru ve mutluluğu için okunur.",
+            "source": "Furkan Suresi, 74",
+            "isPremium": false,
+            "tags": [
+                "evlilik",
+                "aile",
+                "eş",
+                "çocuk"
+            ]
+        }
+    ]
+}

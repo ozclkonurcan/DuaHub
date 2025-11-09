@@ -1,98 +1,306 @@
-import { Image } from 'expo-image';
-import { Platform, StyleSheet } from 'react-native';
-
-import { HelloWave } from '@/components/hello-wave';
-import ParallaxScrollView from '@/components/parallax-scroll-view';
-import { ThemedText } from '@/components/themed-text';
-import { ThemedView } from '@/components/themed-view';
-import { Link } from 'expo-router';
+// app/(tabs)/index.tsx
+import { Ionicons } from "@expo/vector-icons";
+import { useFocusEffect } from "@react-navigation/native";
+import { router } from "expo-router";
+import React, { useCallback, useEffect, useState } from "react";
+import {
+  RefreshControl,
+  ScrollView,
+  StyleSheet,
+  Text,
+  TouchableOpacity,
+  useColorScheme,
+  View,
+} from "react-native";
+import { SafeAreaView } from "react-native-safe-area-context";
+import DuaCard from "../../components/DuaCard";
+import { Colors } from "../../constants/Colors";
+import duasData from "../../data/duas.json";
+import { Dua } from "../../types/dua";
 
 export default function HomeScreen() {
-  return (
-    <ParallaxScrollView
-      headerBackgroundColor={{ light: '#A1CEDC', dark: '#1D3D47' }}
-      headerImage={
-        <Image
-          source={require('@/assets/images/partial-react-logo.png')}
-          style={styles.reactLogo}
-        />
-      }>
-      <ThemedView style={styles.titleContainer}>
-        <ThemedText type="title">Welcome!</ThemedText>
-        <HelloWave />
-      </ThemedView>
-      <ThemedView style={styles.stepContainer}>
-        <ThemedText type="subtitle">Step 1: Try it</ThemedText>
-        <ThemedText>
-          Edit <ThemedText type="defaultSemiBold">app/(tabs)/index.tsx</ThemedText> to see changes.
-          Press{' '}
-          <ThemedText type="defaultSemiBold">
-            {Platform.select({
-              ios: 'cmd + d',
-              android: 'cmd + m',
-              web: 'F12',
-            })}
-          </ThemedText>{' '}
-          to open developer tools.
-        </ThemedText>
-      </ThemedView>
-      <ThemedView style={styles.stepContainer}>
-        <Link href="/modal">
-          <Link.Trigger>
-            <ThemedText type="subtitle">Step 2: Explore</ThemedText>
-          </Link.Trigger>
-          <Link.Preview />
-          <Link.Menu>
-            <Link.MenuAction title="Action" icon="cube" onPress={() => alert('Action pressed')} />
-            <Link.MenuAction
-              title="Share"
-              icon="square.and.arrow.up"
-              onPress={() => alert('Share pressed')}
-            />
-            <Link.Menu title="More" icon="ellipsis">
-              <Link.MenuAction
-                title="Delete"
-                icon="trash"
-                destructive
-                onPress={() => alert('Delete pressed')}
-              />
-            </Link.Menu>
-          </Link.Menu>
-        </Link>
+  const colorScheme = useColorScheme();
+  const colors = Colors[colorScheme ?? "light"];
 
-        <ThemedText>
-          {`Tap the Explore tab to learn more about what's included in this starter app.`}
-        </ThemedText>
-      </ThemedView>
-      <ThemedView style={styles.stepContainer}>
-        <ThemedText type="subtitle">Step 3: Get a fresh start</ThemedText>
-        <ThemedText>
-          {`When you're ready, run `}
-          <ThemedText type="defaultSemiBold">npm run reset-project</ThemedText> to get a fresh{' '}
-          <ThemedText type="defaultSemiBold">app</ThemedText> directory. This will move the current{' '}
-          <ThemedText type="defaultSemiBold">app</ThemedText> to{' '}
-          <ThemedText type="defaultSemiBold">app-example</ThemedText>.
-        </ThemedText>
-      </ThemedView>
-    </ParallaxScrollView>
+  const [duas, setDuas] = useState<Dua[]>([]);
+  const [dailyDua, setDailyDua] = useState<Dua | null>(null);
+  const [refreshing, setRefreshing] = useState(false);
+  const [refreshKey, setRefreshKey] = useState(0);
+
+  useEffect(() => {
+    loadDuas();
+  }, []);
+
+  // Sayfa her görünür olduğunda kartları yenile (favoriler güncel olsun)
+  useFocusEffect(
+    useCallback(() => {
+      setRefreshKey((prev) => prev + 1);
+    }, [])
+  );
+
+  const loadDuas = () => {
+    // Şimdilik local data'dan yüklüyoruz
+    // Sonra Firebase'den çekeceğiz
+    const loadedDuas = duasData.duas as Dua[];
+    setDuas(loadedDuas);
+
+    // Günün duasını rastgele seç
+    const randomDua = loadedDuas[Math.floor(Math.random() * loadedDuas.length)];
+    setDailyDua(randomDua);
+  };
+
+  const onRefresh = () => {
+    setRefreshing(true);
+    loadDuas();
+    setRefreshKey((prev) => prev + 1);
+    setTimeout(() => setRefreshing(false), 1000);
+  };
+
+  const handleFavoriteToggle = (duaId: string) => {
+    // Favoriler değiştiğinde kartları yenile
+    setRefreshKey((prev) => prev + 1);
+  };
+
+  return (
+    <SafeAreaView
+      style={[styles.container, { backgroundColor: colors.background }]}
+      edges={["top"]}
+    >
+      <ScrollView
+        contentContainerStyle={styles.scrollContent}
+        refreshControl={
+          <RefreshControl refreshing={refreshing} onRefresh={onRefresh} />
+        }
+      >
+        {/* Header */}
+        <View style={styles.header}>
+          <View>
+            <Text style={[styles.greeting, { color: colors.icon }]}>
+              Hoş geldiniz
+            </Text>
+            <Text style={[styles.title, { color: colors.text }]}>
+              DuaHub 🤲
+            </Text>
+          </View>
+          <TouchableOpacity
+            style={[styles.searchButton, { backgroundColor: colors.card }]}
+          >
+            <Ionicons name="search" size={20} color={colors.icon} />
+          </TouchableOpacity>
+        </View>
+
+        {/* Günün Duası */}
+        {dailyDua && (
+          <View
+            style={[
+              styles.dailyDuaContainer,
+              { backgroundColor: colors.primary },
+            ]}
+          >
+            <View style={styles.dailyDuaHeader}>
+              <Ionicons name="sunny" size={24} color="#FFFFFF" />
+              <Text style={styles.dailyDuaTitle}>Günün Duası</Text>
+            </View>
+            <Text style={styles.dailyDuaText} numberOfLines={3}>
+              {dailyDua.arabic}
+            </Text>
+            <TouchableOpacity
+              style={styles.dailyDuaButton}
+              onPress={() => dailyDua && router.push(`/dua/${dailyDua.id}`)}
+            >
+              <Text style={styles.dailyDuaButtonText}>Duayı Oku</Text>
+              <Ionicons name="arrow-forward" size={16} color="#FFFFFF" />
+            </TouchableOpacity>
+          </View>
+        )}
+
+        {/* Hızlı Erişim */}
+        <View style={styles.quickAccess}>
+          <TouchableOpacity
+            style={[styles.quickAccessItem, { backgroundColor: colors.card }]}
+            onPress={() => {
+              /* TODO: Son okunanlar sayfası */
+            }}
+          >
+            <View
+              style={[
+                styles.quickAccessIcon,
+                { backgroundColor: colors.primary + "20" },
+              ]}
+            >
+              <Ionicons name="time" size={24} color={colors.primary} />
+            </View>
+            <Text style={[styles.quickAccessText, { color: colors.text }]}>
+              Son Okunanlar
+            </Text>
+          </TouchableOpacity>
+
+          <TouchableOpacity
+            style={[styles.quickAccessItem, { backgroundColor: colors.card }]}
+            onPress={() => router.push("/(tabs)/favorites")}
+          >
+            <View
+              style={[
+                styles.quickAccessIcon,
+                { backgroundColor: colors.error + "20" },
+              ]}
+            >
+              <Ionicons name="heart" size={24} color={colors.error} />
+            </View>
+            <Text style={[styles.quickAccessText, { color: colors.text }]}>
+              Favoriler
+            </Text>
+          </TouchableOpacity>
+
+          <TouchableOpacity
+            style={[styles.quickAccessItem, { backgroundColor: colors.card }]}
+            onPress={() => {
+              /* TODO: Hatırlatıcılar ayarları */
+            }}
+          >
+            <View
+              style={[
+                styles.quickAccessIcon,
+                { backgroundColor: colors.success + "20" },
+              ]}
+            >
+              <Ionicons name="notifications" size={24} color={colors.success} />
+            </View>
+            <Text style={[styles.quickAccessText, { color: colors.text }]}>
+              Hatırlatıcılar
+            </Text>
+          </TouchableOpacity>
+        </View>
+
+        {/* Popüler Dualar */}
+        <View style={styles.section}>
+          <View style={styles.sectionHeader}>
+            <Text style={[styles.sectionTitle, { color: colors.text }]}>
+              Popüler Dualar
+            </Text>
+            <TouchableOpacity onPress={() => router.push("/(tabs)/categories")}>
+              <Text style={[styles.seeAll, { color: colors.primary }]}>
+                Tümünü Gör
+              </Text>
+            </TouchableOpacity>
+          </View>
+
+          {duas.slice(0, 5).map((dua) => (
+            <DuaCard
+              key={`${dua.id}-${refreshKey}`}
+              dua={dua}
+              onFavoriteToggle={handleFavoriteToggle}
+            />
+          ))}
+        </View>
+      </ScrollView>
+    </SafeAreaView>
   );
 }
 
 const styles = StyleSheet.create({
-  titleContainer: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 8,
+  container: {
+    flex: 1,
   },
-  stepContainer: {
+  scrollContent: {
+    padding: 16,
+  },
+  header: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+    alignItems: "center",
+    marginBottom: 24,
+  },
+  greeting: {
+    fontSize: 14,
+    marginBottom: 4,
+  },
+  title: {
+    fontSize: 28,
+    fontWeight: "bold",
+  },
+  searchButton: {
+    width: 44,
+    height: 44,
+    borderRadius: 22,
+    justifyContent: "center",
+    alignItems: "center",
+  },
+  dailyDuaContainer: {
+    padding: 20,
+    borderRadius: 16,
+    marginBottom: 24,
+  },
+  dailyDuaHeader: {
+    flexDirection: "row",
+    alignItems: "center",
     gap: 8,
+    marginBottom: 12,
+  },
+  dailyDuaTitle: {
+    fontSize: 18,
+    fontWeight: "600",
+    color: "#FFFFFF",
+  },
+  dailyDuaText: {
+    fontSize: 16,
+    lineHeight: 28,
+    textAlign: "right",
+    color: "#FFFFFF",
+    marginBottom: 16,
+  },
+  dailyDuaButton: {
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "center",
+    gap: 8,
+    backgroundColor: "rgba(255,255,255,0.2)",
+    padding: 12,
+    borderRadius: 8,
+  },
+  dailyDuaButtonText: {
+    color: "#FFFFFF",
+    fontWeight: "600",
+  },
+  quickAccess: {
+    flexDirection: "row",
+    gap: 12,
+    marginBottom: 24,
+  },
+  quickAccessItem: {
+    flex: 1,
+    padding: 16,
+    borderRadius: 12,
+    alignItems: "center",
+  },
+  quickAccessIcon: {
+    width: 48,
+    height: 48,
+    borderRadius: 24,
+    justifyContent: "center",
+    alignItems: "center",
     marginBottom: 8,
   },
-  reactLogo: {
-    height: 178,
-    width: 290,
-    bottom: 0,
-    left: 0,
-    position: 'absolute',
+  quickAccessText: {
+    fontSize: 12,
+    fontWeight: "500",
+    textAlign: "center",
+  },
+  section: {
+    marginBottom: 24,
+  },
+  sectionHeader: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+    alignItems: "center",
+    marginBottom: 16,
+  },
+  sectionTitle: {
+    fontSize: 20,
+    fontWeight: "600",
+  },
+  seeAll: {
+    fontSize: 14,
+    fontWeight: "500",
   },
 });
