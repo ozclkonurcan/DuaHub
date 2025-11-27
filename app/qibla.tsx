@@ -1,8 +1,6 @@
-// app/qibla.tsx
 import { Ionicons } from "@expo/vector-icons";
 import * as Location from "expo-location";
 import { router } from "expo-router";
-import { Accelerometer, Magnetometer } from "expo-sensors";
 import React, { useEffect, useState } from "react";
 import {
   Alert,
@@ -27,27 +25,16 @@ export default function QiblaScreen() {
   const colors = Colors[colorScheme ?? "light"];
 
   const [qiblaDirection, setQiblaDirection] = useState<number>(0);
-  const [magneticHeading, setMagneticHeading] = useState<number>(0);
-  const [trueHeading, setTrueHeading] = useState<number>(0);
-  const [magneticDeclination, setMagneticDeclination] = useState<number>(0);
+  const [heading, setHeading] = useState<number>(0);
   const [userLocation, setUserLocation] = useState<{
     lat: number;
     lng: number;
   } | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
-  const [needCalibration, setNeedCalibration] = useState(false);
   const [compassRotation] = useState(new Animated.Value(0));
-  const [magnetometerSubscription, setMagnetometerSubscription] =
-    useState<any>(null);
-
-  const [accelerometerSubscription, setAccelerometerSubscription] =
-    useState<any>(null);
-  const [accelData, setAccelData] = useState<{
-    x: number;
-    y: number;
-    z: number;
-  } | null>(null);
+  const [headingSubscription, setHeadingSubscription] =
+    useState<Location.LocationSubscription | null>(null);
 
   useEffect(() => {
     requestLocationAndCalculate();
@@ -58,113 +45,42 @@ export default function QiblaScreen() {
     };
   }, []);
 
-  useEffect(() => {
-    // True heading hesapla (magnetic + declination)
-    const trueDeg = (magneticHeading + magneticDeclination + 360) % 360;
-    setTrueHeading(trueDeg);
-  }, [magneticHeading, magneticDeclination]);
-
   const startCompass = async () => {
-    const intervalMs = 100;
-    Magnetometer.setUpdateInterval(intervalMs);
-    Accelerometer.setUpdateInterval(intervalMs);
-
-    // Accelerometer listener
-    const accSub = Accelerometer.addListener((acc) => {
-      setAccelData({ x: acc.x, y: acc.y, z: acc.z });
-    });
-    setAccelerometerSubscription(accSub);
-
-    // Magnetometer listener
-    const magSub = Magnetometer.addListener((mag) => {
-      let { x: mx, y: my, z: mz } = mag;
-
-      // Kalibrasyon kontrolü
-      const magnitude = Math.sqrt(mx * mx + my * my + mz * mz);
-      if (magnitude < 25 || magnitude > 65) {
-        setNeedCalibration(true);
-      } else {
-        setNeedCalibration(false);
+    try {
+      const { status } = await Location.requestForegroundPermissionsAsync();
+      if (status !== 'granted') {
+        setError('Pusula için konum izni gerekli');
+        return;
       }
 
-      // iOS için doğru heading hesabı
-      let heading;
+      const subscription = await Location.watchHeadingAsync((data) => {
+        // Use trueHeading if available (requires GPS), otherwise magneticHeading
+        const newHeading = data.trueHeading >= 0 ? data.trueHeading : data.magHeading;
+        setHeading(newHeading);
 
-      if (Platform.OS === "ios") {
-        // iOS'ta magnetometre değerleri farklı eksenlerde
-        // Portrait modda doğru heading için:
-        heading = Math.atan2(my, mx) * RADIAN_TO_DEGREE;
-        // 0-360 aralığına normalize et
-        heading = (heading + 360) % 360;
-        // iOS'ta 0° = Doğu, biz 0° = Kuzey istiyoruz
-        heading = (90 - heading + 360) % 360;
-      } else {
-        // Android için
-        heading = Math.atan2(-my, mx) * RADIAN_TO_DEGREE;
-        heading = (heading + 360) % 360;
-        heading = (heading + 90) % 360;
-      }
+        Animated.timing(compassRotation, {
+          toValue: -newHeading,
+          duration: 100,
+          useNativeDriver: true,
+        }).start();
+      });
 
-      // Tilt compensation (telefon eğikse)
-      if (accelData) {
-        const { x: ax, y: ay, z: az } = accelData;
-
-        // Roll ve Pitch hesapla
-        const roll = Math.atan2(ay, az);
-        const pitch = Math.atan2(-ax, Math.sqrt(ay * ay + az * az));
-
-        // Tilt-compensated manyetik bileşenler
-        const cosRoll = Math.cos(roll);
-        const sinRoll = Math.sin(roll);
-        const cosPitch = Math.cos(pitch);
-        const sinPitch = Math.sin(pitch);
-
-        // iOS için düzeltilmiş tilt compensation
-        let Xh, Yh;
-
-        if (Platform.OS === "ios") {
-          Xh =
-            mx * cosPitch + my * sinRoll * sinPitch + mz * cosRoll * sinPitch;
-          Yh = my * cosRoll - mz * sinRoll;
-        } else {
-          Xh = mx * cosPitch + mz * sinPitch;
-          Yh = mx * sinRoll * sinPitch + my * cosRoll - mz * sinRoll * cosPitch;
-        }
-
-        heading = Math.atan2(Yh, Xh) * RADIAN_TO_DEGREE;
-        heading = (heading + 360) % 360;
-
-        if (Platform.OS === "ios") {
-          heading = (90 - heading + 360) % 360;
-        }
-      }
-
-      setMagneticHeading(heading);
-
-      Animated.timing(compassRotation, {
-        toValue: -heading,
-        duration: intervalMs,
-        useNativeDriver: true,
-      }).start();
-    });
-
-    setMagnetometerSubscription(magSub);
+      setHeadingSubscription(subscription);
+    } catch (err) {
+      console.error(err);
+      // Fallback or error handling
+    }
   };
 
   const stopCompass = () => {
-    if (magnetometerSubscription) {
-      magnetometerSubscription.remove();
-      setMagnetometerSubscription(null);
-    }
-    if (accelerometerSubscription) {
-      accelerometerSubscription.remove();
-      setAccelerometerSubscription(null);
+    if (headingSubscription) {
+      headingSubscription.remove();
+      setHeadingSubscription(null);
     }
   };
 
   const requestLocationAndCalculate = async () => {
     try {
-      // Konum izni iste
       const { status } = await Location.requestForegroundPermissionsAsync();
 
       if (status !== "granted") {
@@ -173,7 +89,6 @@ export default function QiblaScreen() {
         return;
       }
 
-      // Mevcut konumu al
       const location = await Location.getCurrentPositionAsync({
         accuracy: Location.Accuracy.BestForNavigation,
       });
@@ -181,11 +96,6 @@ export default function QiblaScreen() {
       const { latitude, longitude } = location.coords;
       setUserLocation({ lat: latitude, lng: longitude });
 
-      // Magnetic declination hesapla (yaklaşık)
-      const declination = calculateMagneticDeclination(latitude, longitude);
-      setMagneticDeclination(declination);
-
-      // Kıble yönünü hesapla
       const direction = calculateQiblaDirection(latitude, longitude);
       setQiblaDirection(direction);
 
@@ -197,22 +107,8 @@ export default function QiblaScreen() {
     }
   };
 
-  const calculateMagneticDeclination = (lat: number, lng: number): number => {
-    // Basit declination hesabı (Türkiye için yaklaşık)
-    // Gerçek uygulamada WMM (World Magnetic Model) kullanılmalı
-
-    // Türkiye geneli için ortalama declination: 4-6° Doğu
-    // Koordinata göre düzeltme
-    const baseDeclination = 5; // Ortalama 5° East
-
-    // Enlem bazlı küçük düzeltme
-    const latAdjustment = (lat - 39) * 0.1;
-
-    return baseDeclination + latAdjustment;
-  };
-
   const calculateQiblaDirection = (lat: number, lng: number): number => {
-    // Kabe koordinatları (Mekke)
+    // Kaaba coordinates
     const kaabaLat = 21.4225;
     const kaabaLng = 39.8262;
 
@@ -236,16 +132,10 @@ export default function QiblaScreen() {
     outputRange: ["0deg", "360deg"],
   });
 
-  // Kıble ile magnetic heading arasındaki fark
-  const qiblaAngle = (qiblaDirection - magneticHeading + 360) % 360;
-
-  const handleCalibration = () => {
-    Alert.alert(
-      "Pusula Kalibrasyonu",
-      "Telefonunuzu havada 8 şeklinde hareket ettirin. Bu, pusula sensörünü kalibre edecektir.",
-      [{ text: "Tamam" }]
-    );
-  };
+  // Difference between Qibla and Current Heading
+  // 0 means pointing directly at Qibla
+  const diff = Math.abs(heading - qiblaDirection);
+  const isAligned = diff < 10 || diff > 350;
 
   if (loading) {
     return (
@@ -329,22 +219,6 @@ export default function QiblaScreen() {
         </TouchableOpacity>
       </View>
 
-      {/* Kalibrasyon Uyarısı */}
-      {needCalibration && (
-        <TouchableOpacity
-          style={[
-            styles.calibrationWarning,
-            { backgroundColor: colors.accent },
-          ]}
-          onPress={handleCalibration}
-        >
-          <Ionicons name="warning" size={20} color="#FFFFFF" />
-          <Text style={styles.calibrationText}>
-            Pusula kalibrasyonu gerekiyor - Dokun
-          </Text>
-        </TouchableOpacity>
-      )}
-
       {/* Konum Bilgisi */}
       {userLocation && (
         <View style={[styles.locationCard, { backgroundColor: colors.card }]}>
@@ -390,10 +264,16 @@ export default function QiblaScreen() {
           </View>
 
           {/* Kıble İbresi */}
+          {/*
+             Compass Circle is rotated by -heading.
+             So 'top' of the circle points to North.
+             We want the needle to point to Qibla (relative to North).
+             So we just rotate it by qiblaDirection.
+          */}
           <View
             style={[
               styles.needle,
-              { transform: [{ rotate: `${qiblaAngle}deg` }] },
+              { transform: [{ rotate: `${qiblaDirection}deg` }] },
             ]}
           >
             <View style={styles.needleTop} />
@@ -417,19 +297,14 @@ export default function QiblaScreen() {
       {/* Derece Bilgisi */}
       <View style={[styles.degreeCard, { backgroundColor: colors.card }]}>
         <Text style={[styles.degreeValue, { color: colors.primary }]}>
-          {Math.round(qiblaAngle)}°
+          {Math.round(heading)}°
         </Text>
         <Text style={[styles.degreeLabel, { color: colors.icon }]}>
-          Kıble Yönü
+          Pusula Yönü (Kuzey: 0°)
         </Text>
         <View style={styles.debugInfo}>
           <Text style={[styles.debugText, { color: colors.icon }]}>
-            Manyetik: {Math.round(magneticHeading)}° | Gerçek:{" "}
-            {Math.round(trueHeading)}°
-          </Text>
-          <Text style={[styles.debugText, { color: colors.icon }]}>
-            Sapma: {Math.round(magneticDeclination)}° | Kıble:{" "}
-            {Math.round(qiblaDirection)}°
+            Kıble Açısı: {Math.round(qiblaDirection)}°
           </Text>
         </View>
       </View>
@@ -445,7 +320,7 @@ export default function QiblaScreen() {
       </View>
 
       {/* Başarı Mesajı */}
-      {qiblaAngle < 10 || qiblaAngle > 350 ? (
+      {isAligned ? (
         <View style={[styles.successCard, { backgroundColor: colors.success }]}>
           <Ionicons name="checkmark-circle" size={24} color="#FFFFFF" />
           <Text style={styles.successText}>Kıbleye bakıyorsunuz! ✨</Text>
@@ -473,21 +348,6 @@ const styles = StyleSheet.create({
   },
   headerTitle: {
     fontSize: 18,
-    fontWeight: "600",
-  },
-  calibrationWarning: {
-    flexDirection: "row",
-    alignItems: "center",
-    justifyContent: "center",
-    gap: 8,
-    padding: 12,
-    marginHorizontal: 16,
-    borderRadius: 8,
-    marginBottom: 8,
-  },
-  calibrationText: {
-    color: "#FFFFFF",
-    fontSize: 14,
     fontWeight: "600",
   },
   loadingContainer: {

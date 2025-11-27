@@ -2,7 +2,7 @@
 import { Ionicons } from "@expo/vector-icons";
 import { useFocusEffect } from "@react-navigation/native";
 import { router } from "expo-router";
-import React, { useCallback, useState } from "react";
+import React, { useCallback, useState, useEffect } from "react";
 import {
   Alert,
   ScrollView,
@@ -16,6 +16,8 @@ import {
 import { SafeAreaView } from "react-native-safe-area-context";
 import { Colors } from "../../constants/Colors";
 import * as StorageService from "../../services/storageService";
+import i18n from "../../utils/i18n";
+import AsyncStorage from '@react-native-async-storage/async-storage';
 
 export default function ProfileScreen() {
   const colorScheme = useColorScheme();
@@ -24,6 +26,7 @@ export default function ProfileScreen() {
   const [darkModeEnabled, setDarkModeEnabled] = useState(
     colorScheme === "dark"
   );
+  const [language, setLanguage] = useState(i18n.locale);
   const [stats, setStats] = useState({
     totalDuasRead: 0,
     currentStreak: 0,
@@ -33,8 +36,22 @@ export default function ProfileScreen() {
   useFocusEffect(
     useCallback(() => {
       loadStats();
+      loadSettings();
     }, [])
   );
+
+  const loadSettings = async () => {
+    try {
+      const storedLang = await AsyncStorage.getItem('user-language');
+      if (storedLang) {
+        setLanguage(storedLang);
+      }
+      // Note: Theme persistence would ideally be handled in a root context,
+      // but for now we toggle the UI state here.
+    } catch (e) {
+      console.error("Settings load error", e);
+    }
+  };
 
   const loadStats = async () => {
     const userStats = await StorageService.getUserStats();
@@ -45,6 +62,18 @@ export default function ProfileScreen() {
       currentStreak: userStats.currentStreak,
       favoritesCount: favorites.length,
     });
+  };
+
+  const toggleLanguage = async () => {
+    const newLang = language.startsWith('tr') ? 'en' : 'tr';
+    i18n.locale = newLang;
+    setLanguage(newLang);
+    await AsyncStorage.setItem('user-language', newLang);
+    // Force refresh or alert user to restart if needed,
+    // though React state usually triggers re-render if I18n is used reactively.
+    // Since i18n-js isn't reactive by default, we might need a context.
+    // For now, we just update local state to reflect change.
+    Alert.alert(i18n.t("languageChanged"), i18n.t("restartApp"));
   };
 
   const handlePremium = () => {
@@ -265,6 +294,36 @@ export default function ProfileScreen() {
                 trackColor={{ false: colors.border, true: colors.primary }}
               />
             </View>
+
+             <View
+              style={[
+                styles.dividerHorizontal,
+                { backgroundColor: colors.border },
+              ]}
+            />
+
+             <TouchableOpacity style={styles.settingItem} onPress={toggleLanguage}>
+              <View style={styles.settingLeft}>
+                <Ionicons
+                  name="language-outline"
+                  size={24}
+                  color={colors.primary}
+                />
+                <Text style={[styles.settingText, { color: colors.text }]}>
+                  Dil / Language
+                </Text>
+              </View>
+              <View style={styles.settingRight}>
+                <Text style={[styles.settingValue, { color: colors.icon }]}>
+                  {language.toUpperCase()}
+                </Text>
+                <Ionicons
+                  name="chevron-forward"
+                  size={20}
+                  color={colors.icon}
+                />
+              </View>
+            </TouchableOpacity>
 
             <View
               style={[
