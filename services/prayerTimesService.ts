@@ -66,3 +66,31 @@ export function parseTime(timeStr: string): { hour: number; minute: number } {
   const [hour, minute] = timeStr.split(':').map(Number);
   return { hour, minute };
 }
+
+// Aylık takvim verisi (İmsakiye için)
+export async function getPrayerTimesCalendar(
+  latitude: number,
+  longitude: number,
+  month: number,
+  year: number,
+  method: number = 13
+): Promise<any[] | null> {
+  try {
+    const response = await axios.get(
+      `https://api.aladhan.com/v1/calendar`,
+      {
+        params: {
+          latitude,
+          longitude,
+          method,
+          month,
+          year
+        },
+      }
+    );
+    return response.data.data;
+  } catch (error) {
+    console.error('İmsakiye alınamadı:', error);
+    return null;
+  }
+}
