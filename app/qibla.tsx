@@ -393,7 +393,7 @@ export default function QiblaScreen() {
           <View
             style={[
               styles.needle,
-              { transform: [{ rotate: `${qiblaAngle}deg` }] },
+              { transform: [{ rotate: `${qiblaDirection}deg` }] },
             ]}
           >
             <View style={styles.needleTop} />
@@ -417,19 +417,17 @@ export default function QiblaScreen() {
       {/* Derece Bilgisi */}
       <View style={[styles.degreeCard, { backgroundColor: colors.card }]}>
         <Text style={[styles.degreeValue, { color: colors.primary }]}>
-          {Math.round(qiblaAngle)}°
+          {Math.round(magneticHeading)}°
         </Text>
         <Text style={[styles.degreeLabel, { color: colors.icon }]}>
-          Kıble Yönü
+          Pusula Yönü (Kuzey: 0°)
         </Text>
         <View style={styles.debugInfo}>
           <Text style={[styles.debugText, { color: colors.icon }]}>
-            Manyetik: {Math.round(magneticHeading)}° | Gerçek:{" "}
-            {Math.round(trueHeading)}°
+            Kıble Açısı: {Math.round(qiblaDirection)}°
           </Text>
           <Text style={[styles.debugText, { color: colors.icon }]}>
-            Sapma: {Math.round(magneticDeclination)}° | Kıble:{" "}
-            {Math.round(qiblaDirection)}°
+            Gerçek Kuzey: {Math.round(trueHeading)}°
           </Text>
         </View>
       </View>

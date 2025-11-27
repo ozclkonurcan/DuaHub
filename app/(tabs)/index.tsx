@@ -17,6 +17,7 @@ import DuaCard from "../../components/DuaCard";
 import { Colors } from "../../constants/Colors";
 import duasData from "../../data/duas.json";
 import { Dua } from "../../types/dua";
+import i18n from "../../utils/i18n";
 
 export default function HomeScreen() {
   const colorScheme = useColorScheme();
@@ -76,10 +77,10 @@ export default function HomeScreen() {
         <View style={styles.header}>
           <View>
             <Text style={[styles.greeting, { color: colors.icon }]}>
-              Hoş geldiniz
+              {i18n.t("welcome")}
             </Text>
             <Text style={[styles.title, { color: colors.text }]}>
-              DuaHub 🤲
+              {i18n.t("appName")}
             </Text>
           </View>
           <TouchableOpacity
@@ -100,7 +101,7 @@ export default function HomeScreen() {
           >
             <View style={styles.dailyDuaHeader}>
               <Ionicons name="sunny" size={24} color="#FFFFFF" />
-              <Text style={styles.dailyDuaTitle}>Günün Duası</Text>
+              <Text style={styles.dailyDuaTitle}>{i18n.t("dailyDua")}</Text>
             </View>
             <Text style={styles.dailyDuaText} numberOfLines={3}>
               {dailyDua.arabic}
@@ -109,7 +110,7 @@ export default function HomeScreen() {
               style={styles.dailyDuaButton}
               onPress={() => dailyDua && router.push(`/dua/${dailyDua.id}`)}
             >
-              <Text style={styles.dailyDuaButtonText}>Duayı Oku</Text>
+              <Text style={styles.dailyDuaButtonText}>{i18n.t("readDua")}</Text>
               <Ionicons name="arrow-forward" size={16} color="#FFFFFF" />
             </TouchableOpacity>
           </View>
@@ -119,9 +120,7 @@ export default function HomeScreen() {
         <View style={styles.quickAccess}>
           <TouchableOpacity
             style={[styles.quickAccessItem, { backgroundColor: colors.card }]}
-            onPress={() => {
-              /* TODO: Son okunanlar sayfası */
-            }}
+              onPress={() => router.push("/tasbih")}
           >
             <View
               style={[
@@ -129,35 +128,50 @@ export default function HomeScreen() {
                 { backgroundColor: colors.primary + "20" },
               ]}
             >
-              <Ionicons name="time" size={24} color={colors.primary} />
+                <Ionicons name="finger-print" size={24} color={colors.primary} />
             </View>
             <Text style={[styles.quickAccessText, { color: colors.text }]}>
-              Son Okunanlar
+              {i18n.t("tasbih")}
             </Text>
           </TouchableOpacity>
 
           <TouchableOpacity
             style={[styles.quickAccessItem, { backgroundColor: colors.card }]}
-            onPress={() => router.push("/(tabs)/favorites")}
+            onPress={() => router.push("/esmaulhusna")}
           >
             <View
               style={[
                 styles.quickAccessIcon,
-                { backgroundColor: colors.error + "20" },
+                { backgroundColor: colors.accent + "20" },
               ]}
             >
-              <Ionicons name="heart" size={24} color={colors.error} />
+              <Ionicons name="list" size={24} color={colors.accent} />
             </View>
             <Text style={[styles.quickAccessText, { color: colors.text }]}>
-              Favoriler
+              {i18n.t("esmaulhusna")}
             </Text>
           </TouchableOpacity>
 
           <TouchableOpacity
             style={[styles.quickAccessItem, { backgroundColor: colors.card }]}
-            onPress={() => {
-              /* TODO: Hatırlatıcılar ayarları */
-            }}
+            onPress={() => router.push("/zekat")}
+          >
+            <View
+              style={[
+                styles.quickAccessIcon,
+                { backgroundColor: colors.success + "20" },
+              ]}
+            >
+              <Ionicons name="calculator" size={24} color={colors.success} />
+            </View>
+            <Text style={[styles.quickAccessText, { color: colors.text }]}>
+              {i18n.t("zekat")}
+            </Text>
+          </TouchableOpacity>
+
+          <TouchableOpacity
+            style={[styles.quickAccessItem, { backgroundColor: colors.card }]}
+              onPress={() => router.push("/reminders")}
           >
             <View
               style={[
@@ -168,7 +182,7 @@ export default function HomeScreen() {
               <Ionicons name="notifications" size={24} color={colors.success} />
             </View>
             <Text style={[styles.quickAccessText, { color: colors.text }]}>
-              Hatırlatıcılar
+              {i18n.t("reminders")}
             </Text>
           </TouchableOpacity>
         </View>
