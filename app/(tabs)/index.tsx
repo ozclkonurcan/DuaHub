@@ -9,18 +9,22 @@ import {
   StyleSheet,
   Text,
   TouchableOpacity,
-  useColorScheme,
   View,
+  Dimensions,
+  Share,
+  Alert
 } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import DuaCard from "../../components/DuaCard";
-import { Colors } from "../../constants/Colors";
+import WeatherWidget from "../../components/WeatherWidget";
+import { ThemedCard } from "../../components/ThemedCard";
 import duasData from "../../data/duas.json";
 import { Dua } from "../../types/dua";
+import i18n from "../../utils/i18n";
+import { useTheme } from "../../context/ThemeContext";
 
 export default function HomeScreen() {
-  const colorScheme = useColorScheme();
-  const colors = Colors[colorScheme ?? "light"];
+  const { colors } = useTheme();
 
   const [duas, setDuas] = useState<Dua[]>([]);
   const [dailyDua, setDailyDua] = useState<Dua | null>(null);
@@ -31,7 +35,6 @@ export default function HomeScreen() {
     loadDuas();
   }, []);
 
-  // Sayfa her görünür olduğunda kartları yenile (favoriler güncel olsun)
   useFocusEffect(
     useCallback(() => {
       setRefreshKey((prev) => prev + 1);
@@ -39,12 +42,8 @@ export default function HomeScreen() {
   );
 
   const loadDuas = () => {
-    // Şimdilik local data'dan yüklüyoruz
-    // Sonra Firebase'den çekeceğiz
     const loadedDuas = duasData.duas as Dua[];
     setDuas(loadedDuas);
-
-    // Günün duasını rastgele seç
     const randomDua = loadedDuas[Math.floor(Math.random() * loadedDuas.length)];
     setDailyDua(randomDua);
   };
@@ -57,145 +56,191 @@ export default function HomeScreen() {
   };
 
   const handleFavoriteToggle = (duaId: string) => {
-    // Favoriler değiştiğinde kartları yenile
     setRefreshKey((prev) => prev + 1);
   };
 
-  return (
-    <SafeAreaView
-      style={[styles.container, { backgroundColor: colors.background }]}
-      edges={["top"]}
+  const handleShareDua = async (dua: Dua) => {
+      try {
+          await Share.share({
+              message: `${dua.arabic}\n\n${dua.translation}\n\n- ${i18n.t("appName")}`
+          });
+      } catch (error) {
+          Alert.alert("Hata", "Paylaşım yapılamadı.");
+      }
+  };
+
+  const QuickAccessButton = ({ icon, label, route, color }: any) => (
+    <TouchableOpacity
+        style={[styles.quickAccessBtn, { backgroundColor: colors.card }]}
+        onPress={() => router.push(route)}
     >
-      <ScrollView
-        contentContainerStyle={styles.scrollContent}
-        refreshControl={
-          <RefreshControl refreshing={refreshing} onRefresh={onRefresh} />
-        }
-      >
-        {/* Header */}
-        <View style={styles.header}>
-          <View>
-            <Text style={[styles.greeting, { color: colors.icon }]}>
-              Hoş geldiniz
-            </Text>
-            <Text style={[styles.title, { color: colors.text }]}>
-              DuaHub 🤲
-            </Text>
-          </View>
-          <TouchableOpacity
-            style={[styles.searchButton, { backgroundColor: colors.card }]}
-            onPress={() => router.push("/search")}
-          >
-            <Ionicons name="search" size={20} color={colors.icon} />
-          </TouchableOpacity>
+        <View style={[styles.quickAccessIcon, { backgroundColor: color + '15' }]}>
+            <Ionicons name={icon} size={24} color={color} />
         </View>
+        <Text style={[styles.quickAccessLabel, { color: colors.text }]} numberOfLines={1}>{label}</Text>
+    </TouchableOpacity>
+  );
 
-        {/* Günün Duası */}
-        {dailyDua && (
-          <View
-            style={[
-              styles.dailyDuaContainer,
-              { backgroundColor: colors.primary },
-            ]}
-          >
-            <View style={styles.dailyDuaHeader}>
-              <Ionicons name="sunny" size={24} color="#FFFFFF" />
-              <Text style={styles.dailyDuaTitle}>Günün Duası</Text>
-            </View>
-            <Text style={styles.dailyDuaText} numberOfLines={3}>
-              {dailyDua.arabic}
-            </Text>
-            <TouchableOpacity
-              style={styles.dailyDuaButton}
-              onPress={() => dailyDua && router.push(`/dua/${dailyDua.id}`)}
-            >
-              <Text style={styles.dailyDuaButtonText}>Duayı Oku</Text>
-              <Ionicons name="arrow-forward" size={16} color="#FFFFFF" />
-            </TouchableOpacity>
-          </View>
-        )}
+  return (
+    <View style={[styles.container, { backgroundColor: colors.background }]}>
+      {/* Decorative Header Background */}
+      <View style={[styles.headerBg, { backgroundColor: colors.primary }]} />
 
-        {/* Hızlı Erişim */}
-        <View style={styles.quickAccess}>
-          <TouchableOpacity
-            style={[styles.quickAccessItem, { backgroundColor: colors.card }]}
-            onPress={() => {
-              /* TODO: Son okunanlar sayfası */
-            }}
-          >
-            <View
-              style={[
-                styles.quickAccessIcon,
-                { backgroundColor: colors.primary + "20" },
-              ]}
-            >
-              <Ionicons name="time" size={24} color={colors.primary} />
-            </View>
-            <Text style={[styles.quickAccessText, { color: colors.text }]}>
-              Son Okunanlar
-            </Text>
-          </TouchableOpacity>
-
-          <TouchableOpacity
-            style={[styles.quickAccessItem, { backgroundColor: colors.card }]}
-            onPress={() => router.push("/(tabs)/favorites")}
-          >
-            <View
-              style={[
-                styles.quickAccessIcon,
-                { backgroundColor: colors.error + "20" },
-              ]}
-            >
-              <Ionicons name="heart" size={24} color={colors.error} />
-            </View>
-            <Text style={[styles.quickAccessText, { color: colors.text }]}>
-              Favoriler
-            </Text>
-          </TouchableOpacity>
-
-          <TouchableOpacity
-            style={[styles.quickAccessItem, { backgroundColor: colors.card }]}
-            onPress={() => {
-              /* TODO: Hatırlatıcılar ayarları */
-            }}
-          >
-            <View
-              style={[
-                styles.quickAccessIcon,
-                { backgroundColor: colors.success + "20" },
-              ]}
-            >
-              <Ionicons name="notifications" size={24} color={colors.success} />
-            </View>
-            <Text style={[styles.quickAccessText, { color: colors.text }]}>
-              Hatırlatıcılar
-            </Text>
-          </TouchableOpacity>
-        </View>
-
-        {/* Popüler Dualar */}
-        <View style={styles.section}>
-          <View style={styles.sectionHeader}>
-            <Text style={[styles.sectionTitle, { color: colors.text }]}>
-              Popüler Dualar
-            </Text>
-            <TouchableOpacity onPress={() => router.push("/(tabs)/categories")}>
-              <Text style={[styles.seeAll, { color: colors.primary }]}>
-                Tümünü Gör
+      <SafeAreaView style={styles.safeArea} edges={["top"]}>
+        <ScrollView
+          contentContainerStyle={styles.scrollContent}
+          showsVerticalScrollIndicator={false}
+          refreshControl={
+            <RefreshControl refreshing={refreshing} onRefresh={onRefresh} tintColor={colors.onPrimary} />
+          }
+        >
+          {/* Header */}
+          <View style={styles.header}>
+            <View>
+              <Text style={[styles.greeting, { color: colors.onPrimary }]}>
+                {i18n.t("welcome")}
               </Text>
+              <Text style={[styles.title, { color: colors.onPrimary }]}>
+                {i18n.t("appName")}
+              </Text>
+            </View>
+            <TouchableOpacity
+              style={[styles.searchButton, { backgroundColor: 'rgba(255,255,255,0.2)' }]}
+              onPress={() => router.push("/search")}
+            >
+              <Ionicons name="search" size={20} color={colors.onPrimary} />
             </TouchableOpacity>
           </View>
 
-          {duas.slice(0, 5).map((dua) => (
-            <DuaCard
-              key={`${dua.id}-${refreshKey}`}
-              dua={dua}
-              onFavoriteToggle={handleFavoriteToggle}
-            />
-          ))}
-        </View>
-      </ScrollView>
-    </SafeAreaView>
+          {/* Main Hero Card (Daily Dua) */}
+          {dailyDua && (
+            <ThemedCard style={[styles.heroCard, { backgroundColor: colors.card }]}>
+                <View style={styles.heroHeader}>
+                    <View style={[styles.heroIcon, { backgroundColor: colors.secondary + '20' }]}>
+                         <Ionicons name="moon" size={20} color={colors.secondary} />
+                    </View>
+                    <Text style={[styles.heroTitle, { color: colors.secondary }]}>{i18n.t("dailyDua")}</Text>
+
+                    <TouchableOpacity style={{marginLeft: 'auto'}} onPress={() => handleShareDua(dailyDua)}>
+                        <Ionicons name="share-social-outline" size={20} color={colors.icon} />
+                    </TouchableOpacity>
+                </View>
+                <Text style={[styles.heroArabic, { color: colors.text }]}>{dailyDua.arabic}</Text>
+                <TouchableOpacity
+                    style={[styles.heroBtn, { backgroundColor: colors.primary }]}
+                    onPress={() => dailyDua && router.push(`/dua/${dailyDua.id}`)}
+                >
+                    <Text style={styles.heroBtnText}>{i18n.t("readDua")}</Text>
+                    <Ionicons name="arrow-forward" size={16} color="#FFF" />
+                </TouchableOpacity>
+            </ThemedCard>
+          )}
+
+          {/* Quick Stats / Weather */}
+          <WeatherWidget />
+
+          {/* Primary Tools Grid */}
+          <View style={styles.gridContainer}>
+             <View style={styles.row}>
+                <QuickAccessButton icon="time" label={i18n.t("prayerTimes")} route="/imsakiye" color={colors.primary} />
+                <QuickAccessButton icon="book" label={i18n.t("quran")} route="/quran" color={colors.secondary} />
+                <QuickAccessButton icon="compass" label={i18n.t("qibla")} route="/qibla" color={colors.success} />
+                <QuickAccessButton icon="finger-print" label={i18n.t("tasbih")} route="/tasbih" color={colors.accent} />
+             </View>
+             <View style={styles.row}>
+                <QuickAccessButton icon="people" label={i18n.t("community")} route="/community" color="#805AD5" />
+                <QuickAccessButton icon="videocam" label={i18n.t("liveKaaba")} route="/live-kaaba" color="#E53E3E" />
+                <QuickAccessButton icon="calculator" label={i18n.t("zekat")} route="/zekat" color="#319795" />
+                <QuickAccessButton icon="calendar" label={i18n.t("hijriCalendar")} route="/hijri" color="#D69E2E" />
+             </View>
+          </View>
+
+          {/* Expanded Features List */}
+          <ThemedCard style={styles.expandedTools}>
+              <Text style={[styles.sectionTitle, { color: colors.text, marginBottom: 16 }]}>
+                  {i18n.t("tools")}
+              </Text>
+
+              <TouchableOpacity style={[styles.toolRow, { borderBottomColor: colors.border }]} onPress={() => router.push("/khatam")}>
+                  <View style={styles.toolIconCtx}><Ionicons name="book-outline" size={20} color="#805AD5" /></View>
+                  <Text style={[styles.toolText, { color: colors.text }]}>Hatim Takibi (Pro)</Text>
+                  <Ionicons name="chevron-forward" size={16} color={colors.icon} />
+              </TouchableOpacity>
+
+              <TouchableOpacity style={[styles.toolRow, { borderBottomColor: colors.border }]} onPress={() => router.push("/religious-days")}>
+                  <View style={styles.toolIconCtx}><Ionicons name="star" size={20} color={colors.secondary} /></View>
+                  <Text style={[styles.toolText, { color: colors.text }]}>{i18n.t("religiousDays")}</Text>
+                  <Ionicons name="chevron-forward" size={16} color={colors.icon} />
+              </TouchableOpacity>
+
+               <TouchableOpacity style={[styles.toolRow, { borderBottomColor: colors.border }]} onPress={() => router.push("/esmaulhusna")}>
+                  <View style={styles.toolIconCtx}><Ionicons name="list" size={20} color={colors.primary} /></View>
+                  <Text style={[styles.toolText, { color: colors.text }]}>{i18n.t("esmaulhusna")}</Text>
+                  <Ionicons name="chevron-forward" size={16} color={colors.icon} />
+              </TouchableOpacity>
+
+               <TouchableOpacity style={[styles.toolRow, { borderBottomColor: colors.border }]} onPress={() => router.push("/tracker")}>
+                  <View style={styles.toolIconCtx}><Ionicons name="checkbox" size={20} color={colors.success} /></View>
+                  <Text style={[styles.toolText, { color: colors.text }]}>Amel Defteri</Text>
+                  <Ionicons name="chevron-forward" size={16} color={colors.icon} />
+              </TouchableOpacity>
+
+              <TouchableOpacity style={[styles.toolRow, { borderBottomColor: colors.border }]} onPress={() => router.push("/library")}>
+                  <View style={styles.toolIconCtx}><Ionicons name="library" size={20} color={colors.accent} /></View>
+                  <Text style={[styles.toolText, { color: colors.text }]}>Kütüphane</Text>
+                  <Ionicons name="chevron-forward" size={16} color={colors.icon} />
+              </TouchableOpacity>
+
+               <TouchableOpacity style={[styles.toolRow, { borderBottomColor: colors.border }]} onPress={() => router.push("/radio")}>
+                  <View style={styles.toolIconCtx}><Ionicons name="radio" size={20} color="#DD6B20" /></View>
+                  <Text style={[styles.toolText, { color: colors.text }]}>Kuran Radyo</Text>
+                  <Ionicons name="chevron-forward" size={16} color={colors.icon} />
+              </TouchableOpacity>
+
+              {/* New Features */}
+              <TouchableOpacity style={[styles.toolRow, { borderBottomColor: colors.border }]} onPress={() => router.push("/in-prayer")}>
+                  <View style={styles.toolIconCtx}><Ionicons name="chatbubble-ellipses" size={20} color="#3182CE" /></View>
+                  <Text style={[styles.toolText, { color: colors.text }]}>Namazdayım (Oto-SMS)</Text>
+                  <Ionicons name="chevron-forward" size={16} color={colors.icon} />
+              </TouchableOpacity>
+
+              <TouchableOpacity style={[styles.toolRow, { borderBottomColor: colors.border }]} onPress={() => router.push("/multimedia")}>
+                  <View style={styles.toolIconCtx}><Ionicons name="images" size={20} color="#D53F8C" /></View>
+                  <Text style={[styles.toolText, { color: colors.text }]}>Multimedya</Text>
+                  <Ionicons name="chevron-forward" size={16} color={colors.icon} />
+              </TouchableOpacity>
+
+              <TouchableOpacity style={[styles.toolRow, { borderBottomColor: 'transparent' }]} onPress={() => router.push("/agenda")}>
+                  <View style={styles.toolIconCtx}><Ionicons name="calendar-number" size={20} color="#38A169" /></View>
+                  <Text style={[styles.toolText, { color: colors.text }]}>Ajanda</Text>
+                  <Ionicons name="chevron-forward" size={16} color={colors.icon} />
+              </TouchableOpacity>
+          </ThemedCard>
+
+          {/* Popüler Dualar */}
+          <View style={styles.section}>
+            <View style={styles.sectionHeader}>
+              <Text style={[styles.sectionTitle, { color: colors.text }]}>
+                {i18n.t("popularDuas")}
+              </Text>
+              <TouchableOpacity onPress={() => router.push("/(tabs)/categories")}>
+                <Text style={[styles.seeAll, { color: colors.primary }]}>
+                  {i18n.t("seeAll")}
+                </Text>
+              </TouchableOpacity>
+            </View>
+
+            {duas.slice(0, 5).map((dua) => (
+              <DuaCard
+                key={`${dua.id}-${refreshKey}`}
+                dua={dua}
+                onFavoriteToggle={handleFavoriteToggle}
+              />
+            ))}
+          </View>
+        </ScrollView>
+      </SafeAreaView>
+    </View>
   );
 }
 
@@ -203,17 +248,32 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
   },
+  headerBg: {
+      position: 'absolute',
+      top: 0,
+      left: 0,
+      right: 0,
+      height: 250,
+      borderBottomLeftRadius: 30,
+      borderBottomRightRadius: 30,
+  },
+  safeArea: {
+      flex: 1,
+  },
   scrollContent: {
     padding: 16,
+    paddingBottom: 40,
   },
   header: {
     flexDirection: "row",
     justifyContent: "space-between",
     alignItems: "center",
-    marginBottom: 24,
+    marginBottom: 20,
+    marginTop: 10,
   },
   greeting: {
     fontSize: 14,
+    opacity: 0.9,
     marginBottom: 4,
   },
   title: {
@@ -227,65 +287,82 @@ const styles = StyleSheet.create({
     justifyContent: "center",
     alignItems: "center",
   },
-  dailyDuaContainer: {
-    padding: 20,
-    borderRadius: 16,
-    marginBottom: 24,
+  heroCard: {
+      marginBottom: 20,
   },
-  dailyDuaHeader: {
-    flexDirection: "row",
-    alignItems: "center",
-    gap: 8,
-    marginBottom: 12,
+  heroHeader: {
+      flexDirection: 'row',
+      alignItems: 'center',
+      gap: 10,
+      marginBottom: 12,
   },
-  dailyDuaTitle: {
-    fontSize: 18,
-    fontWeight: "600",
-    color: "#FFFFFF",
+  heroIcon: {
+      padding: 6,
+      borderRadius: 8,
   },
-  dailyDuaText: {
-    fontSize: 16,
-    lineHeight: 28,
-    textAlign: "right",
-    color: "#FFFFFF",
-    marginBottom: 16,
+  heroTitle: {
+      fontSize: 14,
+      fontWeight: '700',
+      textTransform: 'uppercase',
+      letterSpacing: 1,
   },
-  dailyDuaButton: {
-    flexDirection: "row",
-    alignItems: "center",
-    justifyContent: "center",
-    gap: 8,
-    backgroundColor: "rgba(255,255,255,0.2)",
-    padding: 12,
-    borderRadius: 8,
+  heroArabic: {
+      fontSize: 22,
+      lineHeight: 36,
+      fontWeight: 'bold',
+      textAlign: 'center',
+      marginVertical: 10,
   },
-  dailyDuaButtonText: {
-    color: "#FFFFFF",
-    fontWeight: "600",
+  heroBtn: {
+      flexDirection: 'row',
+      alignItems: 'center',
+      justifyContent: 'center',
+      padding: 12,
+      borderRadius: 12,
+      marginTop: 10,
+      gap: 8,
   },
-  quickAccess: {
-    flexDirection: "row",
-    gap: 12,
-    marginBottom: 24,
+  heroBtnText: {
+      color: '#FFF',
+      fontWeight: '600',
   },
-  quickAccessItem: {
-    flex: 1,
-    padding: 16,
-    borderRadius: 12,
-    alignItems: "center",
+  gridContainer: {
+      gap: 12,
+      marginBottom: 20,
+  },
+  row: {
+      flexDirection: 'row',
+      justifyContent: 'space-between',
+      gap: 12,
+  },
+  quickAccessBtn: {
+      flex: 1,
+      padding: 12,
+      borderRadius: 16,
+      alignItems: 'center',
+      justifyContent: 'center',
+      gap: 8,
+      shadowColor: "#000",
+      shadowOffset: { width: 0, height: 2 },
+      shadowOpacity: 0.05,
+      shadowRadius: 4,
+      elevation: 2,
   },
   quickAccessIcon: {
-    width: 48,
-    height: 48,
-    borderRadius: 24,
-    justifyContent: "center",
-    alignItems: "center",
-    marginBottom: 8,
+      width: 44,
+      height: 44,
+      borderRadius: 22,
+      justifyContent: 'center',
+      alignItems: 'center',
   },
-  quickAccessText: {
-    fontSize: 12,
-    fontWeight: "500",
-    textAlign: "center",
+  quickAccessLabel: {
+      fontSize: 11,
+      fontWeight: '600',
+  },
+  expandedTools: {
+      marginBottom: 24,
+      padding: 0,
+      overflow: 'hidden',
   },
   section: {
     marginBottom: 24,
@@ -297,11 +374,29 @@ const styles = StyleSheet.create({
     marginBottom: 16,
   },
   sectionTitle: {
-    fontSize: 20,
-    fontWeight: "600",
+    fontSize: 18,
+    fontWeight: "700",
+    padding: 16,
+    paddingBottom: 0,
   },
   seeAll: {
     fontSize: 14,
     fontWeight: "500",
+  },
+  toolRow: {
+      flexDirection: 'row',
+      alignItems: 'center',
+      padding: 16,
+      borderBottomWidth: StyleSheet.hairlineWidth,
+  },
+  toolIconCtx: {
+      width: 32,
+      alignItems: 'center',
+      marginRight: 12,
+  },
+  toolText: {
+      flex: 1,
+      fontSize: 15,
+      fontWeight: '500',
   },
 });

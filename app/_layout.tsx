@@ -1,18 +1,46 @@
 // app/_layout.tsx
-import { Stack } from "expo-router";
-import { useEffect } from "react";
-import { useColorScheme } from "react-native";
-import { Colors } from "../constants/Colors";
+import { Stack, router } from "expo-router";
+import { useEffect, useState } from "react";
 import * as PurchaseService from "../services/purchaseService";
+import { ThemeProvider, useTheme } from "../context/ThemeContext";
+import { LanguageProvider } from "../context/LanguageContext";
+import { AuthProvider } from "../context/AuthContext";
+import AsyncStorage from "@react-native-async-storage/async-storage";
+import { View, ActivityIndicator } from "react-native";
 
-export default function RootLayout() {
-  const colorScheme = useColorScheme();
-  const colors = Colors[colorScheme ?? "light"];
+function RootStack() {
+  const { colors } = useTheme();
+  const [isReady, setIsReady] = useState(false);
 
   useEffect(() => {
-    // RevenueCat'i başlat
-    PurchaseService.initializePurchases();
+    checkOnboarding();
   }, []);
+
+  const checkOnboarding = async () => {
+    try {
+      const hasSeen = await AsyncStorage.getItem('hasSeenOnboarding');
+      if (!hasSeen) {
+        // We can't navigate here immediately because root layout mounts before navigation is ready sometimes.
+        // Instead, we let the initial route be tabs, but if not seen, we replace.
+        // Or simpler: We render a loading screen until we decide.
+        // Actually, Expo Router file-based routing handles initial route.
+        // We can force redirect in a layout effect.
+        setTimeout(() => router.replace('/onboarding'), 100);
+      }
+    } catch (e) {
+      console.error(e);
+    } finally {
+      setIsReady(true);
+    }
+  };
+
+  if (!isReady) {
+      return (
+          <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}>
+              <ActivityIndicator size="large" />
+          </View>
+      );
+  }
 
   return (
     <Stack
@@ -22,24 +50,31 @@ export default function RootLayout() {
         },
         headerTintColor: colors.text,
         headerShadowVisible: false,
+        headerBackTitleVisible: false,
+        contentStyle: { backgroundColor: colors.background },
+        gestureEnabled: true,
+        animation: 'default',
+        headerShown: false,
       }}
     >
       <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
-      <Stack.Screen
-        name="dua/[id]"
-        options={{
-          title: "Dua Detayı",
-          presentation: "card",
-        }}
-      />
-      <Stack.Screen
-        name="category/[slug]"
-        options={{
-          title: "Kategori",
-          presentation: "card",
-        }}
-      />
-      <Stack.Screen name="+not-found" />
+      <Stack.Screen name="+not-found" options={{ headerShown: true, title: "Oops" }} />
     </Stack>
+  );
+}
+
+export default function RootLayout() {
+  useEffect(() => {
+    PurchaseService.initializePurchases();
+  }, []);
+
+  return (
+    <AuthProvider>
+      <LanguageProvider>
+        <ThemeProvider>
+          <RootStack />
+        </ThemeProvider>
+      </LanguageProvider>
+    </AuthProvider>
   );
 }

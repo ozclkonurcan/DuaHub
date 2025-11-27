@@ -5,25 +5,29 @@ import { router } from "expo-router";
 import React, { useCallback, useState } from "react";
 import {
   Alert,
+  Modal,
   ScrollView,
   StyleSheet,
   Switch,
   Text,
   TouchableOpacity,
-  useColorScheme,
   View,
 } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
-import { Colors } from "../../constants/Colors";
+import { useTheme } from "../../context/ThemeContext";
+import { useLanguage } from "../../context/LanguageContext";
+import { useAuth } from "../../context/AuthContext";
 import * as StorageService from "../../services/storageService";
+import i18n, { languageNames } from "../../utils/i18n";
 
 export default function ProfileScreen() {
-  const colorScheme = useColorScheme();
-  const colors = Colors[colorScheme ?? "light"];
+  const { colors, theme, setTheme, isDark } = useTheme();
+  const { language, setLanguage } = useLanguage();
+  const { user, signInGuest } = useAuth();
+
   const [notificationsEnabled, setNotificationsEnabled] = useState(true);
-  const [darkModeEnabled, setDarkModeEnabled] = useState(
-    colorScheme === "dark"
-  );
+  const [langModalVisible, setLangModalVisible] = useState(false);
+
   const [stats, setStats] = useState({
     totalDuasRead: 0,
     currentStreak: 0,
@@ -45,6 +49,21 @@ export default function ProfileScreen() {
       currentStreak: userStats.currentStreak,
       favoritesCount: favorites.length,
     });
+  };
+
+  const handleLanguageChange = (langCode: string) => {
+    setLanguage(langCode);
+    setLangModalVisible(false);
+  };
+
+  const handleThemeToggle = (value: boolean) => {
+    setTheme(value ? 'dark' : 'light');
+  };
+
+  const handleLogin = async () => {
+      if (!user) {
+          await signInGuest();
+      }
   };
 
   const handlePremium = () => {
@@ -106,6 +125,23 @@ export default function ProfileScreen() {
       </View>
 
       <ScrollView contentContainerStyle={styles.scrollContent}>
+
+        {/* User Card */}
+        <TouchableOpacity style={[styles.userCard, { backgroundColor: colors.card }]} onPress={handleLogin}>
+            <View style={[styles.avatar, { backgroundColor: colors.primary + '20' }]}>
+                <Ionicons name="person" size={32} color={colors.primary} />
+            </View>
+            <View>
+                <Text style={[styles.userName, { color: colors.text }]}>
+                    {user ? (user.isAnonymous ? "Misafir Kullanıcı" : user.email) : "Giriş Yap"}
+                </Text>
+                <Text style={[styles.userStatus, { color: colors.icon }]}>
+                    {user ? "Premium Üyelik Yok" : "Verilerini eşitlemek için dokun"}
+                </Text>
+            </View>
+            <Ionicons name="chevron-forward" size={20} color={colors.icon} style={{marginLeft: 'auto'}} />
+        </TouchableOpacity>
+
         {/* İstatistikler */}
         <View style={[styles.statsContainer, { backgroundColor: colors.card }]}>
           <View style={styles.statItem}>
@@ -260,11 +296,41 @@ export default function ProfileScreen() {
                 </Text>
               </View>
               <Switch
-                value={darkModeEnabled}
-                onValueChange={setDarkModeEnabled}
+                value={isDark}
+                onValueChange={handleThemeToggle}
                 trackColor={{ false: colors.border, true: colors.primary }}
               />
             </View>
+
+             <View
+              style={[
+                styles.dividerHorizontal,
+                { backgroundColor: colors.border },
+              ]}
+            />
+
+             <TouchableOpacity style={styles.settingItem} onPress={() => setLangModalVisible(true)}>
+              <View style={styles.settingLeft}>
+                <Ionicons
+                  name="language-outline"
+                  size={24}
+                  color={colors.primary}
+                />
+                <Text style={[styles.settingText, { color: colors.text }]}>
+                  Dil / Language
+                </Text>
+              </View>
+              <View style={styles.settingRight}>
+                <Text style={[styles.settingValue, { color: colors.icon }]}>
+                  {language.toUpperCase()}
+                </Text>
+                <Ionicons
+                  name="chevron-forward"
+                  size={20}
+                  color={colors.icon}
+                />
+              </View>
+            </TouchableOpacity>
 
             <View
               style={[
@@ -367,6 +433,48 @@ export default function ProfileScreen() {
           Versiyon 1.0.0
         </Text>
       </ScrollView>
+
+      {/* Language Selection Modal */}
+      <Modal
+        animationType="slide"
+        transparent={true}
+        visible={langModalVisible}
+        onRequestClose={() => setLangModalVisible(false)}
+      >
+        <View style={styles.modalOverlay}>
+          <View style={[styles.modalContent, { backgroundColor: colors.card }]}>
+            <View style={styles.modalHeader}>
+              <Text style={[styles.modalTitle, { color: colors.text }]}>Dil Seçiniz / Select Language</Text>
+              <TouchableOpacity onPress={() => setLangModalVisible(false)}>
+                <Ionicons name="close" size={24} color={colors.text} />
+              </TouchableOpacity>
+            </View>
+            <ScrollView style={styles.languageList}>
+              {Object.entries(languageNames).map(([code, name]) => (
+                <TouchableOpacity
+                  key={code}
+                  style={[
+                    styles.languageItem,
+                    { borderBottomColor: colors.border }
+                  ]}
+                  onPress={() => handleLanguageChange(code)}
+                >
+                  <Text style={[
+                    styles.languageName,
+                    { color: colors.text, fontWeight: language === code ? 'bold' : 'normal' }
+                  ]}>
+                    {name}
+                  </Text>
+                  {language === code && (
+                    <Ionicons name="checkmark" size={24} color={colors.primary} />
+                  )}
+                </TouchableOpacity>
+              ))}
+            </ScrollView>
+          </View>
+        </View>
+      </Modal>
+
     </SafeAreaView>
   );
 }
@@ -385,6 +493,28 @@ const styles = StyleSheet.create({
   },
   scrollContent: {
     padding: 16,
+  },
+  userCard: {
+      flexDirection: 'row',
+      alignItems: 'center',
+      padding: 16,
+      borderRadius: 16,
+      marginBottom: 20,
+      gap: 12,
+  },
+  avatar: {
+      width: 50,
+      height: 50,
+      borderRadius: 25,
+      justifyContent: 'center',
+      alignItems: 'center',
+  },
+  userName: {
+      fontSize: 16,
+      fontWeight: 'bold',
+  },
+  userStatus: {
+      fontSize: 12,
   },
   statsContainer: {
     flexDirection: "row",
@@ -480,5 +610,42 @@ const styles = StyleSheet.create({
     textAlign: "center",
     fontSize: 12,
     marginTop: 16,
+  },
+  modalOverlay: {
+    flex: 1,
+    backgroundColor: 'rgba(0,0,0,0.5)',
+    justifyContent: 'flex-end',
+  },
+  modalContent: {
+    borderTopLeftRadius: 20,
+    borderTopRightRadius: 20,
+    maxHeight: '80%',
+    padding: 16,
+  },
+  modalHeader: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    marginBottom: 16,
+    paddingBottom: 16,
+    borderBottomWidth: 1,
+    borderBottomColor: '#ccc',
+  },
+  modalTitle: {
+    fontSize: 18,
+    fontWeight: 'bold',
+  },
+  languageList: {
+    marginBottom: 20,
+  },
+  languageItem: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    paddingVertical: 16,
+    borderBottomWidth: StyleSheet.hairlineWidth,
+  },
+  languageName: {
+    fontSize: 16,
   },
 });
