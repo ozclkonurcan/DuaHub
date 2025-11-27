@@ -9,18 +9,19 @@ import {
   StyleSheet,
   Text,
   TouchableOpacity,
-  useColorScheme,
   View,
 } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import DuaCard from "../../components/DuaCard";
+import WeatherWidget from "../../components/WeatherWidget";
 import { Colors } from "../../constants/Colors";
 import duasData from "../../data/duas.json";
 import { Dua } from "../../types/dua";
+import i18n from "../../utils/i18n";
+import { useTheme } from "../../context/ThemeContext";
 
 export default function HomeScreen() {
-  const colorScheme = useColorScheme();
-  const colors = Colors[colorScheme ?? "light"];
+  const { colors } = useTheme();
 
   const [duas, setDuas] = useState<Dua[]>([]);
   const [dailyDua, setDailyDua] = useState<Dua | null>(null);
@@ -31,7 +32,6 @@ export default function HomeScreen() {
     loadDuas();
   }, []);
 
-  // Sayfa her görünür olduğunda kartları yenile (favoriler güncel olsun)
   useFocusEffect(
     useCallback(() => {
       setRefreshKey((prev) => prev + 1);
@@ -39,12 +39,8 @@ export default function HomeScreen() {
   );
 
   const loadDuas = () => {
-    // Şimdilik local data'dan yüklüyoruz
-    // Sonra Firebase'den çekeceğiz
     const loadedDuas = duasData.duas as Dua[];
     setDuas(loadedDuas);
-
-    // Günün duasını rastgele seç
     const randomDua = loadedDuas[Math.floor(Math.random() * loadedDuas.length)];
     setDailyDua(randomDua);
   };
@@ -57,7 +53,6 @@ export default function HomeScreen() {
   };
 
   const handleFavoriteToggle = (duaId: string) => {
-    // Favoriler değiştiğinde kartları yenile
     setRefreshKey((prev) => prev + 1);
   };
 
@@ -76,10 +71,10 @@ export default function HomeScreen() {
         <View style={styles.header}>
           <View>
             <Text style={[styles.greeting, { color: colors.icon }]}>
-              Hoş geldiniz
+              {i18n.t("welcome")}
             </Text>
             <Text style={[styles.title, { color: colors.text }]}>
-              DuaHub 🤲
+              {i18n.t("appName")}
             </Text>
           </View>
           <TouchableOpacity
@@ -89,6 +84,9 @@ export default function HomeScreen() {
             <Ionicons name="search" size={20} color={colors.icon} />
           </TouchableOpacity>
         </View>
+
+        {/* Weather Widget */}
+        <WeatherWidget />
 
         {/* Günün Duası */}
         {dailyDua && (
@@ -100,7 +98,7 @@ export default function HomeScreen() {
           >
             <View style={styles.dailyDuaHeader}>
               <Ionicons name="sunny" size={24} color="#FFFFFF" />
-              <Text style={styles.dailyDuaTitle}>Günün Duası</Text>
+              <Text style={styles.dailyDuaTitle}>{i18n.t("dailyDua")}</Text>
             </View>
             <Text style={styles.dailyDuaText} numberOfLines={3}>
               {dailyDua.arabic}
@@ -109,79 +107,68 @@ export default function HomeScreen() {
               style={styles.dailyDuaButton}
               onPress={() => dailyDua && router.push(`/dua/${dailyDua.id}`)}
             >
-              <Text style={styles.dailyDuaButtonText}>Duayı Oku</Text>
+              <Text style={styles.dailyDuaButtonText}>{i18n.t("readDua")}</Text>
               <Ionicons name="arrow-forward" size={16} color="#FFFFFF" />
             </TouchableOpacity>
           </View>
         )}
 
-        {/* Hızlı Erişim */}
-        <View style={styles.quickAccess}>
-          <TouchableOpacity
-            style={[styles.quickAccessItem, { backgroundColor: colors.card }]}
-            onPress={() => {
-              /* TODO: Son okunanlar sayfası */
-            }}
-          >
-            <View
-              style={[
-                styles.quickAccessIcon,
-                { backgroundColor: colors.primary + "20" },
-              ]}
-            >
-              <Ionicons name="time" size={24} color={colors.primary} />
-            </View>
-            <Text style={[styles.quickAccessText, { color: colors.text }]}>
-              Son Okunanlar
-            </Text>
-          </TouchableOpacity>
+        {/* Hızlı Erişim / Tools Grid */}
+        <View style={styles.sectionHeader}>
+            <Text style={[styles.sectionTitle, { color: colors.text }]}>{i18n.t("tools")}</Text>
+        </View>
 
-          <TouchableOpacity
-            style={[styles.quickAccessItem, { backgroundColor: colors.card }]}
-            onPress={() => router.push("/(tabs)/favorites")}
-          >
-            <View
-              style={[
-                styles.quickAccessIcon,
-                { backgroundColor: colors.error + "20" },
-              ]}
-            >
-              <Ionicons name="heart" size={24} color={colors.error} />
-            </View>
-            <Text style={[styles.quickAccessText, { color: colors.text }]}>
-              Favoriler
-            </Text>
-          </TouchableOpacity>
+        <View style={styles.toolsGrid}>
+            <TouchableOpacity style={[styles.gridItem, { backgroundColor: colors.card }]} onPress={() => router.push("/quran")}>
+                <Ionicons name="book" size={28} color={colors.primary} />
+                <Text style={[styles.gridText, { color: colors.text }]}>{i18n.t("quran")}</Text>
+            </TouchableOpacity>
 
-          <TouchableOpacity
-            style={[styles.quickAccessItem, { backgroundColor: colors.card }]}
-            onPress={() => {
-              /* TODO: Hatırlatıcılar ayarları */
-            }}
-          >
-            <View
-              style={[
-                styles.quickAccessIcon,
-                { backgroundColor: colors.success + "20" },
-              ]}
-            >
-              <Ionicons name="notifications" size={24} color={colors.success} />
-            </View>
-            <Text style={[styles.quickAccessText, { color: colors.text }]}>
-              Hatırlatıcılar
-            </Text>
-          </TouchableOpacity>
+            <TouchableOpacity style={[styles.gridItem, { backgroundColor: colors.card }]} onPress={() => router.push("/imsakiye")}>
+                <Ionicons name="calendar" size={28} color={colors.primary} />
+                <Text style={[styles.gridText, { color: colors.text }]}>{i18n.t("prayerTimes")}</Text>
+            </TouchableOpacity>
+
+            <TouchableOpacity style={[styles.gridItem, { backgroundColor: colors.card }]} onPress={() => router.push("/qibla")}>
+                <Ionicons name="compass" size={28} color={colors.success} />
+                <Text style={[styles.gridText, { color: colors.text }]}>{i18n.t("qibla")}</Text>
+            </TouchableOpacity>
+
+            <TouchableOpacity style={[styles.gridItem, { backgroundColor: colors.card }]} onPress={() => router.push("/tasbih")}>
+                <Ionicons name="finger-print" size={28} color={colors.accent} />
+                <Text style={[styles.gridText, { color: colors.text }]}>{i18n.t("tasbih")}</Text>
+            </TouchableOpacity>
+
+            <TouchableOpacity style={[styles.gridItem, { backgroundColor: colors.card }]} onPress={() => router.push("/community")}>
+                <Ionicons name="people" size={28} color={colors.primary} />
+                <Text style={[styles.gridText, { color: colors.text }]}>{i18n.t("community")}</Text>
+            </TouchableOpacity>
+
+            <TouchableOpacity style={[styles.gridItem, { backgroundColor: colors.card }]} onPress={() => router.push("/live-kaaba")}>
+                <Ionicons name="videocam" size={28} color="#FF3B30" />
+                <Text style={[styles.gridText, { color: colors.text }]}>{i18n.t("liveKaaba")}</Text>
+            </TouchableOpacity>
+
+             <TouchableOpacity style={[styles.gridItem, { backgroundColor: colors.card }]} onPress={() => router.push("/religious-days")}>
+                <Ionicons name="moon" size={28} color={colors.primary} />
+                <Text style={[styles.gridText, { color: colors.text }]}>{i18n.t("religiousDays")}</Text>
+            </TouchableOpacity>
+
+             <TouchableOpacity style={[styles.gridItem, { backgroundColor: colors.card }]} onPress={() => router.push("/hijri")}>
+                <Ionicons name="today" size={28} color={colors.primary} />
+                <Text style={[styles.gridText, { color: colors.text }]}>{i18n.t("hijriCalendar")}</Text>
+            </TouchableOpacity>
         </View>
 
         {/* Popüler Dualar */}
         <View style={styles.section}>
           <View style={styles.sectionHeader}>
             <Text style={[styles.sectionTitle, { color: colors.text }]}>
-              Popüler Dualar
+              {i18n.t("popularDuas")}
             </Text>
             <TouchableOpacity onPress={() => router.push("/(tabs)/categories")}>
               <Text style={[styles.seeAll, { color: colors.primary }]}>
-                Tümünü Gör
+                {i18n.t("seeAll")}
               </Text>
             </TouchableOpacity>
           </View>
@@ -205,12 +192,13 @@ const styles = StyleSheet.create({
   },
   scrollContent: {
     padding: 16,
+    paddingBottom: 40,
   },
   header: {
     flexDirection: "row",
     justifyContent: "space-between",
     alignItems: "center",
-    marginBottom: 24,
+    marginBottom: 16,
   },
   greeting: {
     fontSize: 14,
@@ -263,31 +251,8 @@ const styles = StyleSheet.create({
     color: "#FFFFFF",
     fontWeight: "600",
   },
-  quickAccess: {
-    flexDirection: "row",
-    gap: 12,
-    marginBottom: 24,
-  },
-  quickAccessItem: {
-    flex: 1,
-    padding: 16,
-    borderRadius: 12,
-    alignItems: "center",
-  },
-  quickAccessIcon: {
-    width: 48,
-    height: 48,
-    borderRadius: 24,
-    justifyContent: "center",
-    alignItems: "center",
-    marginBottom: 8,
-  },
-  quickAccessText: {
-    fontSize: 12,
-    fontWeight: "500",
-    textAlign: "center",
-  },
   section: {
+    marginTop: 24,
     marginBottom: 24,
   },
   sectionHeader: {
@@ -304,4 +269,21 @@ const styles = StyleSheet.create({
     fontSize: 14,
     fontWeight: "500",
   },
+  toolsGrid: {
+      flexDirection: 'row',
+      flexWrap: 'wrap',
+      gap: 12,
+  },
+  gridItem: {
+      width: '48%', // Approx 2 cols
+      aspectRatio: 1.4,
+      borderRadius: 16,
+      justifyContent: 'center',
+      alignItems: 'center',
+      gap: 8,
+  },
+  gridText: {
+      fontSize: 14,
+      fontWeight: '500',
+  }
 });
