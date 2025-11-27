@@ -1,0 +1,69 @@
+{
+    "categories": [
+        {
+            "id": "sabah-aksam",
+            "title": "Sabah & Akşam",
+            "icon": "sunny-outline"
+        },
+        {
+            "id": "koruma",
+            "title": "Korunma",
+            "icon": "shield-checkmark-outline"
+        },
+        {
+            "id": "namaz",
+            "title": "Namaz",
+            "icon": "body-outline"
+        },
+        {
+            "id": "sifa",
+            "title": "Şifa",
+            "icon": "fitness-outline"
+        },
+        {
+            "id": "rizik-bereket",
+            "title": "Rızık & Bereket",
+            "icon": "leaf-outline"
+        },
+        {
+            "id": "yolculuk",
+            "title": "Yolculuk",
+            "icon": "airplane-outline"
+        },
+        {
+            "id": "uyku",
+            "title": "Uyku",
+            "icon": "moon-outline"
+        },
+        {
+            "id": "sikinti-dert",
+            "title": "Sıkıntı & Dert",
+            "icon": "cloud-outline"
+        },
+        {
+            "id": "sukur",
+            "title": "Şükür",
+            "icon": "heart-outline"
+        },
+        {
+            "id": "evlilik-aile",
+            "title": "Evlilik & Aile",
+            "icon": "people-outline"
+        },
+        {
+            "id": "tevbe",
+            "title": "Tevbe & İstiğfar",
+            "icon": "refresh-outline"
+        },
+        {
+            "id": "kurani",
+            "title": "Kur'ani Dualar",
+            "icon": "book-outline"
+        },
+        {
+            "id": "peygamber",
+            "title": "Peygamber Duaları",
+            "icon": "star-outline"
+        }
+    ]
+}
