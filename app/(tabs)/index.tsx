@@ -119,9 +119,7 @@ export default function HomeScreen() {
         <View style={styles.quickAccess}>
           <TouchableOpacity
             style={[styles.quickAccessItem, { backgroundColor: colors.card }]}
-            onPress={() => {
-              /* TODO: Son okunanlar sayfası */
-            }}
+              onPress={() => router.push("/tasbih")}
           >
             <View
               style={[
@@ -129,10 +127,10 @@ export default function HomeScreen() {
                 { backgroundColor: colors.primary + "20" },
               ]}
             >
-              <Ionicons name="time" size={24} color={colors.primary} />
+                <Ionicons name="finger-print" size={24} color={colors.primary} />
             </View>
             <Text style={[styles.quickAccessText, { color: colors.text }]}>
-              Son Okunanlar
+                Zikirmatik
             </Text>
           </TouchableOpacity>
 
@@ -155,9 +153,7 @@ export default function HomeScreen() {
 
           <TouchableOpacity
             style={[styles.quickAccessItem, { backgroundColor: colors.card }]}
-            onPress={() => {
-              /* TODO: Hatırlatıcılar ayarları */
-            }}
+              onPress={() => router.push("/reminders")}
           >
             <View
               style={[
