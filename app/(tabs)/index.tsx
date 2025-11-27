@@ -84,6 +84,7 @@ export default function HomeScreen() {
           </View>
           <TouchableOpacity
             style={[styles.searchButton, { backgroundColor: colors.card }]}
+            onPress={() => router.push("/search")}
           >
             <Ionicons name="search" size={20} color={colors.icon} />
           </TouchableOpacity>

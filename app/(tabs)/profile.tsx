@@ -1,8 +1,10 @@
 // app/(tabs)/profile.tsx
 import { Ionicons } from "@expo/vector-icons";
 import { useFocusEffect } from "@react-navigation/native";
+import { router } from "expo-router";
 import React, { useCallback, useState } from "react";
 import {
+  Alert,
   ScrollView,
   StyleSheet,
   Switch,
@@ -28,7 +30,6 @@ export default function ProfileScreen() {
     favoritesCount: 0,
   });
 
-  // Sayfa her görünür olduğunda istatistikleri yükle
   useFocusEffect(
     useCallback(() => {
       loadStats();
@@ -44,6 +45,54 @@ export default function ProfileScreen() {
       currentStreak: userStats.currentStreak,
       favoritesCount: favorites.length,
     });
+  };
+
+  const handlePremium = () => {
+    router.push("/premium");
+  };
+
+  const handleReminders = () => {
+    router.push("/reminders");
+  };
+
+  const handleShare = async () => {
+    try {
+      Alert.alert("Uygulamayı Paylaş", "DuaHub'ı arkadaşlarınla paylaş!", [
+        { text: "İptal", style: "cancel" },
+        {
+          text: "Paylaş",
+          onPress: () => {
+            // TODO: Share.share() ile paylaş
+          },
+        },
+      ]);
+    } catch (error) {
+      console.error(error);
+    }
+  };
+
+  const handleRate = () => {
+    Alert.alert(
+      "Uygulamayı Değerlendir",
+      "Bizi Play Store'da değerlendirerek destekleyebilirsiniz!",
+      [{ text: "Tamam" }]
+    );
+  };
+
+  const handleAbout = () => {
+    Alert.alert(
+      "DuaHub Hakkında",
+      "Versiyon: 1.0.0\n\nDuaHub, günlük dualarınızı organize etmenize ve sesli olarak dinlemenize yardımcı olur.\n\n© 2025 DuaHub",
+      [{ text: "Tamam" }]
+    );
+  };
+
+  const handleQibla = () => {
+    router.push("/qibla");
+  };
+
+  const handlePlaylists = () => {
+    router.push("/playlists");
   };
 
   return (
@@ -90,6 +139,7 @@ export default function ProfileScreen() {
         {/* Premium Bölümü */}
         <TouchableOpacity
           style={[styles.premiumCard, { backgroundColor: colors.accent }]}
+          onPress={handlePremium}
         >
           <View style={styles.premiumContent}>
             <Ionicons name="star" size={32} color="#FFFFFF" />
@@ -102,6 +152,69 @@ export default function ProfileScreen() {
           </View>
           <Ionicons name="chevron-forward" size={24} color="#FFFFFF" />
         </TouchableOpacity>
+
+        {/* Araçlar */}
+        <View style={styles.section}>
+          <Text style={[styles.sectionTitle, { color: colors.text }]}>
+            Araçlar
+          </Text>
+
+          <View style={[styles.settingCard, { backgroundColor: colors.card }]}>
+            <TouchableOpacity style={styles.settingItem} onPress={handleQibla}>
+              <View style={styles.settingLeft}>
+                <Ionicons name="compass" size={24} color={colors.primary} />
+                <Text style={[styles.settingText, { color: colors.text }]}>
+                  Kıble Pusulası
+                </Text>
+              </View>
+              <Ionicons name="chevron-forward" size={20} color={colors.icon} />
+            </TouchableOpacity>
+
+            <View
+              style={[
+                styles.dividerHorizontal,
+                { backgroundColor: colors.border },
+              ]}
+            />
+
+            <TouchableOpacity
+              style={styles.settingItem}
+              onPress={handlePlaylists}
+            >
+              <View style={styles.settingLeft}>
+                <Ionicons
+                  name="musical-notes"
+                  size={24}
+                  color={colors.primary}
+                />
+                <Text style={[styles.settingText, { color: colors.text }]}>
+                  Dinleme Listeleri
+                </Text>
+              </View>
+              <Ionicons name="chevron-forward" size={20} color={colors.icon} />
+            </TouchableOpacity>
+
+            <View
+              style={[
+                styles.dividerHorizontal,
+                { backgroundColor: colors.border },
+              ]}
+            />
+
+            <TouchableOpacity
+              style={styles.settingItem}
+              onPress={handleReminders}
+            >
+              <View style={styles.settingLeft}>
+                <Ionicons name="alarm" size={24} color={colors.primary} />
+                <Text style={[styles.settingText, { color: colors.text }]}>
+                  Hatırlatıcılar
+                </Text>
+              </View>
+              <Ionicons name="chevron-forward" size={20} color={colors.icon} />
+            </TouchableOpacity>
+          </View>
+        </View>
 
         {/* Ayarlar */}
         <View style={styles.section}>
@@ -129,7 +242,10 @@ export default function ProfileScreen() {
             </View>
 
             <View
-              style={[styles.divider, { backgroundColor: colors.border }]}
+              style={[
+                styles.dividerHorizontal,
+                { backgroundColor: colors.border },
+              ]}
             />
 
             <View style={styles.settingItem}>
@@ -151,7 +267,10 @@ export default function ProfileScreen() {
             </View>
 
             <View
-              style={[styles.divider, { backgroundColor: colors.border }]}
+              style={[
+                styles.dividerHorizontal,
+                { backgroundColor: colors.border },
+              ]}
             />
 
             <TouchableOpacity style={styles.settingItem}>
@@ -186,7 +305,7 @@ export default function ProfileScreen() {
           </Text>
 
           <View style={[styles.settingCard, { backgroundColor: colors.card }]}>
-            <TouchableOpacity style={styles.settingItem}>
+            <TouchableOpacity style={styles.settingItem} onPress={handleShare}>
               <View style={styles.settingLeft}>
                 <Ionicons
                   name="share-social-outline"
@@ -201,10 +320,13 @@ export default function ProfileScreen() {
             </TouchableOpacity>
 
             <View
-              style={[styles.divider, { backgroundColor: colors.border }]}
+              style={[
+                styles.dividerHorizontal,
+                { backgroundColor: colors.border },
+              ]}
             />
 
-            <TouchableOpacity style={styles.settingItem}>
+            <TouchableOpacity style={styles.settingItem} onPress={handleRate}>
               <View style={styles.settingLeft}>
                 <Ionicons
                   name="star-outline"
@@ -219,10 +341,13 @@ export default function ProfileScreen() {
             </TouchableOpacity>
 
             <View
-              style={[styles.divider, { backgroundColor: colors.border }]}
+              style={[
+                styles.dividerHorizontal,
+                { backgroundColor: colors.border },
+              ]}
             />
 
-            <TouchableOpacity style={styles.settingItem}>
+            <TouchableOpacity style={styles.settingItem} onPress={handleAbout}>
               <View style={styles.settingLeft}>
                 <Ionicons
                   name="information-circle-outline"
@@ -287,6 +412,10 @@ const styles = StyleSheet.create({
   divider: {
     width: 1,
     height: "100%",
+  },
+  dividerHorizontal: {
+    height: 1,
+    width: "100%",
   },
   premiumCard: {
     flexDirection: "row",

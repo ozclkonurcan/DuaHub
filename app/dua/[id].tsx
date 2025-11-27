@@ -2,6 +2,7 @@
 import { Ionicons } from "@expo/vector-icons";
 import * as Clipboard from "expo-clipboard";
 import { useLocalSearchParams } from "expo-router";
+import * as Speech from "expo-speech";
 import React, { useEffect, useState } from "react";
 import {
   Alert,
@@ -29,8 +30,17 @@ export default function DuaDetailScreen() {
   const [isFavorite, setIsFavorite] = useState(false);
   const [loading, setLoading] = useState(true);
 
+  // TTS state
+  const [isSpeaking, setIsSpeaking] = useState(false);
+  const [speechMode, setSpeechMode] = useState<"arabic" | "turkish">("arabic");
+
   useEffect(() => {
     loadDua();
+
+    return () => {
+      // Cleanup: konuşmayı durdur
+      Speech.stop();
+    };
   }, [id]);
 
   const loadDua = async () => {
@@ -39,11 +49,8 @@ export default function DuaDetailScreen() {
 
     if (foundDua) {
       setDua(foundDua);
-
-      // AsyncStorage'dan veriyi yükle
       const count = await StorageService.getReadCount(id);
       const favorite = await StorageService.isFavorite(id);
-
       setReadCount(count);
       setIsFavorite(favorite);
     }
@@ -70,20 +77,14 @@ export default function DuaDetailScreen() {
 
   const handleMarkAsRead = async () => {
     if (!dua) return;
-
     const newCount = await StorageService.incrementReadCount(dua.id);
     await StorageService.updateUserStats();
-
     setReadCount(newCount);
-
-    Alert.alert("Tebrikler! 🎉", `Bu duayı ${newCount} kez okudunuz.`, [
-      { text: "Tamam" },
-    ]);
+    Alert.alert("Tebrikler! 🎉", `Bu duayı ${newCount} kez okudunuz.`);
   };
 
   const handleFavoriteToggle = async () => {
     if (!dua) return;
-
     if (isFavorite) {
       await StorageService.removeFavorite(dua.id);
       setIsFavorite(false);
@@ -92,6 +93,47 @@ export default function DuaDetailScreen() {
       setIsFavorite(true);
       Alert.alert("Favorilere Eklendi", "Dua favorilerinize eklendi");
     }
+  };
+
+  // TTS FUNCTIONS
+  const handleSpeak = async () => {
+    if (!dua) return;
+
+    if (isSpeaking) {
+      // Durdur
+      Speech.stop();
+      setIsSpeaking(false);
+      return;
+    }
+
+    // Metni seç
+    const textToSpeak = speechMode === "arabic" ? dua.arabic : dua.meaning;
+    const language = speechMode === "arabic" ? "ar" : "tr";
+
+    try {
+      setIsSpeaking(true);
+
+      await Speech.speak(textToSpeak, {
+        language: language,
+        pitch: 1.0,
+        rate: 0.75, // Yavaş okusun (dua için uygun)
+        onDone: () => setIsSpeaking(false),
+        onStopped: () => setIsSpeaking(false),
+        onError: () => {
+          setIsSpeaking(false);
+          Alert.alert("Hata", "Ses çalınamadı. Lütfen tekrar deneyin.");
+        },
+      });
+    } catch (error) {
+      console.error("Speech error:", error);
+      setIsSpeaking(false);
+    }
+  };
+
+  const toggleSpeechMode = () => {
+    Speech.stop();
+    setIsSpeaking(false);
+    setSpeechMode((prev) => (prev === "arabic" ? "turkish" : "arabic"));
   };
 
   if (loading) {
@@ -137,6 +179,77 @@ export default function DuaDetailScreen() {
               <Text style={styles.premiumText}>Premium</Text>
             </View>
           )}
+        </View>
+
+        {/* SESLI OKUMA KONTROLLERI */}
+        <View style={[styles.audioCard, { backgroundColor: colors.card }]}>
+          <View style={styles.audioHeader}>
+            <Ionicons name="volume-high" size={24} color={colors.primary} />
+            <Text style={[styles.audioTitle, { color: colors.text }]}>
+              Sesli Dinle
+            </Text>
+          </View>
+
+          {/* Dil Seçimi */}
+          <View style={styles.languageToggle}>
+            <TouchableOpacity
+              style={[
+                styles.languageButton,
+                speechMode === "arabic" && { backgroundColor: colors.primary },
+                speechMode !== "arabic" && { backgroundColor: colors.border },
+              ]}
+              onPress={toggleSpeechMode}
+            >
+              <Text
+                style={[
+                  styles.languageButtonText,
+                  { color: speechMode === "arabic" ? "#FFFFFF" : colors.icon },
+                ]}
+              >
+                Arapça
+              </Text>
+            </TouchableOpacity>
+            <TouchableOpacity
+              style={[
+                styles.languageButton,
+                speechMode === "turkish" && { backgroundColor: colors.primary },
+                speechMode !== "turkish" && { backgroundColor: colors.border },
+              ]}
+              onPress={toggleSpeechMode}
+            >
+              <Text
+                style={[
+                  styles.languageButtonText,
+                  { color: speechMode === "turkish" ? "#FFFFFF" : colors.icon },
+                ]}
+              >
+                Türkçe
+              </Text>
+            </TouchableOpacity>
+          </View>
+
+          {/* Play/Stop Button */}
+          <TouchableOpacity
+            style={[
+              styles.playButton,
+              { backgroundColor: isSpeaking ? colors.error : colors.success },
+            ]}
+            onPress={handleSpeak}
+          >
+            <Ionicons
+              name={isSpeaking ? "stop" : "play"}
+              size={36}
+              color="#FFFFFF"
+            />
+          </TouchableOpacity>
+
+          <Text style={[styles.audioHint, { color: colors.icon }]}>
+            {isSpeaking
+              ? speechMode === "arabic"
+                ? "Arapça okunuyor..."
+                : "Türkçe meal okunuyor..."
+              : "Duayı dinlemek için oynat butonuna basın"}
+          </Text>
         </View>
 
         {/* Arapça Metin */}
@@ -294,6 +407,53 @@ const styles = StyleSheet.create({
     color: "#FFFFFF",
     fontSize: 12,
     fontWeight: "600",
+  },
+  audioCard: {
+    padding: 24,
+    borderRadius: 16,
+    marginBottom: 16,
+    alignItems: "center",
+  },
+  audioHeader: {
+    flexDirection: "row",
+    alignItems: "center",
+    gap: 8,
+    marginBottom: 20,
+  },
+  audioTitle: {
+    fontSize: 18,
+    fontWeight: "600",
+  },
+  languageToggle: {
+    flexDirection: "row",
+    gap: 12,
+    marginBottom: 20,
+  },
+  languageButton: {
+    paddingHorizontal: 24,
+    paddingVertical: 10,
+    borderRadius: 20,
+  },
+  languageButtonText: {
+    fontSize: 14,
+    fontWeight: "600",
+  },
+  playButton: {
+    width: 80,
+    height: 80,
+    borderRadius: 40,
+    justifyContent: "center",
+    alignItems: "center",
+    marginBottom: 16,
+    shadowColor: "#000",
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.2,
+    shadowRadius: 8,
+    elevation: 5,
+  },
+  audioHint: {
+    fontSize: 13,
+    textAlign: "center",
   },
   card: {
     padding: 20,
