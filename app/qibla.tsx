@@ -393,7 +393,7 @@ export default function QiblaScreen() {
           <View
             style={[
               styles.needle,
-              { transform: [{ rotate: `${qiblaAngle}deg` }] },
+              { transform: [{ rotate: `${qiblaDirection}deg` }] },
             ]}
           >
             <View style={styles.needleTop} />
