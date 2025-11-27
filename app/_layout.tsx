@@ -1,18 +1,12 @@
 // app/_layout.tsx
 import { Stack } from "expo-router";
 import { useEffect } from "react";
-import { useColorScheme } from "react-native";
-import { Colors } from "../constants/Colors";
 import * as PurchaseService from "../services/purchaseService";
+import { ThemeProvider, useTheme } from "../context/ThemeContext";
+import { LanguageProvider } from "../context/LanguageContext";
 
-export default function RootLayout() {
-  const colorScheme = useColorScheme();
-  const colors = Colors[colorScheme ?? "light"];
-
-  useEffect(() => {
-    // RevenueCat'i başlat
-    PurchaseService.initializePurchases();
-  }, []);
+function RootStack() {
+  const { colors } = useTheme();
 
   return (
     <Stack
@@ -22,6 +16,10 @@ export default function RootLayout() {
         },
         headerTintColor: colors.text,
         headerShadowVisible: false,
+        contentStyle: { backgroundColor: colors.background },
+        // Enable swipe back gesture
+        gestureEnabled: true,
+        animation: 'default',
       }}
     >
       <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
@@ -41,5 +39,20 @@ export default function RootLayout() {
       />
       <Stack.Screen name="+not-found" />
     </Stack>
+  );
+}
+
+export default function RootLayout() {
+  useEffect(() => {
+    // RevenueCat'i başlat
+    PurchaseService.initializePurchases();
+  }, []);
+
+  return (
+    <LanguageProvider>
+      <ThemeProvider>
+        <RootStack />
+      </ThemeProvider>
+    </LanguageProvider>
   );
 }
