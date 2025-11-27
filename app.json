@@ -10,7 +10,8 @@
     "newArchEnabled": true,
     "ios": {
       "supportsTablet": true,
-      "bundleIdentifier": "com.ozclkonur.duahub"
+      "bundleIdentifier": "com.ozclkonur.duahub",
+      "googleServicesFile": "./GoogleService-Info.plist"
     },
     "android": {
       "adaptiveIcon": {
@@ -21,7 +22,8 @@
       },
       "edgeToEdgeEnabled": true,
       "predictiveBackGestureEnabled": false,
-      "package": "com.ozclkonur.duahub"
+      "package": "com.ozclkonur.duahub",
+      "googleServicesFile": "./google-services.json"
     },
     "web": {
       "output": "static",
@@ -48,7 +50,9 @@
             "useFrameworks": "static"
           }
         }
-      ]
+      ],
+      "expo-localization",
+      "expo-web-browser"
     ],
     "experiments": {
       "typedRoutes": true,
