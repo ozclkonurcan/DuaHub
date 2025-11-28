@@ -1,43 +1,21 @@
 // services/firebaseService.ts
-import { getAnalytics, isSupported, logEvent } from 'firebase/analytics';
-import { initializeApp } from 'firebase/app';
+import app, { auth, db, storage, analytics } from './firebase';
 import {
     collection,
     doc,
     getDoc,
     getDocs,
-    getFirestore,
     query,
     updateDoc,
     where
 } from 'firebase/firestore';
-import { getDownloadURL, getStorage, ref, uploadBytes } from 'firebase/storage';
+import { getDownloadURL, ref, uploadBytes } from 'firebase/storage';
+import { logEvent } from 'firebase/analytics';
 import { Dua } from '../types/dua';
 
-// Firebase Config - ŞİMDİ BU BOŞ, SONRA FIREBASE CONSOLE'DAN ALACAĞIZ
-const firebaseConfig = {
-  apiKey: "YOUR_API_KEY",
-  authDomain: "duahub-app.firebaseapp.com",
-  projectId: "duahub-app",
-  storageBucket: "duahub-app.appspot.com",
-  messagingSenderId: "YOUR_MESSAGING_SENDER_ID",
-  appId: "YOUR_APP_ID",
-  measurementId: "YOUR_MEASUREMENT_ID"
-};
-
-// Initialize Firebase
-const app = initializeApp(firebaseConfig);
-export const db = getFirestore(app);
-export const storage = getStorage(app);
-
-let analytics: any = null;
-if (typeof window !== 'undefined') {
-  isSupported().then((supported) => {
-    if (supported) {
-      analytics = getAnalytics(app);
-    }
-  });
-}
+// Export the instances from the single source of truth
+export { auth, db, storage, analytics };
+export default app;
 
 // ============================================
 // DUAS COLLECTION
@@ -165,5 +143,3 @@ export const syncUserData = async (userId: string, data: any): Promise<void> => 
     console.error('Error syncing user data:', error);
   }
 };
-
-export default app;
