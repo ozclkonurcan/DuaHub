@@ -10,11 +10,7 @@
             "benefit": "Güne bereketli başlamak ve Allah'a hamd etmek için sabahları okunur.",
             "source": "Müslim, Zikir 39",
             "isPremium": false,
-            "tags": [
-                "sabah",
-                "güne başlama",
-                "bereket"
-            ]
+            "tags": ["sabah", "güne başlama", "bereket"]
         },
         {
             "id": "2",
@@ -26,12 +22,7 @@
             "benefit": "Sabah-akşam ve yatmadan önce okunduğunda korunma sağlar.",
             "source": "Bakara Suresi, 255",
             "isPremium": false,
-            "tags": [
-                "ayetel kürsi",
-                "koruma",
-                "gece",
-                "sabah"
-            ]
+            "tags": ["ayetel kürsi", "koruma", "gece", "sabah"]
         },
         {
             "id": "3",
@@ -43,11 +34,7 @@
             "benefit": "Namaz sonrası yapılan duaların en önemlilerinden biridir.",
             "source": "Bakara Suresi, 127",
             "isPremium": false,
-            "tags": [
-                "namaz",
-                "dua",
-                "kabul"
-            ]
+            "tags": ["namaz", "dua", "kabul"]
         },
         {
             "id": "4",
@@ -59,11 +46,7 @@
             "benefit": "Hasta olan kimse için veya kendisi için şifa dilerken okunur.",
             "source": "Buhari, Tıb 38",
             "isPremium": false,
-            "tags": [
-                "şifa",
-                "hastalık",
-                "sağlık"
-            ]
+            "tags": ["şifa", "hastalık", "sağlık"]
         },
         {
             "id": "5",
@@ -75,12 +58,7 @@
             "benefit": "İşlerin kolaylaşması ve rızık genişliği için okunur.",
             "source": "Taha Suresi, 25-26",
             "isPremium": false,
-            "tags": [
-                "rızık",
-                "bereket",
-                "iş",
-                "kolaylık"
-            ]
+            "tags": ["rızık", "bereket", "iş", "kolaylık"]
         },
         {
             "id": "6",
@@ -92,12 +70,7 @@
             "benefit": "Yola çıkarken araçta okunur, yolculuğun hayırlı olması için dua edilir.",
             "source": "Zuhruf Suresi, 13",
             "isPremium": false,
-            "tags": [
-                "yolculuk",
-                "yol",
-                "araba",
-                "uçak"
-            ]
+            "tags": ["yolculuk", "yol", "araba", "uçak"]
         },
         {
             "id": "7",
@@ -109,11 +82,7 @@
             "benefit": "Yatağa uzanırken, uyumadan önce okunur.",
             "source": "Buhari, Deavât 6",
             "isPremium": false,
-            "tags": [
-                "uyku",
-                "gece",
-                "yatmadan önce"
-            ]
+            "tags": ["uyku", "gece", "yatmadan önce"]
         },
         {
             "id": "8",
@@ -125,12 +94,7 @@
             "benefit": "Sıkıntılı anlarda, darlıkta, zorlukta okunur. Hz. Yunus'un duasıdır.",
             "source": "Enbiya Suresi, 87",
             "isPremium": false,
-            "tags": [
-                "sıkıntı",
-                "dert",
-                "zorluk",
-                "yunus"
-            ]
+            "tags": ["sıkıntı", "dert", "zorluk", "yunus"]
         },
         {
             "id": "9",
@@ -142,11 +106,7 @@
             "benefit": "Yemek yedikten sonra şükretmek için okunur.",
             "source": "Ebu Davud, Et'ime 52",
             "isPremium": false,
-            "tags": [
-                "şükür",
-                "yemek",
-                "hamd"
-            ]
+            "tags": ["şükür", "yemek", "hamd"]
         },
         {
             "id": "10",
@@ -158,12 +118,187 @@
             "benefit": "Aile huzuru ve mutluluğu için okunur.",
             "source": "Furkan Suresi, 74",
             "isPremium": false,
-            "tags": [
-                "evlilik",
-                "aile",
-                "eş",
-                "çocuk"
-            ]
+            "tags": ["evlilik", "aile", "eş", "çocuk"]
+        },
+        {
+            "id": "11",
+            "title": "Seyyidü'l-İstiğfar",
+            "arabic": "اللَّهُمَّ أَنْتَ رَبِّي لَا إِلَهَ إِلَّا أَنْتَ خَلَقْتَنِي وَأَنَا عَبْدُكَ وَأَنَا عَلَى عَهْدِكَ وَوَعْدِكَ مَا اسْتَطَعْتُ",
+            "transliteration": "Allâhümme ente Rabbî lâ ilâhe illâ ente halaktenî ve ene abdüke ve ene alâ ahdike ve va'dike mesteta'tü",
+            "meaning": "Allah'ım! Sen benim Rabbimsin, senden başka ilah yoktur. Beni sen yarattın, ben senin kulunum; gücüm yettiğince sana verdiğim söz ve ahid üzereyim.",
+            "category": "sabah-aksam",
+            "benefit": "İstiğfarın efendisi olarak bilinir; sabah ve akşam okunması tavsiye edilmiştir.",
+            "source": "Buhari, Deavât 2",
+            "isPremium": false,
+            "tags": ["istiğfar", "tevbe", "sabah", "akşam"]
+        },
+        {
+            "id": "12",
+            "title": "Rabbenâ Âtinâ",
+            "arabic": "رَبَّنَا آتِنَا فِي الدُّنْيَا حَسَنَةً وَفِي الْآخِرَةِ حَسَنَةً وَقِنَا عَذَابَ النَّارِ",
+            "transliteration": "Rabbenâ âtinâ fi'd-dünyâ haseneten ve fi'l-âhirati haseneten ve kınâ azâbe'n-nâr",
+            "meaning": "Rabbimiz! Bize dünyada iyilik, ahirette de iyilik ver ve bizi ateşin azabından koru.",
+            "category": "namaz",
+            "benefit": "Namaz sonrası tesbihatta ve her duanın sonunda okunan kapsamlı bir duadır.",
+            "source": "Bakara Suresi, 201",
+            "isPremium": false,
+            "tags": ["namaz", "tesbihat", "dünya", "ahiret"]
+        },
+        {
+            "id": "13",
+            "title": "Nazar ve Şerden Korunma",
+            "arabic": "أَعُوذُ بِكَلِمَاتِ اللَّهِ التَّامَّاتِ مِنْ شَرِّ مَا خَلَقَ",
+            "transliteration": "Eûzü bi-kelimâtillâhi't-tâmmâti min şerri mâ halak",
+            "meaning": "Yarattıklarının şerrinden Allah'ın eksiksiz kelimelerine sığınırım.",
+            "category": "koruma",
+            "benefit": "Nazardan ve her türlü kötülükten korunmak için okunur.",
+            "source": "Müslim, Zikir 54",
+            "isPremium": false,
+            "tags": ["nazar", "koruma", "şer"]
+        },
+        {
+            "id": "14",
+            "title": "Uyanınca Okunacak Dua",
+            "arabic": "الْحَمْدُ لِلَّهِ الَّذِي أَحْيَانَا بَعْدَ مَا أَمَاتَنَا وَإِلَيْهِ النُّشُورُ",
+            "transliteration": "Elhamdü lillâhillezî ahyânâ ba'de mâ emâtenâ ve ileyhi'n-nüşûr",
+            "meaning": "Bizi öldürdükten (uyuttuktan) sonra dirilten (uyandıran) Allah'a hamdolsun. Dönüş yalnız O'nadır.",
+            "category": "sabah-aksam",
+            "benefit": "Uykudan uyanınca okunur; güne hamd ile başlamayı sağlar.",
+            "source": "Buhari, Deavât 7",
+            "isPremium": false,
+            "tags": ["uyanma", "sabah", "hamd"]
+        },
+        {
+            "id": "15",
+            "title": "Evden Çıkarken",
+            "arabic": "بِسْمِ اللَّهِ تَوَكَّلْتُ عَلَى اللَّهِ وَلَا حَوْلَ وَلَا قُوَّةَ إِلَّا بِاللَّهِ",
+            "transliteration": "Bismillâhi tevekkeltü alâllâh ve lâ havle ve lâ kuvvete illâ billâh",
+            "meaning": "Allah'ın adıyla. Allah'a tevekkül ettim. Güç ve kuvvet ancak Allah'tandır.",
+            "category": "gunluk",
+            "benefit": "Evden çıkarken okunur; gün boyu Allah'ın korumasını dilemektir.",
+            "source": "Ebu Davud, Edeb 103",
+            "isPremium": false,
+            "tags": ["ev", "çıkış", "tevekkül", "günlük"]
+        },
+        {
+            "id": "16",
+            "title": "Yemeğe Başlarken",
+            "arabic": "بِسْمِ اللَّهِ",
+            "transliteration": "Bismillâh",
+            "meaning": "Allah'ın adıyla.",
+            "category": "gunluk",
+            "benefit": "Yemeğe başlarken besmele çekilir. Unutulursa 'Bismillâhi evvelehû ve âhirahû' denir.",
+            "source": "Ebu Davud, Et'ime 15",
+            "isPremium": false,
+            "tags": ["yemek", "besmele", "günlük"]
+        },
+        {
+            "id": "17",
+            "title": "Camiye Girerken",
+            "arabic": "اللَّهُمَّ افْتَحْ لِي أَبْوَابَ رَحْمَتِكَ",
+            "transliteration": "Allâhümme'ftah lî ebvâbe rahmetik",
+            "meaning": "Allah'ım! Bana rahmetinin kapılarını aç.",
+            "category": "namaz",
+            "benefit": "Camiye girerken okunur; çıkarken 'Allâhümme innî es'elüke min fadlik' denir.",
+            "source": "Müslim, Salâtü'l-Müsâfirîn 68",
+            "isPremium": false,
+            "tags": ["cami", "namaz", "rahmet"]
+        },
+        {
+            "id": "18",
+            "title": "Tuvalete Girerken",
+            "arabic": "اللَّهُمَّ إِنِّي أَعُوذُ بِكَ مِنَ الْخُبُثِ وَالْخَبَائِثِ",
+            "transliteration": "Allâhümme innî eûzü bike mine'l-hubüsi ve'l-habâis",
+            "meaning": "Allah'ım! Her türlü pislikten ve kötü varlıklardan sana sığınırım.",
+            "category": "gunluk",
+            "benefit": "Tuvalete girerken okunur; çıkarken 'Ğufrânek' (bağışlamanı dilerim) denir.",
+            "source": "Buhari, Vudû 9",
+            "isPremium": false,
+            "tags": ["adab", "günlük", "temizlik"]
+        },
+        {
+            "id": "19",
+            "title": "İlim Duası",
+            "arabic": "رَبِّ زِدْنِي عِلْمًا",
+            "transliteration": "Rabbi zidnî ilmâ",
+            "meaning": "Rabbim! İlmimi artır.",
+            "category": "gunluk",
+            "benefit": "Derse, çalışmaya ve öğrenmeye başlarken okunur.",
+            "source": "Taha Suresi, 114",
+            "isPremium": false,
+            "tags": ["ilim", "öğrenme", "ders", "sınav"]
+        },
+        {
+            "id": "20",
+            "title": "Anne-Baba Duası",
+            "arabic": "رَبِّ ارْحَمْهُمَا كَمَا رَبَّيَانِي صَغِيرًا",
+            "transliteration": "Rabbi'rhamhümâ kemâ rabbeyânî sağîrâ",
+            "meaning": "Rabbim! Onlar beni küçükken nasıl büyütüp yetiştirdilerse, sen de onlara öyle merhamet et.",
+            "category": "evlilik-aile",
+            "benefit": "Anne ve babanın hayrı, sağlığı ve mağfireti için okunur.",
+            "source": "İsrâ Suresi, 24",
+            "isPremium": false,
+            "tags": ["anne", "baba", "aile", "merhamet"]
+        },
+        {
+            "id": "21",
+            "title": "Tevekkül Duası",
+            "arabic": "حَسْبُنَا اللَّهُ وَنِعْمَ الْوَكِيلُ",
+            "transliteration": "Hasbünallâhü ve ni'me'l-vekîl",
+            "meaning": "Allah bize yeter, O ne güzel vekildir.",
+            "category": "sikinti-dert",
+            "benefit": "Endişe ve zorluk anlarında Allah'a güveni tazelemek için okunur.",
+            "source": "Âl-i İmrân Suresi, 173",
+            "isPremium": false,
+            "tags": ["tevekkül", "güven", "sıkıntı"]
+        },
+        {
+            "id": "22",
+            "title": "İstiğfar Duası",
+            "arabic": "أَسْتَغْفِرُ اللَّهَ الْعَظِيمَ الَّذِي لَا إِلَهَ إِلَّا هُوَ الْحَيَّ الْقَيُّومَ وَأَتُوبُ إِلَيْهِ",
+            "transliteration": "Estağfirullâhe'l-azîm ellezî lâ ilâhe illâ hüve'l-hayye'l-kayyûme ve etûbü ileyh",
+            "meaning": "Kendisinden başka ilah olmayan, diri ve kayyum olan yüce Allah'tan bağışlanma diler, O'na tevbe ederim.",
+            "category": "koruma",
+            "benefit": "Günahlardan arınmak ve tevbe etmek için her zaman okunabilir.",
+            "source": "Ebu Davud, Vitir 26",
+            "isPremium": false,
+            "tags": ["istiğfar", "tevbe", "bağışlanma"]
+        },
+        {
+            "id": "23",
+            "title": "Helal Rızık Duası",
+            "arabic": "اللَّهُمَّ اكْفِنِي بِحَلَالِكَ عَنْ حَرَامِكَ وَأَغْنِنِي بِفَضْلِكَ عَمَّنْ سِوَاكَ",
+            "transliteration": "Allâhümme'kfinî bi-helâlike an harâmike ve ağninî bi-fadlike ammen sivâk",
+            "meaning": "Allah'ım! Beni helalinle yetindir, haramından koru; lütfunla beni senden başkasına muhtaç etme.",
+            "category": "rizik-bereket",
+            "benefit": "Helal kazanç, borçtan kurtulma ve kimseye muhtaç olmamak için okunur.",
+            "source": "Tirmizi, Deavât 110",
+            "isPremium": false,
+            "tags": ["rızık", "helal", "borç", "bereket"]
+        },
+        {
+            "id": "24",
+            "title": "Yatarken Okunacak Dua",
+            "arabic": "اللَّهُمَّ قِنِي عَذَابَكَ يَوْمَ تَبْعَثُ عِبَادَكَ",
+            "transliteration": "Allâhümme kınî azâbeke yevme teb'asü ibâdek",
+            "meaning": "Allah'ım! Kullarını dirilteceğin gün beni azabından koru.",
+            "category": "uyku",
+            "benefit": "Yatağa yattıktan sonra okunması tavsiye edilen dualardandır.",
+            "source": "Ebu Davud, Edeb 98",
+            "isPremium": false,
+            "tags": ["uyku", "gece", "koruma"]
+        },
+        {
+            "id": "25",
+            "title": "Ezan Duası",
+            "arabic": "اللَّهُمَّ رَبَّ هَذِهِ الدَّعْوَةِ التَّامَّةِ وَالصَّلَاةِ الْقَائِمَةِ آتِ مُحَمَّدًا الْوَسِيلَةَ وَالْفَضِيلَةَ وَابْعَثْهُ مَقَامًا مَحْمُودًا الَّذِي وَعَدْتَهُ",
+            "transliteration": "Allâhümme rabbe hâzihi'd-da'veti't-tâmmeti ve's-salâti'l-kāimeti âti Muhammedeni'l-vesîlete ve'l-fadîlete veb'ashü makāmen mahmûdenillezî veadteh",
+            "meaning": "Allah'ım! Bu eksiksiz davetin ve kılınacak namazın Rabbi! Muhammed'e vesileyi ve fazileti ver; onu vaad ettiğin övülmüş makama ulaştır.",
+            "category": "namaz",
+            "benefit": "Ezanı dinledikten sonra okunur; Peygamberimizin şefaatine vesile olacağı bildirilmiştir.",
+            "source": "Buhari, Ezan 8",
+            "isPremium": false,
+            "tags": ["ezan", "namaz", "şefaat"]
         }
     ]
 }

@@ -1,0 +1,914 @@
+[
+ {
+  "id": 1,
+  "nameTr": "Fâtiha",
+  "nameAr": "سُوْرَةُ الْفَاتِحَةِ",
+  "translit": "Al-Faatiha",
+  "revelation": "mekki",
+  "ayahCount": 7
+ },
+ {
+  "id": 2,
+  "nameTr": "Bakara",
+  "nameAr": "سُوْرَةُ البَقَرَةِ",
+  "translit": "Al-Baqara",
+  "revelation": "medeni",
+  "ayahCount": 286
+ },
+ {
+  "id": 3,
+  "nameTr": "Âl-i İmrân",
+  "nameAr": "سُوْرَةُ اٰلِ عِمْرٰنَ",
+  "translit": "Aal-i-Imraan",
+  "revelation": "medeni",
+  "ayahCount": 200
+ },
+ {
+  "id": 4,
+  "nameTr": "Nisâ",
+  "nameAr": "سُوْرَةُ النِّسَآءِ",
+  "translit": "An-Nisaa",
+  "revelation": "medeni",
+  "ayahCount": 176
+ },
+ {
+  "id": 5,
+  "nameTr": "Mâide",
+  "nameAr": "سُوْرَةُ المَآئِدَةِ",
+  "translit": "Al-Maaida",
+  "revelation": "medeni",
+  "ayahCount": 120
+ },
+ {
+  "id": 6,
+  "nameTr": "En'âm",
+  "nameAr": "سُوْرَةُ الْاَنْعَامِ",
+  "translit": "Al-An'aam",
+  "revelation": "mekki",
+  "ayahCount": 165
+ },
+ {
+  "id": 7,
+  "nameTr": "A'râf",
+  "nameAr": "سُوْرَةُ الْاَعْرَافِ",
+  "translit": "Al-A'raaf",
+  "revelation": "mekki",
+  "ayahCount": 206
+ },
+ {
+  "id": 8,
+  "nameTr": "Enfâl",
+  "nameAr": "سُوْرَةُ الْاَنْفَالِ",
+  "translit": "Al-Anfaal",
+  "revelation": "medeni",
+  "ayahCount": 75
+ },
+ {
+  "id": 9,
+  "nameTr": "Tevbe",
+  "nameAr": "سُوْرَةُ التَّوْبَةِ",
+  "translit": "At-Tawba",
+  "revelation": "medeni",
+  "ayahCount": 129
+ },
+ {
+  "id": 10,
+  "nameTr": "Yûnus",
+  "nameAr": "سُوْرَةُ يُوْنُسَ",
+  "translit": "Yunus",
+  "revelation": "mekki",
+  "ayahCount": 109
+ },
+ {
+  "id": 11,
+  "nameTr": "Hûd",
+  "nameAr": "سُوْرَةُ هُوْدٍ",
+  "translit": "Hud",
+  "revelation": "mekki",
+  "ayahCount": 123
+ },
+ {
+  "id": 12,
+  "nameTr": "Yûsuf",
+  "nameAr": "سُوْرَةُ يُوسُفَ",
+  "translit": "Yusuf",
+  "revelation": "mekki",
+  "ayahCount": 111
+ },
+ {
+  "id": 13,
+  "nameTr": "Ra'd",
+  "nameAr": "سُوْرَةُ الرَّعْدِ",
+  "translit": "Ar-Ra'd",
+  "revelation": "medeni",
+  "ayahCount": 43
+ },
+ {
+  "id": 14,
+  "nameTr": "İbrâhîm",
+  "nameAr": "سُوْرَةُ اِبْرَاهِيْمَ",
+  "translit": "Ibrahim",
+  "revelation": "mekki",
+  "ayahCount": 52
+ },
+ {
+  "id": 15,
+  "nameTr": "Hicr",
+  "nameAr": "سُوْرَةُ الْحِجْرِ",
+  "translit": "Al-Hijr",
+  "revelation": "mekki",
+  "ayahCount": 99
+ },
+ {
+  "id": 16,
+  "nameTr": "Nahl",
+  "nameAr": "سُوْرَةُ النَّحْلِ",
+  "translit": "An-Nahl",
+  "revelation": "mekki",
+  "ayahCount": 128
+ },
+ {
+  "id": 17,
+  "nameTr": "İsrâ",
+  "nameAr": "سُوْرَةُ الإِسۡرَاءِ",
+  "translit": "Al-Israa",
+  "revelation": "mekki",
+  "ayahCount": 111
+ },
+ {
+  "id": 18,
+  "nameTr": "Kehf",
+  "nameAr": "سُوْرَةُ الْكَهْفِ",
+  "translit": "Al-Kahf",
+  "revelation": "mekki",
+  "ayahCount": 110
+ },
+ {
+  "id": 19,
+  "nameTr": "Meryem",
+  "nameAr": "سُوْرَةُ مَرْيَمَ",
+  "translit": "Maryam",
+  "revelation": "mekki",
+  "ayahCount": 98
+ },
+ {
+  "id": 20,
+  "nameTr": "Tâhâ",
+  "nameAr": "سُوْرَةُ طٰهٰ",
+  "translit": "Taa-Haa",
+  "revelation": "mekki",
+  "ayahCount": 135
+ },
+ {
+  "id": 21,
+  "nameTr": "Enbiyâ",
+  "nameAr": "سُوْرَةُ الْاَنْۣبِيَآءِ",
+  "translit": "Al-Anbiyaa",
+  "revelation": "mekki",
+  "ayahCount": 112
+ },
+ {
+  "id": 22,
+  "nameTr": "Hac",
+  "nameAr": "سُوْرَةُ الْحَجِّ",
+  "translit": "Al-Hajj",
+  "revelation": "medeni",
+  "ayahCount": 78
+ },
+ {
+  "id": 23,
+  "nameTr": "Mü'minûn",
+  "nameAr": "سُوْرَةُ الْمُؤْمِنُوْنَ",
+  "translit": "Al-Muminoon",
+  "revelation": "mekki",
+  "ayahCount": 118
+ },
+ {
+  "id": 24,
+  "nameTr": "Nûr",
+  "nameAr": "سُوْرَةُ النُّوْرِ",
+  "translit": "An-Noor",
+  "revelation": "medeni",
+  "ayahCount": 64
+ },
+ {
+  "id": 25,
+  "nameTr": "Furkân",
+  "nameAr": "سُوْرَةُ الْفُرْقَانِ",
+  "translit": "Al-Furqaan",
+  "revelation": "mekki",
+  "ayahCount": 77
+ },
+ {
+  "id": 26,
+  "nameTr": "Şuarâ",
+  "nameAr": "سُوْرَةُ الشُّعَرَآءِ",
+  "translit": "Ash-Shu'araa",
+  "revelation": "mekki",
+  "ayahCount": 227
+ },
+ {
+  "id": 27,
+  "nameTr": "Neml",
+  "nameAr": "سُوْرَةُ النَّمْلِ",
+  "translit": "An-Naml",
+  "revelation": "mekki",
+  "ayahCount": 93
+ },
+ {
+  "id": 28,
+  "nameTr": "Kasas",
+  "nameAr": "سُوْرَةُ الْقَصَصِ",
+  "translit": "Al-Qasas",
+  "revelation": "mekki",
+  "ayahCount": 88
+ },
+ {
+  "id": 29,
+  "nameTr": "Ankebût",
+  "nameAr": "سُوْرَةُ الْعَنْكَبُوْتِ",
+  "translit": "Al-Ankaboot",
+  "revelation": "mekki",
+  "ayahCount": 69
+ },
+ {
+  "id": 30,
+  "nameTr": "Rûm",
+  "nameAr": "سُوْرَةُ الرُّوْمِ",
+  "translit": "Ar-Room",
+  "revelation": "mekki",
+  "ayahCount": 60
+ },
+ {
+  "id": 31,
+  "nameTr": "Lokmân",
+  "nameAr": "سُوْرَةُ لُقْمَانَ",
+  "translit": "Luqman",
+  "revelation": "mekki",
+  "ayahCount": 34
+ },
+ {
+  "id": 32,
+  "nameTr": "Secde",
+  "nameAr": "سُوْرَةُ السَّجْدَةِ",
+  "translit": "As-Sajda",
+  "revelation": "mekki",
+  "ayahCount": 30
+ },
+ {
+  "id": 33,
+  "nameTr": "Ahzâb",
+  "nameAr": "سُوْرَةُ الْاَحْزَابِ",
+  "translit": "Al-Ahzaab",
+  "revelation": "medeni",
+  "ayahCount": 73
+ },
+ {
+  "id": 34,
+  "nameTr": "Sebe'",
+  "nameAr": "سُوْرَةُ سَبَاٍ",
+  "translit": "Saba",
+  "revelation": "mekki",
+  "ayahCount": 54
+ },
+ {
+  "id": 35,
+  "nameTr": "Fâtır",
+  "nameAr": "سُوْرَةُ فَاطِرٍ",
+  "translit": "Faatir",
+  "revelation": "mekki",
+  "ayahCount": 45
+ },
+ {
+  "id": 36,
+  "nameTr": "Yâsîn",
+  "nameAr": "سُوْرَةُ يٰسٓ",
+  "translit": "Yaseen",
+  "revelation": "mekki",
+  "ayahCount": 83
+ },
+ {
+  "id": 37,
+  "nameTr": "Sâffât",
+  "nameAr": "سُوْرَةُ الصَّافَّاتِ",
+  "translit": "As-Saaffaat",
+  "revelation": "mekki",
+  "ayahCount": 182
+ },
+ {
+  "id": 38,
+  "nameTr": "Sâd",
+  "nameAr": "سُوْرَةُ صٓ",
+  "translit": "Saad",
+  "revelation": "mekki",
+  "ayahCount": 88
+ },
+ {
+  "id": 39,
+  "nameTr": "Zümer",
+  "nameAr": "سُوْرَةُ الزُّمَرِ",
+  "translit": "Az-Zumar",
+  "revelation": "mekki",
+  "ayahCount": 75
+ },
+ {
+  "id": 40,
+  "nameTr": "Mü'min",
+  "nameAr": "سُوْرَةُ الْمُؤْمِنِ",
+  "translit": "Ghafir",
+  "revelation": "mekki",
+  "ayahCount": 85
+ },
+ {
+  "id": 41,
+  "nameTr": "Fussilet",
+  "nameAr": "سُوْرَةُ فُصِّلَتۡ",
+  "translit": "Fussilat",
+  "revelation": "mekki",
+  "ayahCount": 54
+ },
+ {
+  "id": 42,
+  "nameTr": "Şûrâ",
+  "nameAr": "سُوْرَةُ الشُّوْرٰي",
+  "translit": "Ash-Shura",
+  "revelation": "mekki",
+  "ayahCount": 53
+ },
+ {
+  "id": 43,
+  "nameTr": "Zuhruf",
+  "nameAr": "سُوْرَةُ الزُّخْرُفِ",
+  "translit": "Az-Zukhruf",
+  "revelation": "mekki",
+  "ayahCount": 89
+ },
+ {
+  "id": 44,
+  "nameTr": "Duhân",
+  "nameAr": "سُوْرَةُ الدُّخَانِ",
+  "translit": "Ad-Dukhaan",
+  "revelation": "mekki",
+  "ayahCount": 59
+ },
+ {
+  "id": 45,
+  "nameTr": "Câsiye",
+  "nameAr": "سُوْرَةُ الْجَاثِيَةِ",
+  "translit": "Al-Jaathiya",
+  "revelation": "mekki",
+  "ayahCount": 37
+ },
+ {
+  "id": 46,
+  "nameTr": "Ahkâf",
+  "nameAr": "سُوْرَةُ الْاَحْقَافِ",
+  "translit": "Al-Ahqaf",
+  "revelation": "mekki",
+  "ayahCount": 35
+ },
+ {
+  "id": 47,
+  "nameTr": "Muhammed",
+  "nameAr": "سُوْرَةُ مُحَمَّدٍ",
+  "translit": "Muhammad",
+  "revelation": "medeni",
+  "ayahCount": 38
+ },
+ {
+  "id": 48,
+  "nameTr": "Fetih",
+  "nameAr": "سُوْرَةُ الْفَتْحِ",
+  "translit": "Al-Fath",
+  "revelation": "medeni",
+  "ayahCount": 29
+ },
+ {
+  "id": 49,
+  "nameTr": "Hucurât",
+  "nameAr": "سُوْرَةُ الْحُجُراتِ",
+  "translit": "Al-Hujuraat",
+  "revelation": "medeni",
+  "ayahCount": 18
+ },
+ {
+  "id": 50,
+  "nameTr": "Kâf",
+  "nameAr": "سُوْرَةُ قٓ",
+  "translit": "Qaaf",
+  "revelation": "mekki",
+  "ayahCount": 45
+ },
+ {
+  "id": 51,
+  "nameTr": "Zâriyât",
+  "nameAr": "سُوْرَةُ الذَّارِياتِ",
+  "translit": "Adh-Dhaariyat",
+  "revelation": "mekki",
+  "ayahCount": 60
+ },
+ {
+  "id": 52,
+  "nameTr": "Tûr",
+  "nameAr": "سُوْرَةُ الطُّوْرِ",
+  "translit": "At-Tur",
+  "revelation": "mekki",
+  "ayahCount": 49
+ },
+ {
+  "id": 53,
+  "nameTr": "Necm",
+  "nameAr": "سُوْرَةُ النَّجْمِ",
+  "translit": "An-Najm",
+  "revelation": "mekki",
+  "ayahCount": 62
+ },
+ {
+  "id": 54,
+  "nameTr": "Kamer",
+  "nameAr": "سُوْرَةُ الْقَمَرِ",
+  "translit": "Al-Qamar",
+  "revelation": "mekki",
+  "ayahCount": 55
+ },
+ {
+  "id": 55,
+  "nameTr": "Rahmân",
+  "nameAr": "سُوْرَةُ الرَّحْمٰنِ",
+  "translit": "Ar-Rahmaan",
+  "revelation": "medeni",
+  "ayahCount": 78
+ },
+ {
+  "id": 56,
+  "nameTr": "Vâkıa",
+  "nameAr": "سُوْرَةُ الْوَاقِعَةِ",
+  "translit": "Al-Waaqia",
+  "revelation": "mekki",
+  "ayahCount": 96
+ },
+ {
+  "id": 57,
+  "nameTr": "Hadîd",
+  "nameAr": "سُوْرَةُ الْحَدِيْدِ",
+  "translit": "Al-Hadid",
+  "revelation": "medeni",
+  "ayahCount": 29
+ },
+ {
+  "id": 58,
+  "nameTr": "Mücâdele",
+  "nameAr": "سُوْرَةُ الْمُجَادَلَةِ",
+  "translit": "Al-Mujaadila",
+  "revelation": "medeni",
+  "ayahCount": 22
+ },
+ {
+  "id": 59,
+  "nameTr": "Haşr",
+  "nameAr": "سُوْرَةُ الْحَشْرِ",
+  "translit": "Al-Hashr",
+  "revelation": "medeni",
+  "ayahCount": 24
+ },
+ {
+  "id": 60,
+  "nameTr": "Mümtehine",
+  "nameAr": "سُوْرَةُ الْمُمْتَحِنَةِ",
+  "translit": "Al-Mumtahana",
+  "revelation": "medeni",
+  "ayahCount": 13
+ },
+ {
+  "id": 61,
+  "nameTr": "Saff",
+  "nameAr": "سُوْرَةُ الصَّفِّ",
+  "translit": "As-Saff",
+  "revelation": "medeni",
+  "ayahCount": 14
+ },
+ {
+  "id": 62,
+  "nameTr": "Cum'a",
+  "nameAr": "سُوْرَةُ الْجُمُعَةِ",
+  "translit": "Al-Jumu'a",
+  "revelation": "medeni",
+  "ayahCount": 11
+ },
+ {
+  "id": 63,
+  "nameTr": "Münâfikûn",
+  "nameAr": "سُوْرَةُ الْمُنَافِقُوْنَ",
+  "translit": "Al-Munaafiqoon",
+  "revelation": "medeni",
+  "ayahCount": 11
+ },
+ {
+  "id": 64,
+  "nameTr": "Teğâbün",
+  "nameAr": "سُوْرَةُ التَّغَابُنِ",
+  "translit": "At-Taghaabun",
+  "revelation": "medeni",
+  "ayahCount": 18
+ },
+ {
+  "id": 65,
+  "nameTr": "Talâk",
+  "nameAr": "سُوْرَةُ الطَّلَاقِ",
+  "translit": "At-Talaaq",
+  "revelation": "medeni",
+  "ayahCount": 12
+ },
+ {
+  "id": 66,
+  "nameTr": "Tahrîm",
+  "nameAr": "سُوْرَةُ التَّحْرِيْمِ",
+  "translit": "At-Tahrim",
+  "revelation": "medeni",
+  "ayahCount": 12
+ },
+ {
+  "id": 67,
+  "nameTr": "Mülk",
+  "nameAr": "سُوْرَةُ الْمُلْكِ",
+  "translit": "Al-Mulk",
+  "revelation": "mekki",
+  "ayahCount": 30
+ },
+ {
+  "id": 68,
+  "nameTr": "Kalem",
+  "nameAr": "سُوْرَةُ الْقَلَمِ",
+  "translit": "Al-Qalam",
+  "revelation": "mekki",
+  "ayahCount": 52
+ },
+ {
+  "id": 69,
+  "nameTr": "Hâkka",
+  "nameAr": "سُوْرَةُ الْحَآقَّةِ",
+  "translit": "Al-Haaqqa",
+  "revelation": "mekki",
+  "ayahCount": 52
+ },
+ {
+  "id": 70,
+  "nameTr": "Meâric",
+  "nameAr": "سُوْرَةُ الْمَعَارِجِ",
+  "translit": "Al-Ma'aarij",
+  "revelation": "mekki",
+  "ayahCount": 44
+ },
+ {
+  "id": 71,
+  "nameTr": "Nûh",
+  "nameAr": "سُوْرَةُ نُوْحٍ",
+  "translit": "Nooh",
+  "revelation": "mekki",
+  "ayahCount": 28
+ },
+ {
+  "id": 72,
+  "nameTr": "Cin",
+  "nameAr": "سُوْرَةُ الْجِنِّ",
+  "translit": "Al-Jinn",
+  "revelation": "mekki",
+  "ayahCount": 28
+ },
+ {
+  "id": 73,
+  "nameTr": "Müzzemmil",
+  "nameAr": "سُوْرَةُ الْمُزَّمِّلِ",
+  "translit": "Al-Muzzammil",
+  "revelation": "mekki",
+  "ayahCount": 20
+ },
+ {
+  "id": 74,
+  "nameTr": "Müddessir",
+  "nameAr": "سُوْرَةُ الْمُدَّثِّرِ",
+  "translit": "Al-Muddaththir",
+  "revelation": "mekki",
+  "ayahCount": 56
+ },
+ {
+  "id": 75,
+  "nameTr": "Kıyâme",
+  "nameAr": "سُوْرَةُ الْقِيَامَةِ",
+  "translit": "Al-Qiyaama",
+  "revelation": "mekki",
+  "ayahCount": 40
+ },
+ {
+  "id": 76,
+  "nameTr": "İnsân",
+  "nameAr": "سُوْرَةُ الدَّهْرِ",
+  "translit": "Al-Insaan",
+  "revelation": "medeni",
+  "ayahCount": 31
+ },
+ {
+  "id": 77,
+  "nameTr": "Mürselât",
+  "nameAr": "سُوْرَةُ الْمُرْسَلَاتِ",
+  "translit": "Al-Mursalaat",
+  "revelation": "mekki",
+  "ayahCount": 50
+ },
+ {
+  "id": 78,
+  "nameTr": "Nebe'",
+  "nameAr": "سُوْرَةُ النَّبَاِ",
+  "translit": "An-Naba",
+  "revelation": "mekki",
+  "ayahCount": 40
+ },
+ {
+  "id": 79,
+  "nameTr": "Nâziât",
+  "nameAr": "سُوْرَةُ النَّازِعَاتِ",
+  "translit": "An-Naazi'aat",
+  "revelation": "mekki",
+  "ayahCount": 46
+ },
+ {
+  "id": 80,
+  "nameTr": "Abese",
+  "nameAr": "سُوْرَةُ عَبَسَ",
+  "translit": "Abasa",
+  "revelation": "mekki",
+  "ayahCount": 42
+ },
+ {
+  "id": 81,
+  "nameTr": "Tekvîr",
+  "nameAr": "سُوْرَةُ التَّكْوِيْرِ",
+  "translit": "At-Takwir",
+  "revelation": "mekki",
+  "ayahCount": 29
+ },
+ {
+  "id": 82,
+  "nameTr": "İnfitâr",
+  "nameAr": "سُوْرَةُ الْاِنْفِطَارِ",
+  "translit": "Al-Infitaar",
+  "revelation": "mekki",
+  "ayahCount": 19
+ },
+ {
+  "id": 83,
+  "nameTr": "Mutaffifîn",
+  "nameAr": "سُوْرَةُ المُطَفِّفِيْنَ",
+  "translit": "Al-Mutaffifin",
+  "revelation": "mekki",
+  "ayahCount": 36
+ },
+ {
+  "id": 84,
+  "nameTr": "İnşikâk",
+  "nameAr": "سُوْرَةُ الاِنْشِقَاقِ",
+  "translit": "Al-Inshiqaaq",
+  "revelation": "mekki",
+  "ayahCount": 25
+ },
+ {
+  "id": 85,
+  "nameTr": "Bürûc",
+  "nameAr": "سُوْرَةُ الْبُرُوْجِ",
+  "translit": "Al-Burooj",
+  "revelation": "mekki",
+  "ayahCount": 22
+ },
+ {
+  "id": 86,
+  "nameTr": "Târık",
+  "nameAr": "سُوْرَةُ الطَّارِقِ",
+  "translit": "At-Taariq",
+  "revelation": "mekki",
+  "ayahCount": 17
+ },
+ {
+  "id": 87,
+  "nameTr": "A'lâ",
+  "nameAr": "سُوْرَةُ الْاَعْلٰي",
+  "translit": "Al-A'laa",
+  "revelation": "mekki",
+  "ayahCount": 19
+ },
+ {
+  "id": 88,
+  "nameTr": "Ğâşiye",
+  "nameAr": "سُوْرَةُ الْغَاشِيَةِ",
+  "translit": "Al-Ghaashiya",
+  "revelation": "mekki",
+  "ayahCount": 26
+ },
+ {
+  "id": 89,
+  "nameTr": "Fecr",
+  "nameAr": "سُوْرَةُ الْفَجْرِ",
+  "translit": "Al-Fajr",
+  "revelation": "mekki",
+  "ayahCount": 30
+ },
+ {
+  "id": 90,
+  "nameTr": "Beled",
+  "nameAr": "سُوْرَةُ الْبَلَدِ",
+  "translit": "Al-Balad",
+  "revelation": "mekki",
+  "ayahCount": 20
+ },
+ {
+  "id": 91,
+  "nameTr": "Şems",
+  "nameAr": "سُوْرَةُ الشَّمْسِ",
+  "translit": "Ash-Shams",
+  "revelation": "mekki",
+  "ayahCount": 15
+ },
+ {
+  "id": 92,
+  "nameTr": "Leyl",
+  "nameAr": "سُوْرَةُ الَّيْلِ",
+  "translit": "Al-Lail",
+  "revelation": "mekki",
+  "ayahCount": 21
+ },
+ {
+  "id": 93,
+  "nameTr": "Duhâ",
+  "nameAr": "سُوْرَةُ الضُّحٰي",
+  "translit": "Ad-Dhuhaa",
+  "revelation": "mekki",
+  "ayahCount": 11
+ },
+ {
+  "id": 94,
+  "nameTr": "İnşirâh",
+  "nameAr": "سُوْرَةُ الشَّرْحِ",
+  "translit": "Ash-Sharh",
+  "revelation": "mekki",
+  "ayahCount": 8
+ },
+ {
+  "id": 95,
+  "nameTr": "Tîn",
+  "nameAr": "سُوْرَةُ التِّيْنِ",
+  "translit": "At-Tin",
+  "revelation": "mekki",
+  "ayahCount": 8
+ },
+ {
+  "id": 96,
+  "nameTr": "Alak",
+  "nameAr": "سُوْرَةُ الْعَلَقِ",
+  "translit": "Al-Alaq",
+  "revelation": "mekki",
+  "ayahCount": 19
+ },
+ {
+  "id": 97,
+  "nameTr": "Kadir",
+  "nameAr": "سُوْرَةُ الْقَدْرِ",
+  "translit": "Al-Qadr",
+  "revelation": "mekki",
+  "ayahCount": 5
+ },
+ {
+  "id": 98,
+  "nameTr": "Beyyine",
+  "nameAr": "سُوْرَةُ الْبَيِّنَةِ",
+  "translit": "Al-Bayyina",
+  "revelation": "medeni",
+  "ayahCount": 8
+ },
+ {
+  "id": 99,
+  "nameTr": "Zilzâl",
+  "nameAr": "سُوْرَةُ الزِّلْزَالِ",
+  "translit": "Az-Zalzala",
+  "revelation": "medeni",
+  "ayahCount": 8
+ },
+ {
+  "id": 100,
+  "nameTr": "Âdiyât",
+  "nameAr": "سُوْرَةُ العٰدِيٰتِ",
+  "translit": "Al-Aadiyaat",
+  "revelation": "mekki",
+  "ayahCount": 11
+ },
+ {
+  "id": 101,
+  "nameTr": "Kâria",
+  "nameAr": "سُوْرَةُ الْقَارِعَةِ",
+  "translit": "Al-Qaari'a",
+  "revelation": "mekki",
+  "ayahCount": 11
+ },
+ {
+  "id": 102,
+  "nameTr": "Tekâsür",
+  "nameAr": "سُوْرَةُ التَّكَاثُرِ",
+  "translit": "At-Takaathur",
+  "revelation": "mekki",
+  "ayahCount": 8
+ },
+ {
+  "id": 103,
+  "nameTr": "Asr",
+  "nameAr": "سُوْرَةُ الْعَصْرِ",
+  "translit": "Al-Asr",
+  "revelation": "mekki",
+  "ayahCount": 3
+ },
+ {
+  "id": 104,
+  "nameTr": "Hümeze",
+  "nameAr": "سُوْرَةُ الْهُمَزَةِ",
+  "translit": "Al-Humaza",
+  "revelation": "mekki",
+  "ayahCount": 9
+ },
+ {
+  "id": 105,
+  "nameTr": "Fîl",
+  "nameAr": "سُوْرَةُ الْفِيْلِ",
+  "translit": "Al-Fil",
+  "revelation": "mekki",
+  "ayahCount": 5
+ },
+ {
+  "id": 106,
+  "nameTr": "Kureyş",
+  "nameAr": "سُوْرَةُ قُرَيْشٍ",
+  "translit": "Quraish",
+  "revelation": "mekki",
+  "ayahCount": 4
+ },
+ {
+  "id": 107,
+  "nameTr": "Mâûn",
+  "nameAr": "سُوْرَةُ الْمَاعُوْنِ",
+  "translit": "Al-Maa'un",
+  "revelation": "mekki",
+  "ayahCount": 7
+ },
+ {
+  "id": 108,
+  "nameTr": "Kevser",
+  "nameAr": "سُوْرَةُ الْكَوْثَرِ",
+  "translit": "Al-Kawthar",
+  "revelation": "mekki",
+  "ayahCount": 3
+ },
+ {
+  "id": 109,
+  "nameTr": "Kâfirûn",
+  "nameAr": "سُوْرَةُ الْكَافِرُوْنَ",
+  "translit": "Al-Kaafiroon",
+  "revelation": "mekki",
+  "ayahCount": 6
+ },
+ {
+  "id": 110,
+  "nameTr": "Nasr",
+  "nameAr": "سُوْرَةُ النَّصْرِ",
+  "translit": "An-Nasr",
+  "revelation": "medeni",
+  "ayahCount": 3
+ },
+ {
+  "id": 111,
+  "nameTr": "Tebbet",
+  "nameAr": "سُوْرَةُ المَسَدِ",
+  "translit": "Al-Masad",
+  "revelation": "mekki",
+  "ayahCount": 5
+ },
+ {
+  "id": 112,
+  "nameTr": "İhlâs",
+  "nameAr": "سُوْرَةُ الْاِخْلَاصِ",
+  "translit": "Al-Ikhlaas",
+  "revelation": "mekki",
+  "ayahCount": 4
+ },
+ {
+  "id": 113,
+  "nameTr": "Felak",
+  "nameAr": "سُوْرَةُ الْفَلَقِ",
+  "translit": "Al-Falaq",
+  "revelation": "mekki",
+  "ayahCount": 5
+ },
+ {
+  "id": 114,
+  "nameTr": "Nâs",
+  "nameAr": "سُوْرَةُ النَّاسِ",
+  "translit": "An-Naas",
+  "revelation": "mekki",
+  "ayahCount": 6
+ }
+]

@@ -1,0 +1,31 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* DuaHub tasarım token'ları — tek doğruluk kaynağı.
+   Renkler "R G B" kanal formatında tutulur ki Tailwind <alpha-value> çalışsın. */
+:root {
+  --color-background: 246 248 251; /* açık: yumuşak fildişi-gri */
+  --color-surface: 255 255 255;
+  --color-raised: 241 245 249;
+  --color-border: 226 232 240;
+  --color-primary: 13 148 103; /* zümrüt */
+  --color-on-primary: 255 255 255;
+  --color-gold: 164 120 24; /* altın vurgu (açık temada koyulaştırılmış) */
+  --color-ink: 15 23 42; /* ana metin */
+  --color-muted: 100 116 139; /* ikincil metin */
+}
+
+@media (prefers-color-scheme: dark) {
+  :root {
+    --color-background: 10 16 28; /* gece yarısı laciverdi */
+    --color-surface: 18 26 42;
+    --color-raised: 26 37 58;
+    --color-border: 36 49 73;
+    --color-primary: 32 197 143; /* zümrüt, karanlıkta parlak */
+    --color-on-primary: 6 24 18;
+    --color-gold: 227 179 65;
+    --color-ink: 241 245 249;
+    --color-muted: 140 158 184;
+  }
+}
