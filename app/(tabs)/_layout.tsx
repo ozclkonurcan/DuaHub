@@ -1,71 +1,75 @@
-// app/(tabs)/_layout.tsx
 import { Ionicons } from "@expo/vector-icons";
-import { Tabs } from "expo-router";
-import { useColorScheme } from "react-native";
-import { Colors } from "../../constants/Colors";
+import { Redirect, Tabs } from "expo-router";
+
+import { useThemeColors } from "@/core/theme/useThemeColors";
+import { useAppSettings, useAppSettingsHydrated } from "@/stores/appSettings";
 
 export default function TabLayout() {
-  const colorScheme = useColorScheme();
-  const colors = Colors[colorScheme ?? "light"];
+  const colors = useThemeColors();
+  const hydrated = useAppSettingsHydrated();
+  const hasOnboarded = useAppSettings((s) => s.hasOnboarded);
+
+  // Persist yüklenene dek hiçbir şey çizme (splash görünmeye devam eder);
+  // ilk kurulumda kullanıcıyı onboarding'e gönder.
+  if (!hydrated) return null;
+  if (!hasOnboarded) return <Redirect href="/onboarding" />;
 
   return (
     <Tabs
       screenOptions={{
-        tabBarActiveTintColor: colors.primary,
-        tabBarInactiveTintColor: colors.tabIconDefault,
         headerShown: false,
+        tabBarActiveTintColor: colors.primary,
+        tabBarInactiveTintColor: colors.muted,
         tabBarStyle: {
-          backgroundColor: colors.background,
+          backgroundColor: colors.surface,
           borderTopColor: colors.border,
           borderTopWidth: 1,
-          height: 100, // Daha yüksek (iPhone için)
-          paddingBottom: 35, // Alt padding artırıldı
-          paddingTop: 10,
-          elevation: 0,
-          shadowOpacity: 0,
         },
-        tabBarItemStyle: {
-          paddingVertical: 5,
-        },
-        tabBarLabelStyle: {
-          fontSize: 11,
-          fontWeight: "600",
-        },
+        tabBarLabelStyle: { fontSize: 11, fontWeight: "600" },
       }}
     >
       <Tabs.Screen
         name="index"
         options={{
-          title: "Ana Sayfa",
+          title: "Bugün",
           tabBarIcon: ({ color, size }) => (
-            <Ionicons name="home" size={size} color={color} />
+            <Ionicons name="today-outline" size={size} color={color} />
           ),
         }}
       />
       <Tabs.Screen
-        name="categories"
+        name="quran"
         options={{
-          title: "Kategoriler",
+          title: "Kur'an",
           tabBarIcon: ({ color, size }) => (
-            <Ionicons name="grid" size={size} color={color} />
+            <Ionicons name="book-outline" size={size} color={color} />
           ),
         }}
       />
       <Tabs.Screen
-        name="favorites"
+        name="dua"
         options={{
-          title: "Favoriler",
+          title: "Dua & Zikir",
           tabBarIcon: ({ color, size }) => (
-            <Ionicons name="heart" size={size} color={color} />
+            <Ionicons name="heart-outline" size={size} color={color} />
           ),
         }}
       />
       <Tabs.Screen
-        name="profile"
+        name="rehber"
         options={{
-          title: "Profil",
+          title: "Rehber",
           tabBarIcon: ({ color, size }) => (
-            <Ionicons name="person" size={size} color={color} />
+            <Ionicons name="sparkles-outline" size={size} color={color} />
+          ),
+        }}
+      />
+      <Tabs.Screen
+        name="more"
+        options={{
+          title: "Daha",
+          tabBarIcon: ({ color, size }) => (
+            <Ionicons name="ellipsis-horizontal" size={size} color={color} />
           ),
         }}
       />

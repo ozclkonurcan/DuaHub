@@ -1,45 +1,28 @@
-// app/_layout.tsx
+import "../global.css";
+
+import { ThemeProvider } from "@react-navigation/native";
+import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { Stack } from "expo-router";
-import { useEffect } from "react";
+import { StatusBar } from "expo-status-bar";
 import { useColorScheme } from "react-native";
-import { Colors } from "../constants/Colors";
-import * as PurchaseService from "../services/purchaseService";
+
+import { navigationThemes } from "@/core/theme/navigation";
+import { useNotificationSync } from "@/features/notifications/useNotificationSync";
+
+const queryClient = new QueryClient();
 
 export default function RootLayout() {
-  const colorScheme = useColorScheme();
-  const colors = Colors[colorScheme ?? "light"];
-
-  useEffect(() => {
-    // RevenueCat'i başlat
-    PurchaseService.initializePurchases();
-  }, []);
+  const scheme = useColorScheme() ?? "dark";
+  useNotificationSync();
 
   return (
-    <Stack
-      screenOptions={{
-        headerStyle: {
-          backgroundColor: colors.background,
-        },
-        headerTintColor: colors.text,
-        headerShadowVisible: false,
-      }}
-    >
-      <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
-      <Stack.Screen
-        name="dua/[id]"
-        options={{
-          title: "Dua Detayı",
-          presentation: "card",
-        }}
-      />
-      <Stack.Screen
-        name="category/[slug]"
-        options={{
-          title: "Kategori",
-          presentation: "card",
-        }}
-      />
-      <Stack.Screen name="+not-found" />
-    </Stack>
+    <QueryClientProvider client={queryClient}>
+      <ThemeProvider value={navigationThemes[scheme]}>
+        <Stack screenOptions={{ headerShown: false }}>
+          <Stack.Screen name="(tabs)" />
+        </Stack>
+        <StatusBar style="auto" />
+      </ThemeProvider>
+    </QueryClientProvider>
   );
 }

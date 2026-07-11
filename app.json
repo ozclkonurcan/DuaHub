@@ -48,7 +48,11 @@
             "useFrameworks": "static"
           }
         }
-      ]
+      ],
+      "expo-sqlite",
+      "expo-font",
+      "expo-web-browser",
+      "expo-asset"
     ],
     "experiments": {
       "typedRoutes": true,

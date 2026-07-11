@@ -1,0 +1,120 @@
+# DuaHub — iOS Build & TestFlight Deploy (Expo / React Native)
+#
+# Gerekli repository secrets:
+#   APP_STORE_CONNECT_ISSUER_ID  → App Store Connect API Issuer ID (mevcut ✓)
+#   APP_STORE_CONNECT_KEY_ID     → API Key ID (mevcut ✓)
+#   APP_STORE_P8_KEY             → .p8 dosyasının İÇERİĞİ (mevcut ✓)
+#   APPLE_TEAM_ID                → 10 haneli Apple Team ID (EKLENMELİ)
+#
+# İmzalama: MAUI projendeki gibi p12/profil secret'ı GEREKMEZ — xcodebuild,
+# ASC API anahtarıyla "cloud signing" yapar (sertifika+profili kendisi üretir/indirir).
+# Bunun için API anahtarının rolü en az "App Manager" olmalı.
+#
+# Tetikleme: macOS dakikaları 10x yandığı için her push'ta değil;
+# Actions sekmesinden elle (workflow_dispatch) veya v* tag'i push'layınca çalışır.
+#   git tag v1.0.0 && git push origin v1.0.0
+
+name: iOS Build & TestFlight Deploy
+
+on:
+  workflow_dispatch:
+  push:
+    tags: ["v*"]
+
+concurrency:
+  group: ios-testflight
+  cancel-in-progress: false
+
+jobs:
+  build-ios:
+    runs-on: macos-15
+    timeout-minutes: 90
+
+    env:
+      KEY_ID: ${{ secrets.APP_STORE_CONNECT_KEY_ID }}
+      ISSUER_ID: ${{ secrets.APP_STORE_CONNECT_ISSUER_ID }}
+      TEAM_ID: ${{ secrets.APPLE_TEAM_ID }}
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: npm
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Build content database (repoda yoksa)
+        run: |
+          if [ ! -f assets/db/quran.db ]; then
+            npx tsx scripts/build-content-db.ts
+          fi
+
+      # CNG: ios/ klasörü repoda tutulmaz, her build'de üretilir.
+      # prebuild, CocoaPods kurulumunu da (pod install) kendisi yapar.
+      - name: Expo prebuild (iOS)
+        run: npx expo prebuild --platform ios
+
+      - name: App Store Connect API key
+        env:
+          PRIVATE_KEY: ${{ secrets.APP_STORE_P8_KEY }}
+        run: |
+          mkdir -p ~/.appstoreconnect/private_keys
+          printf "%s\n" "$PRIVATE_KEY" > ~/.appstoreconnect/private_keys/AuthKey_$KEY_ID.p8
+          cp ~/.appstoreconnect/private_keys/AuthKey_$KEY_ID.p8 "$RUNNER_TEMP/AuthKey.p8"
+
+      # Her build benzersiz numara almalı; run_number bunu bedavaya sağlar.
+      - name: Set build number
+        working-directory: ios
+        run: xcrun agvtool new-version -all ${{ github.run_number }}
+
+      - name: Archive (cloud signing)
+        run: |
+          xcodebuild archive \
+            -workspace ios/duahub.xcworkspace \
+            -scheme duahub \
+            -configuration Release \
+            -destination "generic/platform=iOS" \
+            -archivePath "$RUNNER_TEMP/duahub.xcarchive" \
+            -allowProvisioningUpdates \
+            -authenticationKeyPath "$RUNNER_TEMP/AuthKey.p8" \
+            -authenticationKeyID "$KEY_ID" \
+            -authenticationKeyIssuerID "$ISSUER_ID" \
+            DEVELOPMENT_TEAM="$TEAM_ID" \
+            CODE_SIGN_STYLE=Automatic
+
+      - name: Export IPA
+        run: |
+          cat > "$RUNNER_TEMP/ExportOptions.plist" <<EOF
+          <?xml version="1.0" encoding="UTF-8"?>
+          <!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+          <plist version="1.0">
+          <dict>
+            <key>method</key><string>app-store-connect</string>
+            <key>signingStyle</key><string>automatic</string>
+            <key>teamID</key><string>$TEAM_ID</string>
+          </dict>
+          </plist>
+          EOF
+          xcodebuild -exportArchive \
+            -archivePath "$RUNNER_TEMP/duahub.xcarchive" \
+            -exportOptionsPlist "$RUNNER_TEMP/ExportOptions.plist" \
+            -exportPath "$RUNNER_TEMP/export" \
+            -allowProvisioningUpdates \
+            -authenticationKeyPath "$RUNNER_TEMP/AuthKey.p8" \
+            -authenticationKeyID "$KEY_ID" \
+            -authenticationKeyIssuerID "$ISSUER_ID"
+
+      - name: Upload to TestFlight
+        run: |
+          IPA_PATH=$(find "$RUNNER_TEMP/export" -name "*.ipa" | head -n 1)
+          echo "Yükleniyor: $IPA_PATH"
+          xcrun altool --upload-app \
+            --type ios \
+            --file "$IPA_PATH" \
+            --apiKey "$KEY_ID" \
+            --apiIssuer "$ISSUER_ID"
