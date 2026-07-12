@@ -13,6 +13,8 @@ import {
   type PrayerName,
 } from "@/features/prayer-times/engine";
 import { usePrayerTimes } from "@/features/prayer-times/usePrayerTimes";
+import { getSurah } from "@/features/quran/data";
+import { useQuranProgress } from "@/stores/quranProgress";
 
 const PRAYER_ORDER: PrayerName[] = [
   "fajr",
@@ -29,6 +31,10 @@ export default function TodayScreen() {
   const { refresh, busy } = useLocationRefresh();
   const colors = useThemeColors();
   const hijri = formatHijriDate();
+  const lastRead = useQuranProgress((s) => s.lastRead);
+  const streak = useQuranProgress((s) => s.streak)();
+  const readToday = useQuranProgress((s) => s.readToday)();
+  const lastReadSurah = lastRead ? getSurah(lastRead.surahId) : undefined;
 
   // İzin daha önce verildiyse açılışta konumu sessizce tazele.
   useEffect(() => {
@@ -118,6 +124,54 @@ export default function TodayScreen() {
           );
         })}
       </Card>
+
+      {/* Kur'an zinciri — okuma alışkanlığı kartı */}
+      <Link
+        href={
+          lastRead
+            ? {
+                pathname: "/quran/[surah]",
+                params: { surah: String(lastRead.surahId) },
+              }
+            : "/quran"
+        }
+        asChild
+      >
+        <Pressable className="mb-4 active:opacity-70">
+          <Card className="flex-row items-center gap-3">
+            <View
+              className={`h-10 w-10 items-center justify-center rounded-full ${
+                readToday ? "bg-gold/15" : "bg-raised"
+              }`}
+            >
+              <Ionicons
+                name="flame"
+                size={20}
+                color={readToday ? colors.gold : colors.muted}
+              />
+            </View>
+            <View className="flex-1">
+              <Text className="font-semibold">
+                {streak > 0 ? `${streak} günlük okuma zinciri` : "Kur'an zinciri başlat"}
+              </Text>
+              <Text variant="caption" className="text-xs">
+                {lastRead && lastReadSurah
+                  ? `Kaldığın yer: ${lastReadSurah.nameTr} ${lastRead.ayah}. ayet`
+                  : "Bugün bir sayfa bile yeter — kaldığın yeri işaretle"}
+              </Text>
+            </View>
+            {!readToday ? (
+              <View className="rounded-full bg-primary px-3 py-1.5">
+                <Text className="text-xs font-bold text-on-primary">
+                  {lastRead ? "Devam et" : "Başla"}
+                </Text>
+              </View>
+            ) : (
+              <Ionicons name="checkmark-circle" size={20} color={colors.gold} />
+            )}
+          </Card>
+        </Pressable>
+      </Link>
 
       {/* Hızlı erişim */}
       <View className="flex-row gap-3">

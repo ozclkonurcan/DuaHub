@@ -5,12 +5,17 @@ import { FlatList, Pressable, TextInput, View } from "react-native";
 
 import { Card, Screen, Text } from "@/components/ui";
 import { useThemeColors } from "@/core/theme/useThemeColors";
-import { searchSurahs, type SurahMeta } from "@/features/quran/data";
+import { getSurah, searchSurahs, type SurahMeta } from "@/features/quran/data";
+import { khatmPercent, useQuranProgress } from "@/stores/quranProgress";
 
 export default function QuranScreen() {
   const colors = useThemeColors();
   const [query, setQuery] = useState("");
   const surahs = useMemo(() => searchSurahs(query), [query]);
+  const lastRead = useQuranProgress((s) => s.lastRead);
+  const streak = useQuranProgress((s) => s.streak)();
+  const lastReadSurah = lastRead ? getSurah(lastRead.surahId) : undefined;
+  const percent = khatmPercent(lastRead);
 
   const renderItem = ({ item }: { item: SurahMeta }) => (
     <Link
@@ -39,9 +44,55 @@ export default function QuranScreen() {
 
   return (
     <Screen>
-      <Text variant="title" className="mb-3 mt-2">
-        Kur&apos;an-ı Kerim
-      </Text>
+      <View className="mb-3 mt-2 flex-row items-center justify-between">
+        <Text variant="title">Kur&apos;an-ı Kerim</Text>
+        {streak > 0 ? (
+          <View className="flex-row items-center gap-1 rounded-full bg-gold/15 px-2.5 py-1">
+            <Ionicons name="flame" size={13} color={colors.gold} />
+            <Text className="text-xs font-bold text-gold">{streak} gün</Text>
+          </View>
+        ) : null}
+      </View>
+
+      {/* Kaldığın yer — hatim ilerlemesi */}
+      {lastRead && lastReadSurah ? (
+        <Link
+          href={{
+            pathname: "/quran/[surah]",
+            params: { surah: String(lastRead.surahId) },
+          }}
+          asChild
+        >
+          <Pressable className="mb-3 active:opacity-80">
+            <View className="rounded-card bg-primary p-4">
+              <View className="flex-row items-center justify-between">
+                <View className="flex-1 pr-3">
+                  <Text variant="label" className="text-on-primary/80">
+                    Kaldığın Yer
+                  </Text>
+                  <Text className="mt-0.5 text-lg font-bold text-on-primary">
+                    {lastReadSurah.nameTr} Suresi · {lastRead.ayah}. ayet
+                  </Text>
+                  <Text className="text-xs font-medium text-on-primary/80">
+                    Sayfa {lastRead.page} / 604 · hatim %{percent}
+                  </Text>
+                </View>
+                <Ionicons
+                  name="play-circle"
+                  size={34}
+                  color={colors.onPrimary}
+                />
+              </View>
+              <View className="mt-3 h-1.5 overflow-hidden rounded-full bg-on-primary/20">
+                <View
+                  className="h-full rounded-full bg-on-primary"
+                  style={{ width: `${Math.max(percent, 2)}%` }}
+                />
+              </View>
+            </View>
+          </Pressable>
+        </Link>
+      ) : null}
 
       {/* Arama */}
       <View className="mb-3 flex-row items-center gap-2 rounded-2xl border border-border bg-surface px-3">

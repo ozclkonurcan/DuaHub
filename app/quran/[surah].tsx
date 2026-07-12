@@ -6,6 +6,7 @@ import { ActivityIndicator, FlatList, Platform, Pressable, View } from "react-na
 import { Card, Screen, Text } from "@/components/ui";
 import { useThemeColors } from "@/core/theme/useThemeColors";
 import { getAyahs, getSurah, type Ayah } from "@/features/quran/data";
+import { useQuranProgress } from "@/stores/quranProgress";
 
 const BESMELE = "بِسْمِ اللَّهِ الرَّحْمَٰنِ الرَّحِيمِ";
 
@@ -17,6 +18,8 @@ export default function SurahScreen() {
   const surah = getSurah(surahId);
 
   const [ayahs, setAyahs] = useState<Ayah[] | null | "loading">("loading");
+  const lastRead = useQuranProgress((s) => s.lastRead);
+  const markRead = useQuranProgress((s) => s.markRead);
 
   useEffect(() => {
     let cancelled = false;
@@ -43,17 +46,34 @@ export default function SurahScreen() {
     );
   }
 
-  const renderAyah = ({ item }: { item: Ayah }) => (
-    <Card className="mb-3">
+  const renderAyah = ({ item }: { item: Ayah }) => {
+    const isBookmarked =
+      lastRead?.surahId === item.surahId && lastRead?.ayah === item.number;
+    return (
+    <Card className={`mb-3 ${isBookmarked ? "border-gold" : ""}`}>
       <View className="mb-3 flex-row items-center justify-between">
         <View className="h-7 w-7 items-center justify-center rounded-full bg-raised">
           <Text className="font-mono text-xs font-bold text-primary">
             {item.number}
           </Text>
         </View>
-        <Text variant="caption" className="text-xs">
-          Cüz {item.juz} · Sayfa {item.page}
-        </Text>
+        <View className="flex-row items-center gap-3">
+          <Text variant="caption" className="text-xs">
+            Cüz {item.juz} · Sayfa {item.page}
+          </Text>
+          {/* Kaldığım yer işareti — hatim/streak ilerlemesini besler */}
+          <Pressable
+            onPress={() => markRead(item.surahId, item.number, item.page)}
+            hitSlop={8}
+            className="active:opacity-60"
+          >
+            <Ionicons
+              name={isBookmarked ? "bookmark" : "bookmark-outline"}
+              size={16}
+              color={isBookmarked ? colors.gold : colors.muted}
+            />
+          </Pressable>
+        </View>
       </View>
       <Text
         className="text-right text-2xl leading-[44px] text-ink"
@@ -65,7 +85,8 @@ export default function SurahScreen() {
         {item.textTr}
       </Text>
     </Card>
-  );
+    );
+  };
 
   return (
     <Screen>
