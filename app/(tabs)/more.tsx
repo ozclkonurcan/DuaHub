@@ -1,9 +1,10 @@
 import { Ionicons } from "@expo/vector-icons";
 import { Link } from "expo-router";
-import { Pressable, View } from "react-native";
+import { Alert, Platform, Pressable, View } from "react-native";
 
 import { Card, Screen, Text } from "@/components/ui";
 import { useThemeColors } from "@/core/theme/useThemeColors";
+import { signOut, useSession } from "@/features/auth/useAuth";
 
 interface Row {
   icon: keyof typeof Ionicons.glyphMap;
@@ -44,12 +45,80 @@ const ROWS: Row[] = [
 
 export default function MoreScreen() {
   const colors = useThemeColors();
+  const { session, configured } = useSession();
+
+  const handleSignOut = () => {
+    if (Platform.OS === "web") {
+      signOut();
+      return;
+    }
+    Alert.alert("Çıkış yap", "Hesabından çıkmak istiyor musun?", [
+      { text: "Vazgeç", style: "cancel" },
+      { text: "Çıkış Yap", style: "destructive", onPress: () => signOut() },
+    ]);
+  };
 
   return (
     <Screen scroll>
       <Text variant="title" className="mb-4 mt-2">
         Daha
       </Text>
+
+      {/* Hesap — senkron/yedekleme kapısı */}
+      {configured ? (
+        session ? (
+          <Card className="mb-4 flex-row items-center gap-3">
+            <View className="h-10 w-10 items-center justify-center rounded-full bg-primary">
+              <Text className="font-bold text-on-primary">
+                {(session.user.email ?? "?").charAt(0).toLocaleUpperCase("tr")}
+              </Text>
+            </View>
+            <View className="flex-1">
+              <Text className="font-semibold" numberOfLines={1}>
+                {session.user.email}
+              </Text>
+              <Text variant="caption" className="text-xs">
+                Verilerin bu hesaba yedekleniyor
+              </Text>
+            </View>
+            <Pressable
+              onPress={handleSignOut}
+              className="rounded-full border border-border px-3 py-1.5 active:opacity-70"
+            >
+              <Text variant="caption" className="text-xs font-semibold">
+                Çıkış
+              </Text>
+            </Pressable>
+          </Card>
+        ) : (
+          <Link href="/auth" asChild>
+            <Pressable className="mb-4 active:opacity-80">
+              <View className="rounded-card bg-primary p-4">
+                <View className="flex-row items-center gap-3">
+                  <Ionicons
+                    name="cloud-upload-outline"
+                    size={22}
+                    color={colors.onPrimary}
+                  />
+                  <View className="flex-1">
+                    <Text className="font-bold text-on-primary">
+                      Giriş yap, verilerini yedekle
+                    </Text>
+                    <Text className="text-xs font-medium text-on-primary/80">
+                      Zincir, favoriler ve kaldığın yer tüm cihazlarında
+                    </Text>
+                  </View>
+                  <Ionicons
+                    name="chevron-forward"
+                    size={18}
+                    color={colors.onPrimary}
+                  />
+                </View>
+              </View>
+            </Pressable>
+          </Link>
+        )
+      ) : null}
       <Card className="p-0">
         {ROWS.map((row, i) => {
           const inner = (
