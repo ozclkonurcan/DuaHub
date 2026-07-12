@@ -14,7 +14,11 @@ import {
 } from "@/features/prayer-times/engine";
 import { usePrayerTimes } from "@/features/prayer-times/usePrayerTimes";
 import { getSurah } from "@/features/quran/data";
-import { useQuranProgress } from "@/stores/quranProgress";
+import {
+  computeStreak,
+  isReadToday,
+  useQuranProgress,
+} from "@/stores/quranProgress";
 
 const PRAYER_ORDER: PrayerName[] = [
   "fajr",
@@ -32,8 +36,9 @@ export default function TodayScreen() {
   const colors = useThemeColors();
   const hijri = formatHijriDate();
   const lastRead = useQuranProgress((s) => s.lastRead);
-  const streak = useQuranProgress((s) => s.streak)();
-  const readToday = useQuranProgress((s) => s.readToday)();
+  const readDays = useQuranProgress((s) => s.readDays);
+  const streak = computeStreak(readDays);
+  const readToday = isReadToday(readDays);
   const lastReadSurah = lastRead ? getSurah(lastRead.surahId) : undefined;
 
   // İzin daha önce verildiyse açılışta konumu sessizce tazele.

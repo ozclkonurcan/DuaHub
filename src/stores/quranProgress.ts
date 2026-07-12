@@ -23,11 +23,37 @@ interface QuranProgressState {
   /** Bugün dahil geriye doğru kesintisiz okuma günü sayısı (dün biterse zincir sürer). */
   streak: () => number;
   readToday: () => boolean;
+  /** Senkron pull birleştirmesi: gün bazında en ileri sayfa, lastRead LWW. */
+  applyRemote: (
+    date: string,
+    page: number,
+    remoteLastRead: LastRead | null,
+  ) => void;
 }
 
 function dayKey(date: Date): string {
   const pad = (n: number) => String(n).padStart(2, "0");
   return `${date.getFullYear()}-${pad(date.getMonth() + 1)}-${pad(date.getDate())}`;
+}
+
+/**
+ * Saf türetimler — bileşenler bunları readDays'e abone olarak kullanır
+ * (store içi fonksiyon selector'ı referansı değişmediği için re-render tetiklemez).
+ */
+export function computeStreak(readDays: Record<string, number>): number {
+  let count = 0;
+  const cursor = new Date();
+  // Bugün okunmadıysa zincir dünden itibaren sayılır (gün henüz bitmedi).
+  if (!readDays[dayKey(cursor)]) cursor.setDate(cursor.getDate() - 1);
+  while (readDays[dayKey(cursor)]) {
+    count++;
+    cursor.setDate(cursor.getDate() - 1);
+  }
+  return count;
+}
+
+export function isReadToday(readDays: Record<string, number>): boolean {
+  return Boolean(readDays[dayKey(new Date())]);
 }
 
 export const useQuranProgress = create<QuranProgressState>()(
@@ -42,20 +68,25 @@ export const useQuranProgress = create<QuranProgressState>()(
           readDays: { ...state.readDays, [dayKey(new Date())]: page },
         })),
 
-      streak: () => {
-        const { readDays } = get();
-        let count = 0;
-        const cursor = new Date();
-        // Bugün okunmadıysa zincir dünden itibaren sayılır (gün henüz bitmedi).
-        if (!readDays[dayKey(cursor)]) cursor.setDate(cursor.getDate() - 1);
-        while (readDays[dayKey(cursor)]) {
-          count++;
-          cursor.setDate(cursor.getDate() - 1);
-        }
-        return count;
-      },
+      streak: () => computeStreak(get().readDays),
 
-      readToday: () => Boolean(get().readDays[dayKey(new Date())]),
+      readToday: () => isReadToday(get().readDays),
+
+      applyRemote: (date, page, remoteLastRead) =>
+        set((state) => {
+          const localPage = state.readDays[date] ?? 0;
+          const readDays =
+            page > localPage
+              ? { ...state.readDays, [date]: page }
+              : state.readDays;
+          const lastRead =
+            remoteLastRead &&
+            (!state.lastRead ||
+              remoteLastRead.updatedAt > state.lastRead.updatedAt)
+              ? remoteLastRead
+              : state.lastRead;
+          return { readDays, lastRead };
+        }),
     }),
     {
       name: "duahub.quran-progress",

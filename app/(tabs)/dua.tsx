@@ -20,13 +20,14 @@ export default function DuaScreen() {
   const [categorySlug, setCategorySlug] = useState<string | null>(null);
   const [onlyFavorites, setOnlyFavorites] = useState(false);
   const isFavorite = useFavoritesStore((s) => s.isFavorite);
-  const favoriteKeys = useFavoritesStore((s) => s.keys);
+  const favoriteEntries = useFavoritesStore((s) => s.entries);
 
   const duas = useMemo(() => {
     let base = searchDuas(ALL_DUAS, query, categorySlug);
-    if (onlyFavorites) base = base.filter((d) => favoriteKeys[`dua:${d.id}`]);
+    if (onlyFavorites)
+      base = base.filter((d) => favoriteEntries[`dua:${d.id}`]?.favorited);
     return base;
-  }, [query, categorySlug, onlyFavorites, favoriteKeys]);
+  }, [query, categorySlug, onlyFavorites, favoriteEntries]);
 
   const renderItem = ({ item }: { item: Dua }) => {
     const category = getCategory(item.category);

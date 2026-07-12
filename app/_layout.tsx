@@ -6,6 +6,7 @@ import { Stack } from "expo-router";
 import { StatusBar } from "expo-status-bar";
 import { useColorScheme } from "react-native";
 
+import { useSync } from "@/core/sync/useSync";
 import { navigationThemes } from "@/core/theme/navigation";
 import { useNotificationSync } from "@/features/notifications/useNotificationSync";
 
@@ -14,6 +15,7 @@ const queryClient = new QueryClient();
 export default function RootLayout() {
   const scheme = useColorScheme() ?? "dark";
   useNotificationSync();
+  useSync();
 
   return (
     <QueryClientProvider client={queryClient}>

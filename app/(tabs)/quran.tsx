@@ -6,14 +6,19 @@ import { FlatList, Pressable, TextInput, View } from "react-native";
 import { Card, Screen, Text } from "@/components/ui";
 import { useThemeColors } from "@/core/theme/useThemeColors";
 import { getSurah, searchSurahs, type SurahMeta } from "@/features/quran/data";
-import { khatmPercent, useQuranProgress } from "@/stores/quranProgress";
+import {
+  computeStreak,
+  khatmPercent,
+  useQuranProgress,
+} from "@/stores/quranProgress";
 
 export default function QuranScreen() {
   const colors = useThemeColors();
   const [query, setQuery] = useState("");
   const surahs = useMemo(() => searchSurahs(query), [query]);
   const lastRead = useQuranProgress((s) => s.lastRead);
-  const streak = useQuranProgress((s) => s.streak)();
+  const readDays = useQuranProgress((s) => s.readDays);
+  const streak = computeStreak(readDays);
   const lastReadSurah = lastRead ? getSurah(lastRead.surahId) : undefined;
   const percent = khatmPercent(lastRead);
 
