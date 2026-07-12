@@ -3,6 +3,7 @@ import { AppState } from "react-native";
 
 import { useSession } from "@/features/auth/useAuth";
 import { useFavoritesStore } from "@/stores/favoritesStore";
+import { usePrayerLog } from "@/stores/prayerLog";
 import { useQuranProgress } from "@/stores/quranProgress";
 import { useSyncMeta } from "@/stores/syncMeta";
 
@@ -49,11 +50,13 @@ export function useSync(): void {
     };
     const unsubFavorites = useFavoritesStore.subscribe(debouncedRun);
     const unsubProgress = useQuranProgress.subscribe(debouncedRun);
+    const unsubPrayerLog = usePrayerLog.subscribe(debouncedRun);
 
     return () => {
       appState.remove();
       unsubFavorites();
       unsubProgress();
+      unsubPrayerLog();
       if (timer) clearTimeout(timer);
     };
   }, [userId]);

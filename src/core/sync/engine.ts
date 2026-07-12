@@ -12,6 +12,7 @@ import { randomUUID } from "expo-crypto";
 
 import { supabase } from "@/core/api/supabase";
 import { useFavoritesStore } from "@/stores/favoritesStore";
+import { usePrayerLog, type PrayerStatus } from "@/stores/prayerLog";
 import { useQuranProgress } from "@/stores/quranProgress";
 import { useSyncMeta } from "@/stores/syncMeta";
 
@@ -71,6 +72,25 @@ export async function syncNow(userId: string): Promise<void> {
       if (!maxSeen || row.updated_at > maxSeen) maxSeen = row.updated_at;
     }
 
+    // ---------- PULL: prayer_log ----------
+    const { data: plRows, error: plPullError } = await supabase
+      .from("prayer_log")
+      .select("id, date, prayer, status, updated_at, deleted_at")
+      .gt("updated_at", pulledAt);
+    if (plPullError) throw plPullError;
+
+    const prayerLog = usePrayerLog.getState();
+    for (const row of plRows ?? []) {
+      const key = `${row.date}|${row.prayer}`;
+      meta.rememberPrayerLogId(key, row.id);
+      prayerLog.applyRemote(
+        key,
+        row.deleted_at ? null : (row.status as PrayerStatus),
+        new Date(row.updated_at).getTime(),
+      );
+      if (!maxSeen || row.updated_at > maxSeen) maxSeen = row.updated_at;
+    }
+
     // ---------- PUSH: favorites ----------
     const favEntries = useFavoritesStore.getState().entries;
     const favIds = useSyncMeta.getState().favoriteIds;
@@ -92,6 +112,33 @@ export async function syncNow(userId: string): Promise<void> {
       const { error } = await supabase
         .from("favorites")
         .upsert(favPayload, { onConflict: "user_id,content_type,content_id" });
+      if (error) throw error;
+    }
+
+    // ---------- PUSH: prayer_log ----------
+    const plEntries = usePrayerLog.getState().entries;
+    const plIds = useSyncMeta.getState().prayerLogIds;
+    const plPayload = Object.entries(plEntries).map(([key, entry]) => {
+      const [date, prayer] = key.split("|");
+      const id = plIds[key] ?? randomUUID();
+      if (!plIds[key]) useSyncMeta.getState().rememberPrayerLogId(key, id);
+      const iso = new Date(entry.updatedAt).toISOString();
+      return {
+        id,
+        user_id: userId,
+        date,
+        prayer,
+        // Sunucu kolonu NOT NULL: tombstone'da son bilinen/varsayılan statü +
+        // deleted_at gönderilir; pull tarafı deleted_at'e bakar.
+        status: entry.status ?? "on_time",
+        updated_at: iso,
+        deleted_at: entry.status === null ? iso : null,
+      };
+    });
+    if (plPayload.length > 0) {
+      const { error } = await supabase
+        .from("prayer_log")
+        .upsert(plPayload, { onConflict: "user_id,date,prayer" });
       if (error) throw error;
     }
 

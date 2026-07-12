@@ -15,6 +15,11 @@ import {
 import { usePrayerTimes } from "@/features/prayer-times/usePrayerTimes";
 import { getSurah } from "@/features/quran/data";
 import {
+  todayKey,
+  usePrayerLog,
+  type LoggablePrayer,
+} from "@/stores/prayerLog";
+import {
   computeStreak,
   isReadToday,
   useQuranProgress,
@@ -40,6 +45,9 @@ export default function TodayScreen() {
   const streak = computeStreak(readDays);
   const readToday = isReadToday(readDays);
   const lastReadSurah = lastRead ? getSurah(lastRead.surahId) : undefined;
+  const logEntries = usePrayerLog((s) => s.entries);
+  const toggleLog = usePrayerLog((s) => s.toggle);
+  const today = todayKey();
 
   // İzin daha önce verildiyse açılışta konumu sessizce tazele.
   useEffect(() => {
@@ -93,26 +101,41 @@ export default function TodayScreen() {
         </View>
       </View>
 
-      {/* Günün vakit listesi */}
+      {/* Günün vakit listesi — vakti girmiş namazlara dokunarak "kılındı" işaretle */}
       <Card className="mb-4">
         {PRAYER_ORDER.map((name, i) => {
           const isCurrent = current === name;
-          return (
+          const loggable = name !== "sunrise";
+          const timePassed = day.times[name] <= new Date();
+          const marked =
+            loggable &&
+            logEntries[`${today}|${name}`]?.status != null;
+
+          const row = (
             <View
-              key={name}
               className={`flex-row items-center justify-between py-3 ${
                 i < PRAYER_ORDER.length - 1 ? "border-b border-border" : ""
               }`}
             >
               <View className="flex-row items-center gap-3">
-                {isCurrent ? (
-                  <View className="h-2 w-2 rounded-full bg-gold" />
+                {marked ? (
+                  <Ionicons
+                    name="checkmark-circle"
+                    size={18}
+                    color={colors.primary}
+                  />
+                ) : loggable && timePassed ? (
+                  <View className="h-[18px] w-[18px] rounded-full border-2 border-border" />
                 ) : (
-                  <View className="h-2 w-2 rounded-full bg-border" />
+                  <View className="mx-[5px] h-2 w-2 rounded-full bg-border" />
                 )}
                 <Text
                   className={
-                    isCurrent ? "font-bold text-gold" : "font-medium text-ink"
+                    isCurrent
+                      ? "font-bold text-gold"
+                      : marked
+                        ? "font-medium text-muted"
+                        : "font-medium text-ink"
                   }
                 >
                   {PRAYER_LABELS[name]}
@@ -126,6 +149,18 @@ export default function TodayScreen() {
                 {formatTime(day.times[name])}
               </Text>
             </View>
+          );
+
+          return loggable && timePassed ? (
+            <Pressable
+              key={name}
+              onPress={() => toggleLog(today, name as LoggablePrayer)}
+              className="active:opacity-60"
+            >
+              {row}
+            </Pressable>
+          ) : (
+            <View key={name}>{row}</View>
           );
         })}
       </Card>

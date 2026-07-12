@@ -14,9 +14,12 @@ interface SyncMetaState {
   favoriteIds: Record<string, string>;
   /** "YYYY-MM-DD" → quran_progress.id (uuid) */
   progressIds: Record<string, string>;
+  /** "YYYY-MM-DD|fajr" → prayer_log.id (uuid) */
+  prayerLogIds: Record<string, string>;
   setPulled: (iso: string) => void;
   rememberFavoriteId: (key: string, id: string) => void;
   rememberProgressId: (date: string, id: string) => void;
+  rememberPrayerLogId: (key: string, id: string) => void;
   markSynced: () => void;
   /** Çıkışta sıfırla — başka hesapla karışmasın. */
   reset: () => void;
@@ -29,11 +32,14 @@ export const useSyncMeta = create<SyncMetaState>()(
       lastSyncAt: null,
       favoriteIds: {},
       progressIds: {},
+      prayerLogIds: {},
       setPulled: (lastPulledAt) => set({ lastPulledAt }),
       rememberFavoriteId: (key, id) =>
         set((s) => ({ favoriteIds: { ...s.favoriteIds, [key]: id } })),
       rememberProgressId: (date, id) =>
         set((s) => ({ progressIds: { ...s.progressIds, [date]: id } })),
+      rememberPrayerLogId: (key, id) =>
+        set((s) => ({ prayerLogIds: { ...s.prayerLogIds, [key]: id } })),
       markSynced: () => set({ lastSyncAt: Date.now() }),
       reset: () =>
         set({
@@ -41,6 +47,7 @@ export const useSyncMeta = create<SyncMetaState>()(
           lastSyncAt: null,
           favoriteIds: {},
           progressIds: {},
+          prayerLogIds: {},
         }),
     }),
     {
