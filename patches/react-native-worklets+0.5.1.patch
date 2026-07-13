@@ -1,0 +1,430 @@
+diff --git a/node_modules/react-native-worklets/lib/module/WorkletsModule/NativeWorklets.js b/node_modules/react-native-worklets/lib/module/WorkletsModule/NativeWorklets.js
+index 7581ae2..9026ad3 100644
+--- a/node_modules/react-native-worklets/lib/module/WorkletsModule/NativeWorklets.js
++++ b/node_modules/react-native-worklets/lib/module/WorkletsModule/NativeWorklets.js
+@@ -9,11 +9,11 @@ export function createNativeWorkletsModule() {
+   return new NativeWorklets();
+ }
+ class NativeWorklets {
+-  #workletsModuleProxy;
+-  #serializableUndefined;
+-  #serializableNull;
+-  #serializableTrue;
+-  #serializableFalse;
++  _workletsModuleProxy;
++  _serializableUndefined;
++  _serializableNull;
++  _serializableTrue;
++  _serializableFalse;
+   constructor() {
+     globalThis._WORKLETS_VERSION_JS = jsVersion;
+     if (global.__workletsModuleProxy === undefined && globalThis.__RUNTIME_KIND === RuntimeKind.ReactNative) {
+@@ -21,106 +21,106 @@ class NativeWorklets {
+     }
+     if (global.__workletsModuleProxy === undefined) {
+       throw new WorkletsError(`Native part of Worklets doesn't seem to be initialized.
+-See https://docs.swmansion.com/react-native-worklets/docs/guides/troubleshooting#native-part-of-worklets-doesnt-seem-to-be-initialized for more details.`);
++See https://docs.swmansion.com/react-native-worklets/docs/guides/troubleshooting_native-part-of-worklets-doesnt-seem-to-be-initialized for more details.`);
+     }
+     if (__DEV__) {
+       checkCppVersion();
+     }
+-    this.#workletsModuleProxy = global.__workletsModuleProxy;
+-    this.#serializableNull = this.#workletsModuleProxy.createSerializableNull();
+-    this.#serializableUndefined = this.#workletsModuleProxy.createSerializableUndefined();
+-    this.#serializableTrue = this.#workletsModuleProxy.createSerializableBoolean(true);
+-    this.#serializableFalse = this.#workletsModuleProxy.createSerializableBoolean(false);
++    this._workletsModuleProxy = global.__workletsModuleProxy;
++    this._serializableNull = this._workletsModuleProxy.createSerializableNull();
++    this._serializableUndefined = this._workletsModuleProxy.createSerializableUndefined();
++    this._serializableTrue = this._workletsModuleProxy.createSerializableBoolean(true);
++    this._serializableFalse = this._workletsModuleProxy.createSerializableBoolean(false);
+   }
+   createSerializable(value, shouldPersistRemote, nativeStateSource) {
+-    return this.#workletsModuleProxy.createSerializable(value, shouldPersistRemote, nativeStateSource);
++    return this._workletsModuleProxy.createSerializable(value, shouldPersistRemote, nativeStateSource);
+   }
+   createSerializableImport(from, to) {
+-    return this.#workletsModuleProxy.createSerializableImport(from, to);
++    return this._workletsModuleProxy.createSerializableImport(from, to);
+   }
+   createSerializableString(str) {
+-    return this.#workletsModuleProxy.createSerializableString(str);
++    return this._workletsModuleProxy.createSerializableString(str);
+   }
+   createSerializableNumber(num) {
+-    return this.#workletsModuleProxy.createSerializableNumber(num);
++    return this._workletsModuleProxy.createSerializableNumber(num);
+   }
+   createSerializableBoolean(bool) {
+-    return bool ? this.#serializableTrue : this.#serializableFalse;
++    return bool ? this._serializableTrue : this._serializableFalse;
+   }
+   createSerializableBigInt(bigInt) {
+-    return this.#workletsModuleProxy.createSerializableBigInt(bigInt);
++    return this._workletsModuleProxy.createSerializableBigInt(bigInt);
+   }
+   createSerializableUndefined() {
+-    return this.#serializableUndefined;
++    return this._serializableUndefined;
+   }
+   createSerializableNull() {
+-    return this.#serializableNull;
++    return this._serializableNull;
+   }
+   createSerializableTurboModuleLike(props, proto) {
+-    return this.#workletsModuleProxy.createSerializableTurboModuleLike(props, proto);
++    return this._workletsModuleProxy.createSerializableTurboModuleLike(props, proto);
+   }
+   createSerializableObject(obj, shouldRetainRemote, nativeStateSource) {
+-    return this.#workletsModuleProxy.createSerializableObject(obj, shouldRetainRemote, nativeStateSource);
++    return this._workletsModuleProxy.createSerializableObject(obj, shouldRetainRemote, nativeStateSource);
+   }
+   createSerializableHostObject(obj) {
+-    return this.#workletsModuleProxy.createSerializableHostObject(obj);
++    return this._workletsModuleProxy.createSerializableHostObject(obj);
+   }
+   createSerializableArray(array, shouldRetainRemote) {
+-    return this.#workletsModuleProxy.createSerializableArray(array, shouldRetainRemote);
++    return this._workletsModuleProxy.createSerializableArray(array, shouldRetainRemote);
+   }
+   createSerializableMap(keys, values) {
+-    return this.#workletsModuleProxy.createSerializableMap(keys, values);
++    return this._workletsModuleProxy.createSerializableMap(keys, values);
+   }
+   createSerializableSet(values) {
+-    return this.#workletsModuleProxy.createSerializableSet(values);
++    return this._workletsModuleProxy.createSerializableSet(values);
+   }
+   createSerializableInitializer(obj) {
+-    return this.#workletsModuleProxy.createSerializableInitializer(obj);
++    return this._workletsModuleProxy.createSerializableInitializer(obj);
+   }
+   createSerializableFunction(func) {
+-    return this.#workletsModuleProxy.createSerializableFunction(func);
++    return this._workletsModuleProxy.createSerializableFunction(func);
+   }
+   createSerializableWorklet(worklet, shouldPersistRemote) {
+-    return this.#workletsModuleProxy.createSerializableWorklet(worklet, shouldPersistRemote);
++    return this._workletsModuleProxy.createSerializableWorklet(worklet, shouldPersistRemote);
+   }
+   scheduleOnUI(serializable) {
+-    return this.#workletsModuleProxy.scheduleOnUI(serializable);
++    return this._workletsModuleProxy.scheduleOnUI(serializable);
+   }
+   executeOnUIRuntimeSync(serializable) {
+-    return this.#workletsModuleProxy.executeOnUIRuntimeSync(serializable);
++    return this._workletsModuleProxy.executeOnUIRuntimeSync(serializable);
+   }
+   createWorkletRuntime(name, initializer, useDefaultQueue, customQueue, enableEventLoop) {
+-    return this.#workletsModuleProxy.createWorkletRuntime(name, initializer, useDefaultQueue, customQueue, enableEventLoop);
++    return this._workletsModuleProxy.createWorkletRuntime(name, initializer, useDefaultQueue, customQueue, enableEventLoop);
+   }
+   scheduleOnRuntime(workletRuntime, serializableWorklet) {
+-    return this.#workletsModuleProxy.scheduleOnRuntime(workletRuntime, serializableWorklet);
++    return this._workletsModuleProxy.scheduleOnRuntime(workletRuntime, serializableWorklet);
+   }
+   createSynchronizable(value) {
+-    return this.#workletsModuleProxy.createSynchronizable(value);
++    return this._workletsModuleProxy.createSynchronizable(value);
+   }
+   synchronizableGetDirty(synchronizableRef) {
+-    return this.#workletsModuleProxy.synchronizableGetDirty(synchronizableRef);
++    return this._workletsModuleProxy.synchronizableGetDirty(synchronizableRef);
+   }
+   synchronizableGetBlocking(synchronizableRef) {
+-    return this.#workletsModuleProxy.synchronizableGetBlocking(synchronizableRef);
++    return this._workletsModuleProxy.synchronizableGetBlocking(synchronizableRef);
+   }
+   synchronizableSetBlocking(synchronizableRef, value) {
+-    return this.#workletsModuleProxy.synchronizableSetBlocking(synchronizableRef, value);
++    return this._workletsModuleProxy.synchronizableSetBlocking(synchronizableRef, value);
+   }
+   synchronizableLock(synchronizableRef) {
+-    return this.#workletsModuleProxy.synchronizableLock(synchronizableRef);
++    return this._workletsModuleProxy.synchronizableLock(synchronizableRef);
+   }
+   synchronizableUnlock(synchronizableRef) {
+-    return this.#workletsModuleProxy.synchronizableUnlock(synchronizableRef);
++    return this._workletsModuleProxy.synchronizableUnlock(synchronizableRef);
+   }
+   reportFatalErrorOnJS(message, stack, name, jsEngine) {
+-    return this.#workletsModuleProxy.reportFatalErrorOnJS(message, stack, name, jsEngine);
++    return this._workletsModuleProxy.reportFatalErrorOnJS(message, stack, name, jsEngine);
+   }
+   getStaticFeatureFlag(name) {
+-    return this.#workletsModuleProxy.getStaticFeatureFlag(name);
++    return this._workletsModuleProxy.getStaticFeatureFlag(name);
+   }
+   setDynamicFeatureFlag(name, value) {
+-    this.#workletsModuleProxy.setDynamicFeatureFlag(name, value);
++    this._workletsModuleProxy.setDynamicFeatureFlag(name, value);
+   }
+ }
+ //# sourceMappingURL=NativeWorklets.js.map
+\ No newline at end of file
+diff --git a/node_modules/react-native-worklets/src/WorkletsModule/NativeWorklets.ts b/node_modules/react-native-worklets/src/WorkletsModule/NativeWorklets.ts
+index 456dc34..80ee2aa 100644
+--- a/node_modules/react-native-worklets/src/WorkletsModule/NativeWorklets.ts
++++ b/node_modules/react-native-worklets/src/WorkletsModule/NativeWorklets.ts
+@@ -17,11 +17,11 @@ export function createNativeWorkletsModule(): IWorkletsModule {
+ }
+ 
+ class NativeWorklets implements IWorkletsModule {
+-  #workletsModuleProxy: WorkletsModuleProxy;
+-  #serializableUndefined: SerializableRef<undefined>;
+-  #serializableNull: SerializableRef<null>;
+-  #serializableTrue: SerializableRef<boolean>;
+-  #serializableFalse: SerializableRef<boolean>;
++  _workletsModuleProxy: WorkletsModuleProxy;
++  _serializableUndefined: SerializableRef<undefined>;
++  _serializableNull: SerializableRef<null>;
++  _serializableTrue: SerializableRef<boolean>;
++  _serializableFalse: SerializableRef<boolean>;
+ 
+   constructor() {
+     globalThis._WORKLETS_VERSION_JS = jsVersion;
+@@ -34,20 +34,20 @@ class NativeWorklets implements IWorkletsModule {
+     if (global.__workletsModuleProxy === undefined) {
+       throw new WorkletsError(
+         `Native part of Worklets doesn't seem to be initialized.
+-See https://docs.swmansion.com/react-native-worklets/docs/guides/troubleshooting#native-part-of-worklets-doesnt-seem-to-be-initialized for more details.`
++See https://docs.swmansion.com/react-native-worklets/docs/guides/troubleshooting_native-part-of-worklets-doesnt-seem-to-be-initialized for more details.`
+       );
+     }
+     if (__DEV__) {
+       checkCppVersion();
+     }
+-    this.#workletsModuleProxy = global.__workletsModuleProxy;
+-    this.#serializableNull = this.#workletsModuleProxy.createSerializableNull();
+-    this.#serializableUndefined =
+-      this.#workletsModuleProxy.createSerializableUndefined();
+-    this.#serializableTrue =
+-      this.#workletsModuleProxy.createSerializableBoolean(true);
+-    this.#serializableFalse =
+-      this.#workletsModuleProxy.createSerializableBoolean(false);
++    this._workletsModuleProxy = global.__workletsModuleProxy;
++    this._serializableNull = this._workletsModuleProxy.createSerializableNull();
++    this._serializableUndefined =
++      this._workletsModuleProxy.createSerializableUndefined();
++    this._serializableTrue =
++      this._workletsModuleProxy.createSerializableBoolean(true);
++    this._serializableFalse =
++      this._workletsModuleProxy.createSerializableBoolean(false);
+   }
+ 
+   createSerializable<TValue>(
+@@ -55,7 +55,7 @@ See https://docs.swmansion.com/react-native-worklets/docs/guides/troubleshooting
+     shouldPersistRemote: boolean,
+     nativeStateSource?: object
+   ) {
+-    return this.#workletsModuleProxy.createSerializable(
++    return this._workletsModuleProxy.createSerializable(
+       value,
+       shouldPersistRemote,
+       nativeStateSource
+@@ -66,38 +66,38 @@ See https://docs.swmansion.com/react-native-worklets/docs/guides/troubleshooting
+     from: string,
+     to: string
+   ): SerializableRef<TValue> {
+-    return this.#workletsModuleProxy.createSerializableImport(from, to);
++    return this._workletsModuleProxy.createSerializableImport(from, to);
+   }
+ 
+   createSerializableString(str: string) {
+-    return this.#workletsModuleProxy.createSerializableString(str);
++    return this._workletsModuleProxy.createSerializableString(str);
+   }
+ 
+   createSerializableNumber(num: number) {
+-    return this.#workletsModuleProxy.createSerializableNumber(num);
++    return this._workletsModuleProxy.createSerializableNumber(num);
+   }
+ 
+   createSerializableBoolean(bool: boolean) {
+-    return bool ? this.#serializableTrue : this.#serializableFalse;
++    return bool ? this._serializableTrue : this._serializableFalse;
+   }
+ 
+   createSerializableBigInt(bigInt: bigint) {
+-    return this.#workletsModuleProxy.createSerializableBigInt(bigInt);
++    return this._workletsModuleProxy.createSerializableBigInt(bigInt);
+   }
+ 
+   createSerializableUndefined() {
+-    return this.#serializableUndefined;
++    return this._serializableUndefined;
+   }
+ 
+   createSerializableNull() {
+-    return this.#serializableNull;
++    return this._serializableNull;
+   }
+ 
+   createSerializableTurboModuleLike<
+     TProps extends object,
+     TProto extends object,
+   >(props: TProps, proto: TProto): SerializableRef<TProps> {
+-    return this.#workletsModuleProxy.createSerializableTurboModuleLike(
++    return this._workletsModuleProxy.createSerializableTurboModuleLike(
+       props,
+       proto
+     );
+@@ -108,7 +108,7 @@ See https://docs.swmansion.com/react-native-worklets/docs/guides/troubleshooting
+     shouldRetainRemote: boolean,
+     nativeStateSource?: object
+   ): SerializableRef<T> {
+-    return this.#workletsModuleProxy.createSerializableObject(
++    return this._workletsModuleProxy.createSerializableObject(
+       obj,
+       shouldRetainRemote,
+       nativeStateSource
+@@ -116,11 +116,11 @@ See https://docs.swmansion.com/react-native-worklets/docs/guides/troubleshooting
+   }
+ 
+   createSerializableHostObject<T extends object>(obj: T) {
+-    return this.#workletsModuleProxy.createSerializableHostObject(obj);
++    return this._workletsModuleProxy.createSerializableHostObject(obj);
+   }
+ 
+   createSerializableArray(array: unknown[], shouldRetainRemote: boolean) {
+-    return this.#workletsModuleProxy.createSerializableArray(
++    return this._workletsModuleProxy.createSerializableArray(
+       array,
+       shouldRetainRemote
+     );
+@@ -130,40 +130,40 @@ See https://docs.swmansion.com/react-native-worklets/docs/guides/troubleshooting
+     keys: TKey[],
+     values: TValue[]
+   ): SerializableRef<Map<TKey, TValue>> {
+-    return this.#workletsModuleProxy.createSerializableMap(keys, values);
++    return this._workletsModuleProxy.createSerializableMap(keys, values);
+   }
+ 
+   createSerializableSet<TValues>(
+     values: TValues[]
+   ): SerializableRef<Set<TValues>> {
+-    return this.#workletsModuleProxy.createSerializableSet(values);
++    return this._workletsModuleProxy.createSerializableSet(values);
+   }
+ 
+   createSerializableInitializer(obj: object) {
+-    return this.#workletsModuleProxy.createSerializableInitializer(obj);
++    return this._workletsModuleProxy.createSerializableInitializer(obj);
+   }
+ 
+   createSerializableFunction<TArgs extends unknown[], TReturn>(
+     func: (...args: TArgs) => TReturn
+   ) {
+-    return this.#workletsModuleProxy.createSerializableFunction(func);
++    return this._workletsModuleProxy.createSerializableFunction(func);
+   }
+ 
+   createSerializableWorklet(worklet: object, shouldPersistRemote: boolean) {
+-    return this.#workletsModuleProxy.createSerializableWorklet(
++    return this._workletsModuleProxy.createSerializableWorklet(
+       worklet,
+       shouldPersistRemote
+     );
+   }
+ 
+   scheduleOnUI<TValue>(serializable: SerializableRef<TValue>) {
+-    return this.#workletsModuleProxy.scheduleOnUI(serializable);
++    return this._workletsModuleProxy.scheduleOnUI(serializable);
+   }
+ 
+   executeOnUIRuntimeSync<TValue, TReturn>(
+     serializable: SerializableRef<TValue>
+   ): TReturn {
+-    return this.#workletsModuleProxy.executeOnUIRuntimeSync(serializable);
++    return this._workletsModuleProxy.executeOnUIRuntimeSync(serializable);
+   }
+ 
+   createWorkletRuntime(
+@@ -173,7 +173,7 @@ See https://docs.swmansion.com/react-native-worklets/docs/guides/troubleshooting
+     customQueue: object | undefined,
+     enableEventLoop: boolean
+   ) {
+-    return this.#workletsModuleProxy.createWorkletRuntime(
++    return this._workletsModuleProxy.createWorkletRuntime(
+       name,
+       initializer,
+       useDefaultQueue,
+@@ -186,26 +186,26 @@ See https://docs.swmansion.com/react-native-worklets/docs/guides/troubleshooting
+     workletRuntime: WorkletRuntime,
+     serializableWorklet: SerializableRef<T>
+   ) {
+-    return this.#workletsModuleProxy.scheduleOnRuntime(
++    return this._workletsModuleProxy.scheduleOnRuntime(
+       workletRuntime,
+       serializableWorklet
+     );
+   }
+ 
+   createSynchronizable<TValue>(value: TValue): SynchronizableRef<TValue> {
+-    return this.#workletsModuleProxy.createSynchronizable(value);
++    return this._workletsModuleProxy.createSynchronizable(value);
+   }
+ 
+   synchronizableGetDirty<TValue>(
+     synchronizableRef: SynchronizableRef<TValue>
+   ): TValue {
+-    return this.#workletsModuleProxy.synchronizableGetDirty(synchronizableRef);
++    return this._workletsModuleProxy.synchronizableGetDirty(synchronizableRef);
+   }
+ 
+   synchronizableGetBlocking<TValue>(
+     synchronizableRef: SynchronizableRef<TValue>
+   ): TValue {
+-    return this.#workletsModuleProxy.synchronizableGetBlocking(
++    return this._workletsModuleProxy.synchronizableGetBlocking(
+       synchronizableRef
+     );
+   }
+@@ -214,7 +214,7 @@ See https://docs.swmansion.com/react-native-worklets/docs/guides/troubleshooting
+     synchronizableRef: SynchronizableRef<TValue>,
+     value: SerializableRef<TValue>
+   ) {
+-    return this.#workletsModuleProxy.synchronizableSetBlocking(
++    return this._workletsModuleProxy.synchronizableSetBlocking(
+       synchronizableRef,
+       value
+     );
+@@ -223,13 +223,13 @@ See https://docs.swmansion.com/react-native-worklets/docs/guides/troubleshooting
+   synchronizableLock<TValue>(
+     synchronizableRef: SynchronizableRef<TValue>
+   ): void {
+-    return this.#workletsModuleProxy.synchronizableLock(synchronizableRef);
++    return this._workletsModuleProxy.synchronizableLock(synchronizableRef);
+   }
+ 
+   synchronizableUnlock<TValue>(
+     synchronizableRef: SynchronizableRef<TValue>
+   ): void {
+-    return this.#workletsModuleProxy.synchronizableUnlock(synchronizableRef);
++    return this._workletsModuleProxy.synchronizableUnlock(synchronizableRef);
+   }
+ 
+   reportFatalErrorOnJS(
+@@ -238,7 +238,7 @@ See https://docs.swmansion.com/react-native-worklets/docs/guides/troubleshooting
+     name: string,
+     jsEngine: string
+   ) {
+-    return this.#workletsModuleProxy.reportFatalErrorOnJS(
++    return this._workletsModuleProxy.reportFatalErrorOnJS(
+       message,
+       stack,
+       name,
+@@ -247,10 +247,10 @@ See https://docs.swmansion.com/react-native-worklets/docs/guides/troubleshooting
+   }
+ 
+   getStaticFeatureFlag(name: string): boolean {
+-    return this.#workletsModuleProxy.getStaticFeatureFlag(name);
++    return this._workletsModuleProxy.getStaticFeatureFlag(name);
+   }
+ 
+   setDynamicFeatureFlag(name: string, value: boolean) {
+-    this.#workletsModuleProxy.setDynamicFeatureFlag(name, value);
++    this._workletsModuleProxy.setDynamicFeatureFlag(name, value);
+   }
+ }

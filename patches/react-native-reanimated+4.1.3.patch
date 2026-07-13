@@ -1,0 +1,759 @@
+diff --git a/node_modules/react-native-reanimated/lib/module/ReanimatedModule/NativeReanimated.js b/node_modules/react-native-reanimated/lib/module/ReanimatedModule/NativeReanimated.js
+index 7ee916a..a70205c 100644
+--- a/node_modules/react-native-reanimated/lib/module/ReanimatedModule/NativeReanimated.js
++++ b/node_modules/react-native-reanimated/lib/module/ReanimatedModule/NativeReanimated.js
+@@ -14,7 +14,7 @@ export function createNativeReanimatedModule() {
+ function assertSingleReanimatedInstance() {
+   if (global._REANIMATED_VERSION_JS !== undefined && global._REANIMATED_VERSION_JS !== jsVersion) {
+     throw new ReanimatedError(`Another instance of Reanimated was detected.
+-See \`https://docs.swmansion.com/react-native-reanimated/docs/guides/troubleshooting#another-instance-of-reanimated-was-detected\` for more details. Previous: ${global._REANIMATED_VERSION_JS}, current: ${jsVersion}.`);
++See \`https://docs.swmansion.com/react-native-reanimated/docs/guides/troubleshooting_another-instance-of-reanimated-was-detected\` for more details. Previous: ${global._REANIMATED_VERSION_JS}, current: ${jsVersion}.`);
+   }
+ }
+ class NativeReanimatedModule {
+@@ -23,10 +23,10 @@ class NativeReanimatedModule {
+    * the modules and initialization order.
+    */
+   // eslint-disable-next-line no-unused-private-class-members
+-  #workletsModule;
+-  #reanimatedModuleProxy;
++  _workletsModule;
++  _reanimatedModuleProxy;
+   constructor() {
+-    this.#workletsModule = WorkletsModule;
++    this._workletsModule = WorkletsModule;
+     // These checks have to split since version checking depend on the execution order
+     if (__DEV__) {
+       assertSingleReanimatedInstance();
+@@ -39,13 +39,13 @@ class NativeReanimatedModule {
+         // We don't want to throw any errors to not mislead the users
+         // that the problem is related to Reanimated.
+         // We install a DummyReanimatedModuleProxy instead.
+-        this.#reanimatedModuleProxy = new DummyReanimatedModuleProxy();
++        this._reanimatedModuleProxy = new DummyReanimatedModuleProxy();
+         return;
+       }
+     }
+     if (global.__reanimatedModuleProxy === undefined) {
+       throw new ReanimatedError(`Native part of Reanimated doesn't seem to be initialized.
+-See https://docs.swmansion.com/react-native-reanimated/docs/guides/troubleshooting#native-part-of-reanimated-doesnt-seem-to-be-initialized for more details.`);
++See https://docs.swmansion.com/react-native-reanimated/docs/guides/troubleshooting_native-part-of-reanimated-doesnt-seem-to-be-initialized for more details.`);
+     }
+     if (!globalThis.RN$Bridgeless && !SHOULD_BE_USE_WEB) {
+       throw new ReanimatedError('Reanimated 4 supports only the React Native New Architecture and web.');
+@@ -53,7 +53,7 @@ See https://docs.swmansion.com/react-native-reanimated/docs/guides/troubleshooti
+     if (__DEV__) {
+       checkCppVersion();
+     }
+-    this.#reanimatedModuleProxy = global.__reanimatedModuleProxy;
++    this._reanimatedModuleProxy = global.__reanimatedModuleProxy;
+     executeOnUIRuntimeSync(function initializeUI() {
+       'worklet';
+ 
+@@ -61,70 +61,70 @@ See https://docs.swmansion.com/react-native-reanimated/docs/guides/troubleshooti
+     })();
+   }
+   registerSensor(sensorType, interval, iosReferenceFrame, handler) {
+-    return this.#reanimatedModuleProxy.registerSensor(sensorType, interval, iosReferenceFrame, handler);
++    return this._reanimatedModuleProxy.registerSensor(sensorType, interval, iosReferenceFrame, handler);
+   }
+   unregisterSensor(sensorId) {
+-    return this.#reanimatedModuleProxy.unregisterSensor(sensorId);
++    return this._reanimatedModuleProxy.unregisterSensor(sensorId);
+   }
+   registerEventHandler(eventHandler, eventName, emitterReactTag) {
+-    return this.#reanimatedModuleProxy.registerEventHandler(eventHandler, eventName, emitterReactTag);
++    return this._reanimatedModuleProxy.registerEventHandler(eventHandler, eventName, emitterReactTag);
+   }
+   unregisterEventHandler(id) {
+-    return this.#reanimatedModuleProxy.unregisterEventHandler(id);
++    return this._reanimatedModuleProxy.unregisterEventHandler(id);
+   }
+   getViewProp(viewTag, propName, component,
+   // required on Fabric
+   callback) {
+     const shadowNodeWrapper = getShadowNodeWrapperFromRef(component);
+-    return this.#reanimatedModuleProxy.getViewProp(shadowNodeWrapper, propName, callback);
++    return this._reanimatedModuleProxy.getViewProp(shadowNodeWrapper, propName, callback);
+   }
+   configureLayoutAnimationBatch(layoutAnimationsBatch) {
+-    this.#reanimatedModuleProxy.configureLayoutAnimationBatch(layoutAnimationsBatch);
++    this._reanimatedModuleProxy.configureLayoutAnimationBatch(layoutAnimationsBatch);
+   }
+   setShouldAnimateExitingForTag(viewTag, shouldAnimate) {
+-    this.#reanimatedModuleProxy.setShouldAnimateExitingForTag(viewTag, shouldAnimate);
++    this._reanimatedModuleProxy.setShouldAnimateExitingForTag(viewTag, shouldAnimate);
+   }
+   getStaticFeatureFlag(name) {
+-    return this.#reanimatedModuleProxy.getStaticFeatureFlag(name);
++    return this._reanimatedModuleProxy.getStaticFeatureFlag(name);
+   }
+   setDynamicFeatureFlag(name, value) {
+-    this.#reanimatedModuleProxy.setDynamicFeatureFlag(name, value);
++    this._reanimatedModuleProxy.setDynamicFeatureFlag(name, value);
+   }
+   subscribeForKeyboardEvents(handler, isStatusBarTranslucent, isNavigationBarTranslucent) {
+-    return this.#reanimatedModuleProxy.subscribeForKeyboardEvents(handler, isStatusBarTranslucent, isNavigationBarTranslucent);
++    return this._reanimatedModuleProxy.subscribeForKeyboardEvents(handler, isStatusBarTranslucent, isNavigationBarTranslucent);
+   }
+   unsubscribeFromKeyboardEvents(listenerId) {
+-    this.#reanimatedModuleProxy.unsubscribeFromKeyboardEvents(listenerId);
++    this._reanimatedModuleProxy.unsubscribeFromKeyboardEvents(listenerId);
+   }
+   setViewStyle(viewTag, style) {
+-    this.#reanimatedModuleProxy.setViewStyle(viewTag, style);
++    this._reanimatedModuleProxy.setViewStyle(viewTag, style);
+   }
+   markNodeAsRemovable(shadowNodeWrapper) {
+-    this.#reanimatedModuleProxy.markNodeAsRemovable(shadowNodeWrapper);
++    this._reanimatedModuleProxy.markNodeAsRemovable(shadowNodeWrapper);
+   }
+   unmarkNodeAsRemovable(viewTag) {
+-    this.#reanimatedModuleProxy.unmarkNodeAsRemovable(viewTag);
++    this._reanimatedModuleProxy.unmarkNodeAsRemovable(viewTag);
+   }
+   registerCSSKeyframes(animationName, viewName, keyframesConfig) {
+-    this.#reanimatedModuleProxy.registerCSSKeyframes(animationName, viewName, keyframesConfig);
++    this._reanimatedModuleProxy.registerCSSKeyframes(animationName, viewName, keyframesConfig);
+   }
+   unregisterCSSKeyframes(animationName, viewName) {
+-    this.#reanimatedModuleProxy.unregisterCSSKeyframes(animationName, viewName);
++    this._reanimatedModuleProxy.unregisterCSSKeyframes(animationName, viewName);
+   }
+   applyCSSAnimations(shadowNodeWrapper, animationUpdates) {
+-    this.#reanimatedModuleProxy.applyCSSAnimations(shadowNodeWrapper, animationUpdates);
++    this._reanimatedModuleProxy.applyCSSAnimations(shadowNodeWrapper, animationUpdates);
+   }
+   unregisterCSSAnimations(viewTag) {
+-    this.#reanimatedModuleProxy.unregisterCSSAnimations(viewTag);
++    this._reanimatedModuleProxy.unregisterCSSAnimations(viewTag);
+   }
+   registerCSSTransition(shadowNodeWrapper, transitionConfig) {
+-    this.#reanimatedModuleProxy.registerCSSTransition(shadowNodeWrapper, transitionConfig);
++    this._reanimatedModuleProxy.registerCSSTransition(shadowNodeWrapper, transitionConfig);
+   }
+   updateCSSTransition(viewTag, configUpdates) {
+-    this.#reanimatedModuleProxy.updateCSSTransition(viewTag, configUpdates);
++    this._reanimatedModuleProxy.updateCSSTransition(viewTag, configUpdates);
+   }
+   unregisterCSSTransition(viewTag) {
+-    this.#reanimatedModuleProxy.unregisterCSSTransition(viewTag);
++    this._reanimatedModuleProxy.unregisterCSSTransition(viewTag);
+   }
+ }
+ class DummyReanimatedModuleProxy {
+diff --git a/node_modules/react-native-reanimated/lib/module/WorkletEventHandler.js b/node_modules/react-native-reanimated/lib/module/WorkletEventHandler.js
+index 2dc439a..afb61f4 100644
+--- a/node_modules/react-native-reanimated/lib/module/WorkletEventHandler.js
++++ b/node_modules/react-native-reanimated/lib/module/WorkletEventHandler.js
+@@ -14,13 +14,13 @@ function jsListener(eventName, handler) {
+   };
+ }
+ class WorkletEventHandlerNative {
+-  #viewTags;
+-  #registrations; // keys are viewTags, values are arrays of registration ID's for each viewTag
++  _viewTags;
++  _registrations; // keys are viewTags, values are arrays of registration ID's for each viewTag
+   constructor(worklet, eventNames) {
+     this.worklet = worklet;
+     this.eventNames = eventNames;
+-    this.#viewTags = new Set();
+-    this.#registrations = new Map();
++    this._viewTags = new Set();
++    this._registrations = new Map();
+   }
+   updateEventHandler(newWorklet, newEvents) {
+     // Update worklet and event names
+@@ -28,32 +28,32 @@ class WorkletEventHandlerNative {
+     this.eventNames = newEvents;
+ 
+     // Detach all events
+-    this.#registrations.forEach(registrationIDs => {
++    this._registrations.forEach(registrationIDs => {
+       registrationIDs.forEach(id => unregisterEventHandler(id));
+       // No need to remove registrationIDs from map, since it gets overwritten when attaching
+     });
+ 
+     // Attach new events with new worklet
+-    Array.from(this.#viewTags).forEach(tag => {
++    Array.from(this._viewTags).forEach(tag => {
+       const newRegistrations = this.eventNames.map(eventName => registerEventHandler(this.worklet, eventName, tag));
+-      this.#registrations.set(tag, newRegistrations);
++      this._registrations.set(tag, newRegistrations);
+     });
+   }
+   registerForEvents(viewTag, fallbackEventName) {
+-    this.#viewTags.add(viewTag);
++    this._viewTags.add(viewTag);
+     const newRegistrations = this.eventNames.map(eventName => registerEventHandler(this.worklet, eventName, viewTag));
+-    this.#registrations.set(viewTag, newRegistrations);
++    this._registrations.set(viewTag, newRegistrations);
+     if (this.eventNames.length === 0 && fallbackEventName) {
+       const newRegistration = registerEventHandler(this.worklet, fallbackEventName, viewTag);
+-      this.#registrations.set(viewTag, [newRegistration]);
++      this._registrations.set(viewTag, [newRegistration]);
+     }
+   }
+   unregisterFromEvents(viewTag) {
+-    this.#viewTags.delete(viewTag);
+-    this.#registrations.get(viewTag)?.forEach(id => {
++    this._viewTags.delete(viewTag);
++    this._registrations.get(viewTag)?.forEach(id => {
+       unregisterEventHandler(id);
+     });
+-    this.#registrations.delete(viewTag);
++    this._registrations.delete(viewTag);
+   }
+ }
+ class WorkletEventHandlerWeb {
+diff --git a/node_modules/react-native-reanimated/lib/module/createAnimatedComponent/NativeEventsManager.js b/node_modules/react-native-reanimated/lib/module/createAnimatedComponent/NativeEventsManager.js
+index 2153f43..f3d59fe 100644
+--- a/node_modules/react-native-reanimated/lib/module/createAnimatedComponent/NativeEventsManager.js
++++ b/node_modules/react-native-reanimated/lib/module/createAnimatedComponent/NativeEventsManager.js
+@@ -4,66 +4,66 @@ import { findNodeHandle } from '../platformFunctions/findNodeHandle';
+ import { WorkletEventHandler } from '../WorkletEventHandler';
+ import { has } from './utils';
+ export class NativeEventsManager {
+-  #managedComponent;
+-  #componentOptions;
+-  #eventViewTag = -1;
++  _managedComponent;
++  _componentOptions;
++  _eventViewTag = -1;
+   constructor(component, options) {
+-    this.#managedComponent = component;
+-    this.#componentOptions = options;
+-    this.#eventViewTag = this.getEventViewTag();
++    this._managedComponent = component;
++    this._componentOptions = options;
++    this._eventViewTag = this.getEventViewTag();
+   }
+   attachEvents() {
+-    executeForEachEventHandler(this.#managedComponent.props, (key, handler) => {
+-      handler.registerForEvents(this.#eventViewTag, key);
++    executeForEachEventHandler(this._managedComponent.props, (key, handler) => {
++      handler.registerForEvents(this._eventViewTag, key);
+     });
+   }
+   detachEvents() {
+-    executeForEachEventHandler(this.#managedComponent.props, (_key, handler) => {
+-      handler.unregisterFromEvents(this.#eventViewTag);
++    executeForEachEventHandler(this._managedComponent.props, (_key, handler) => {
++      handler.unregisterFromEvents(this._eventViewTag);
+     });
+   }
+   updateEvents(prevProps) {
+     const computedEventTag = this.getEventViewTag(true);
+     // If the event view tag changes, we need to completely re-mount all events
+-    if (this.#eventViewTag !== computedEventTag) {
++    if (this._eventViewTag !== computedEventTag) {
+       // Remove all bindings from previous props that ran on the old viewTag
+       executeForEachEventHandler(prevProps, (_key, handler) => {
+-        handler.unregisterFromEvents(this.#eventViewTag);
++        handler.unregisterFromEvents(this._eventViewTag);
+       });
+       // We don't need to unregister from current (new) props, because their events weren't registered yet
+       // Replace the view tag
+-      this.#eventViewTag = computedEventTag;
++      this._eventViewTag = computedEventTag;
+       // Attach the events with a new viewTag
+       this.attachEvents();
+       return;
+     }
+     executeForEachEventHandler(prevProps, (key, prevHandler) => {
+-      const newProp = this.#managedComponent.props[key];
++      const newProp = this._managedComponent.props[key];
+       if (!newProp) {
+         // Prop got deleted
+-        prevHandler.unregisterFromEvents(this.#eventViewTag);
++        prevHandler.unregisterFromEvents(this._eventViewTag);
+       } else if (isWorkletEventHandler(newProp) && newProp.workletEventHandler !== prevHandler) {
+         // Prop got changed
+-        prevHandler.unregisterFromEvents(this.#eventViewTag);
+-        newProp.workletEventHandler.registerForEvents(this.#eventViewTag);
++        prevHandler.unregisterFromEvents(this._eventViewTag);
++        newProp.workletEventHandler.registerForEvents(this._eventViewTag);
+       }
+     });
+-    executeForEachEventHandler(this.#managedComponent.props, (key, handler) => {
++    executeForEachEventHandler(this._managedComponent.props, (key, handler) => {
+       if (!prevProps[key]) {
+         // Prop got added
+-        handler.registerForEvents(this.#eventViewTag);
++        handler.registerForEvents(this._eventViewTag);
+       }
+     });
+   }
+   getEventViewTag(componentUpdate = false) {
+     // Get the tag for registering events - since the event emitting view can be nested inside the main component
+-    const componentAnimatedRef = this.#managedComponent._componentRef;
++    const componentAnimatedRef = this._managedComponent._componentRef;
+     if (componentAnimatedRef?.getScrollableNode) {
+       /*
+         In most cases, getScrollableNode() returns a view tag, and findNodeHandle is not required. 
+         However, to cover more exotic list cases, we will continue to use findNodeHandle 
+         for consistency. For numerical values, findNodeHandle should return the value immediately, 
+-        as documented here: https://github.com/facebook/react/blob/91061073d57783c061889ac6720ef1ab7f0c2149/packages/react-native-renderer/src/ReactNativePublicCompat.js#L113
++        as documented here: https://github.com/facebook/react/blob/91061073d57783c061889ac6720ef1ab7f0c2149/packages/react-native-renderer/src/ReactNativePublicCompat.js_L113
+       */
+       const scrollableNode = componentAnimatedRef.getScrollableNode();
+       if (typeof scrollableNode === 'number') {
+@@ -71,14 +71,14 @@ export class NativeEventsManager {
+       }
+       return findNodeHandle(scrollableNode) ?? -1;
+     }
+-    if (this.#componentOptions?.setNativeProps) {
++    if (this._componentOptions?.setNativeProps) {
+       // This case ensures backward compatibility with components that
+       // have their own setNativeProps method passed as an option.
+-      return findNodeHandle(this.#managedComponent) ?? -1;
++      return findNodeHandle(this._managedComponent) ?? -1;
+     }
+     if (!componentUpdate) {
+       // On the first render of a component, we may already receive a resolved view tag.
+-      return this.#managedComponent.getComponentViewTag();
++      return this._managedComponent.getComponentViewTag();
+     }
+     if (componentAnimatedRef?.__nativeTag) {
+       return componentAnimatedRef.__nativeTag ?? -1;
+diff --git a/node_modules/react-native-reanimated/src/ReanimatedModule/NativeReanimated.ts b/node_modules/react-native-reanimated/src/ReanimatedModule/NativeReanimated.ts
+index 0d3fe2e..ec46c70 100644
+--- a/node_modules/react-native-reanimated/src/ReanimatedModule/NativeReanimated.ts
++++ b/node_modules/react-native-reanimated/src/ReanimatedModule/NativeReanimated.ts
+@@ -46,7 +46,7 @@ function assertSingleReanimatedInstance() {
+   ) {
+     throw new ReanimatedError(
+       `Another instance of Reanimated was detected.
+-See \`https://docs.swmansion.com/react-native-reanimated/docs/guides/troubleshooting#another-instance-of-reanimated-was-detected\` for more details. Previous: ${global._REANIMATED_VERSION_JS}, current: ${jsVersion}.`
++See \`https://docs.swmansion.com/react-native-reanimated/docs/guides/troubleshooting_another-instance-of-reanimated-was-detected\` for more details. Previous: ${global._REANIMATED_VERSION_JS}, current: ${jsVersion}.`
+     );
+   }
+ }
+@@ -57,10 +57,10 @@ class NativeReanimatedModule implements IReanimatedModule {
+    * the modules and initialization order.
+    */
+   // eslint-disable-next-line no-unused-private-class-members
+-  #workletsModule: IWorkletsModule;
+-  #reanimatedModuleProxy: ReanimatedModuleProxy;
++  _workletsModule: IWorkletsModule;
++  _reanimatedModuleProxy: ReanimatedModuleProxy;
+   constructor() {
+-    this.#workletsModule = WorkletsModule;
++    this._workletsModule = WorkletsModule;
+     // These checks have to split since version checking depend on the execution order
+     if (__DEV__) {
+       assertSingleReanimatedInstance();
+@@ -73,14 +73,14 @@ class NativeReanimatedModule implements IReanimatedModule {
+         // We don't want to throw any errors to not mislead the users
+         // that the problem is related to Reanimated.
+         // We install a DummyReanimatedModuleProxy instead.
+-        this.#reanimatedModuleProxy = new DummyReanimatedModuleProxy();
++        this._reanimatedModuleProxy = new DummyReanimatedModuleProxy();
+         return;
+       }
+     }
+     if (global.__reanimatedModuleProxy === undefined) {
+       throw new ReanimatedError(
+         `Native part of Reanimated doesn't seem to be initialized.
+-See https://docs.swmansion.com/react-native-reanimated/docs/guides/troubleshooting#native-part-of-reanimated-doesnt-seem-to-be-initialized for more details.`
++See https://docs.swmansion.com/react-native-reanimated/docs/guides/troubleshooting_native-part-of-reanimated-doesnt-seem-to-be-initialized for more details.`
+       );
+     }
+     if (!globalThis.RN$Bridgeless && !SHOULD_BE_USE_WEB) {
+@@ -91,7 +91,7 @@ See https://docs.swmansion.com/react-native-reanimated/docs/guides/troubleshooti
+     if (__DEV__) {
+       checkCppVersion();
+     }
+-    this.#reanimatedModuleProxy = global.__reanimatedModuleProxy;
++    this._reanimatedModuleProxy = global.__reanimatedModuleProxy;
+     executeOnUIRuntimeSync(function initializeUI() {
+       'worklet';
+       registerReanimatedError();
+@@ -104,7 +104,7 @@ See https://docs.swmansion.com/react-native-reanimated/docs/guides/troubleshooti
+     iosReferenceFrame: number,
+     handler: SerializableRef<(data: Value3D | ValueRotation) => void>
+   ) {
+-    return this.#reanimatedModuleProxy.registerSensor(
++    return this._reanimatedModuleProxy.registerSensor(
+       sensorType,
+       interval,
+       iosReferenceFrame,
+@@ -113,7 +113,7 @@ See https://docs.swmansion.com/react-native-reanimated/docs/guides/troubleshooti
+   }
+ 
+   unregisterSensor(sensorId: number) {
+-    return this.#reanimatedModuleProxy.unregisterSensor(sensorId);
++    return this._reanimatedModuleProxy.unregisterSensor(sensorId);
+   }
+ 
+   registerEventHandler<T>(
+@@ -121,7 +121,7 @@ See https://docs.swmansion.com/react-native-reanimated/docs/guides/troubleshooti
+     eventName: string,
+     emitterReactTag: number
+   ) {
+-    return this.#reanimatedModuleProxy.registerEventHandler(
++    return this._reanimatedModuleProxy.registerEventHandler(
+       eventHandler,
+       eventName,
+       emitterReactTag
+@@ -129,7 +129,7 @@ See https://docs.swmansion.com/react-native-reanimated/docs/guides/troubleshooti
+   }
+ 
+   unregisterEventHandler(id: number) {
+-    return this.#reanimatedModuleProxy.unregisterEventHandler(id);
++    return this._reanimatedModuleProxy.unregisterEventHandler(id);
+   }
+ 
+   getViewProp<T>(
+@@ -139,7 +139,7 @@ See https://docs.swmansion.com/react-native-reanimated/docs/guides/troubleshooti
+     callback?: (result: T) => void
+   ) {
+     const shadowNodeWrapper = getShadowNodeWrapperFromRef(component);
+-    return this.#reanimatedModuleProxy.getViewProp(
++    return this._reanimatedModuleProxy.getViewProp(
+       shadowNodeWrapper,
+       propName,
+       callback
+@@ -149,24 +149,24 @@ See https://docs.swmansion.com/react-native-reanimated/docs/guides/troubleshooti
+   configureLayoutAnimationBatch(
+     layoutAnimationsBatch: LayoutAnimationBatchItem[]
+   ) {
+-    this.#reanimatedModuleProxy.configureLayoutAnimationBatch(
++    this._reanimatedModuleProxy.configureLayoutAnimationBatch(
+       layoutAnimationsBatch
+     );
+   }
+ 
+   setShouldAnimateExitingForTag(viewTag: number, shouldAnimate: boolean) {
+-    this.#reanimatedModuleProxy.setShouldAnimateExitingForTag(
++    this._reanimatedModuleProxy.setShouldAnimateExitingForTag(
+       viewTag,
+       shouldAnimate
+     );
+   }
+ 
+   getStaticFeatureFlag(name: string): boolean {
+-    return this.#reanimatedModuleProxy.getStaticFeatureFlag(name);
++    return this._reanimatedModuleProxy.getStaticFeatureFlag(name);
+   }
+ 
+   setDynamicFeatureFlag(name: string, value: boolean) {
+-    this.#reanimatedModuleProxy.setDynamicFeatureFlag(name, value);
++    this._reanimatedModuleProxy.setDynamicFeatureFlag(name, value);
+   }
+ 
+   subscribeForKeyboardEvents(
+@@ -174,7 +174,7 @@ See https://docs.swmansion.com/react-native-reanimated/docs/guides/troubleshooti
+     isStatusBarTranslucent: boolean,
+     isNavigationBarTranslucent: boolean
+   ) {
+-    return this.#reanimatedModuleProxy.subscribeForKeyboardEvents(
++    return this._reanimatedModuleProxy.subscribeForKeyboardEvents(
+       handler,
+       isStatusBarTranslucent,
+       isNavigationBarTranslucent
+@@ -182,19 +182,19 @@ See https://docs.swmansion.com/react-native-reanimated/docs/guides/troubleshooti
+   }
+ 
+   unsubscribeFromKeyboardEvents(listenerId: number) {
+-    this.#reanimatedModuleProxy.unsubscribeFromKeyboardEvents(listenerId);
++    this._reanimatedModuleProxy.unsubscribeFromKeyboardEvents(listenerId);
+   }
+ 
+   setViewStyle(viewTag: number, style: StyleProps) {
+-    this.#reanimatedModuleProxy.setViewStyle(viewTag, style);
++    this._reanimatedModuleProxy.setViewStyle(viewTag, style);
+   }
+ 
+   markNodeAsRemovable(shadowNodeWrapper: ShadowNodeWrapper) {
+-    this.#reanimatedModuleProxy.markNodeAsRemovable(shadowNodeWrapper);
++    this._reanimatedModuleProxy.markNodeAsRemovable(shadowNodeWrapper);
+   }
+ 
+   unmarkNodeAsRemovable(viewTag: number) {
+-    this.#reanimatedModuleProxy.unmarkNodeAsRemovable(viewTag);
++    this._reanimatedModuleProxy.unmarkNodeAsRemovable(viewTag);
+   }
+ 
+   registerCSSKeyframes(
+@@ -202,7 +202,7 @@ See https://docs.swmansion.com/react-native-reanimated/docs/guides/troubleshooti
+     viewName: string,
+     keyframesConfig: NormalizedCSSAnimationKeyframesConfig
+   ) {
+-    this.#reanimatedModuleProxy.registerCSSKeyframes(
++    this._reanimatedModuleProxy.registerCSSKeyframes(
+       animationName,
+       viewName,
+       keyframesConfig
+@@ -210,28 +210,28 @@ See https://docs.swmansion.com/react-native-reanimated/docs/guides/troubleshooti
+   }
+ 
+   unregisterCSSKeyframes(animationName: string, viewName: string) {
+-    this.#reanimatedModuleProxy.unregisterCSSKeyframes(animationName, viewName);
++    this._reanimatedModuleProxy.unregisterCSSKeyframes(animationName, viewName);
+   }
+ 
+   applyCSSAnimations(
+     shadowNodeWrapper: ShadowNodeWrapper,
+     animationUpdates: CSSAnimationUpdates
+   ) {
+-    this.#reanimatedModuleProxy.applyCSSAnimations(
++    this._reanimatedModuleProxy.applyCSSAnimations(
+       shadowNodeWrapper,
+       animationUpdates
+     );
+   }
+ 
+   unregisterCSSAnimations(viewTag: number) {
+-    this.#reanimatedModuleProxy.unregisterCSSAnimations(viewTag);
++    this._reanimatedModuleProxy.unregisterCSSAnimations(viewTag);
+   }
+ 
+   registerCSSTransition(
+     shadowNodeWrapper: ShadowNodeWrapper,
+     transitionConfig: NormalizedCSSTransitionConfig
+   ) {
+-    this.#reanimatedModuleProxy.registerCSSTransition(
++    this._reanimatedModuleProxy.registerCSSTransition(
+       shadowNodeWrapper,
+       transitionConfig
+     );
+@@ -241,11 +241,11 @@ See https://docs.swmansion.com/react-native-reanimated/docs/guides/troubleshooti
+     viewTag: number,
+     configUpdates: Partial<NormalizedCSSTransitionConfig>
+   ) {
+-    this.#reanimatedModuleProxy.updateCSSTransition(viewTag, configUpdates);
++    this._reanimatedModuleProxy.updateCSSTransition(viewTag, configUpdates);
+   }
+ 
+   unregisterCSSTransition(viewTag: number) {
+-    this.#reanimatedModuleProxy.unregisterCSSTransition(viewTag);
++    this._reanimatedModuleProxy.unregisterCSSTransition(viewTag);
+   }
+ }
+ 
+diff --git a/node_modules/react-native-reanimated/src/ReanimatedModule/js-reanimated/JSReanimated.ts b/node_modules/react-native-reanimated/src/ReanimatedModule/js-reanimated/JSReanimated.ts
+index 7e3c190..351bb1d 100644
+--- a/node_modules/react-native-reanimated/src/ReanimatedModule/js-reanimated/JSReanimated.ts
++++ b/node_modules/react-native-reanimated/src/ReanimatedModule/js-reanimated/JSReanimated.ts
+@@ -40,7 +40,7 @@ class JSReanimated implements IReanimatedModule {
+    * the modules and initialization order.
+    */
+   // eslint-disable-next-line no-unused-private-class-members
+-  #workletsModule: IWorkletsModule = WorkletsModule;
++  _workletsModule: IWorkletsModule = WorkletsModule;
+   nextSensorId = 0;
+   sensors = new Map<number, WebSensor>();
+   platform?: Platform = undefined;
+@@ -92,7 +92,7 @@ class JSReanimated implements IReanimatedModule {
+     }
+ 
+     if (!(this.getSensorName(sensorType) in window)) {
+-      // https://w3c.github.io/sensors/#secure-context
++      // https://w3c.github.io/sensors/_secure-context
+       logger.warn(
+         'Sensor is not available.' +
+           (IS_WEB && location.protocol !== 'https:'
+diff --git a/node_modules/react-native-reanimated/src/WorkletEventHandler.ts b/node_modules/react-native-reanimated/src/WorkletEventHandler.ts
+index b7b1d4f..12738c3 100644
+--- a/node_modules/react-native-reanimated/src/WorkletEventHandler.ts
++++ b/node_modules/react-native-reanimated/src/WorkletEventHandler.ts
+@@ -28,16 +28,16 @@ class WorkletEventHandlerNative<Event extends object>
+ {
+   eventNames: string[];
+   worklet: (event: ReanimatedEvent<Event>) => void;
+-  #viewTags: Set<number>;
+-  #registrations: Map<number, number[]>; // keys are viewTags, values are arrays of registration ID's for each viewTag
++  _viewTags: Set<number>;
++  _registrations: Map<number, number[]>; // keys are viewTags, values are arrays of registration ID's for each viewTag
+   constructor(
+     worklet: (event: ReanimatedEvent<Event>) => void,
+     eventNames: string[]
+   ) {
+     this.worklet = worklet;
+     this.eventNames = eventNames;
+-    this.#viewTags = new Set<number>();
+-    this.#registrations = new Map<number, number[]>();
++    this._viewTags = new Set<number>();
++    this._registrations = new Map<number, number[]>();
+   }
+ 
+   updateEventHandler(
+@@ -49,27 +49,27 @@ class WorkletEventHandlerNative<Event extends object>
+     this.eventNames = newEvents;
+ 
+     // Detach all events
+-    this.#registrations.forEach((registrationIDs) => {
++    this._registrations.forEach((registrationIDs) => {
+       registrationIDs.forEach((id) => unregisterEventHandler(id));
+       // No need to remove registrationIDs from map, since it gets overwritten when attaching
+     });
+ 
+     // Attach new events with new worklet
+-    Array.from(this.#viewTags).forEach((tag) => {
++    Array.from(this._viewTags).forEach((tag) => {
+       const newRegistrations = this.eventNames.map((eventName) =>
+         registerEventHandler(this.worklet, eventName, tag)
+       );
+-      this.#registrations.set(tag, newRegistrations);
++      this._registrations.set(tag, newRegistrations);
+     });
+   }
+ 
+   registerForEvents(viewTag: number, fallbackEventName?: string): void {
+-    this.#viewTags.add(viewTag);
++    this._viewTags.add(viewTag);
+ 
+     const newRegistrations = this.eventNames.map((eventName) =>
+       registerEventHandler(this.worklet, eventName, viewTag)
+     );
+-    this.#registrations.set(viewTag, newRegistrations);
++    this._registrations.set(viewTag, newRegistrations);
+ 
+     if (this.eventNames.length === 0 && fallbackEventName) {
+       const newRegistration = registerEventHandler(
+@@ -77,16 +77,16 @@ class WorkletEventHandlerNative<Event extends object>
+         fallbackEventName,
+         viewTag
+       );
+-      this.#registrations.set(viewTag, [newRegistration]);
++      this._registrations.set(viewTag, [newRegistration]);
+     }
+   }
+ 
+   unregisterFromEvents(viewTag: number): void {
+-    this.#viewTags.delete(viewTag);
+-    this.#registrations.get(viewTag)?.forEach((id) => {
++    this._viewTags.delete(viewTag);
++    this._registrations.get(viewTag)?.forEach((id) => {
+       unregisterEventHandler(id);
+     });
+-    this.#registrations.delete(viewTag);
++    this._registrations.delete(viewTag);
+   }
+ }
+ 
+diff --git a/node_modules/react-native-reanimated/src/createAnimatedComponent/NativeEventsManager.ts b/node_modules/react-native-reanimated/src/createAnimatedComponent/NativeEventsManager.ts
+index 8c4be27..8288fff 100644
+--- a/node_modules/react-native-reanimated/src/createAnimatedComponent/NativeEventsManager.ts
++++ b/node_modules/react-native-reanimated/src/createAnimatedComponent/NativeEventsManager.ts
+@@ -11,27 +11,27 @@ import type {
+ import { has } from './utils';
+ 
+ export class NativeEventsManager implements INativeEventsManager {
+-  readonly #managedComponent: ManagedAnimatedComponent;
+-  readonly #componentOptions?: ComponentOptions;
+-  #eventViewTag = -1;
++  readonly _managedComponent: ManagedAnimatedComponent;
++  readonly _componentOptions?: ComponentOptions;
++  _eventViewTag = -1;
+ 
+   constructor(component: ManagedAnimatedComponent, options?: ComponentOptions) {
+-    this.#managedComponent = component;
+-    this.#componentOptions = options;
+-    this.#eventViewTag = this.getEventViewTag();
++    this._managedComponent = component;
++    this._componentOptions = options;
++    this._eventViewTag = this.getEventViewTag();
+   }
+ 
+   public attachEvents() {
+-    executeForEachEventHandler(this.#managedComponent.props, (key, handler) => {
+-      handler.registerForEvents(this.#eventViewTag, key);
++    executeForEachEventHandler(this._managedComponent.props, (key, handler) => {
++      handler.registerForEvents(this._eventViewTag, key);
+     });
+   }
+ 
+   public detachEvents() {
+     executeForEachEventHandler(
+-      this.#managedComponent.props,
++      this._managedComponent.props,
+       (_key, handler) => {
+-        handler.unregisterFromEvents(this.#eventViewTag);
++        handler.unregisterFromEvents(this._eventViewTag);
+       }
+     );
+   }
+@@ -41,52 +41,52 @@ export class NativeEventsManager implements INativeEventsManager {
+   ) {
+     const computedEventTag = this.getEventViewTag(true);
+     // If the event view tag changes, we need to completely re-mount all events
+-    if (this.#eventViewTag !== computedEventTag) {
++    if (this._eventViewTag !== computedEventTag) {
+       // Remove all bindings from previous props that ran on the old viewTag
+       executeForEachEventHandler(prevProps, (_key, handler) => {
+-        handler.unregisterFromEvents(this.#eventViewTag);
++        handler.unregisterFromEvents(this._eventViewTag);
+       });
+       // We don't need to unregister from current (new) props, because their events weren't registered yet
+       // Replace the view tag
+-      this.#eventViewTag = computedEventTag;
++      this._eventViewTag = computedEventTag;
+       // Attach the events with a new viewTag
+       this.attachEvents();
+       return;
+     }
+ 
+     executeForEachEventHandler(prevProps, (key, prevHandler) => {
+-      const newProp = this.#managedComponent.props[key];
++      const newProp = this._managedComponent.props[key];
+       if (!newProp) {
+         // Prop got deleted
+-        prevHandler.unregisterFromEvents(this.#eventViewTag);
++        prevHandler.unregisterFromEvents(this._eventViewTag);
+       } else if (
+         isWorkletEventHandler(newProp) &&
+         newProp.workletEventHandler !== prevHandler
+       ) {
+         // Prop got changed
+-        prevHandler.unregisterFromEvents(this.#eventViewTag);
+-        newProp.workletEventHandler.registerForEvents(this.#eventViewTag);
++        prevHandler.unregisterFromEvents(this._eventViewTag);
++        newProp.workletEventHandler.registerForEvents(this._eventViewTag);
+       }
+     });
+ 
+-    executeForEachEventHandler(this.#managedComponent.props, (key, handler) => {
++    executeForEachEventHandler(this._managedComponent.props, (key, handler) => {
+       if (!prevProps[key]) {
+         // Prop got added
+-        handler.registerForEvents(this.#eventViewTag);
++        handler.registerForEvents(this._eventViewTag);
+       }
+     });
+   }
+ 
+   private getEventViewTag(componentUpdate: boolean = false) {
+     // Get the tag for registering events - since the event emitting view can be nested inside the main component
+-    const componentAnimatedRef = this.#managedComponent
++    const componentAnimatedRef = this._managedComponent
+       ._componentRef as AnimatedComponentRef & { __nativeTag?: number };
+     if (componentAnimatedRef?.getScrollableNode) {
+       /*
+         In most cases, getScrollableNode() returns a view tag, and findNodeHandle is not required. 
+         However, to cover more exotic list cases, we will continue to use findNodeHandle 
+         for consistency. For numerical values, findNodeHandle should return the value immediately, 
+-        as documented here: https://github.com/facebook/react/blob/91061073d57783c061889ac6720ef1ab7f0c2149/packages/react-native-renderer/src/ReactNativePublicCompat.js#L113
++        as documented here: https://github.com/facebook/react/blob/91061073d57783c061889ac6720ef1ab7f0c2149/packages/react-native-renderer/src/ReactNativePublicCompat.js_L113
+       */
+       const scrollableNode = componentAnimatedRef.getScrollableNode();
+       if (typeof scrollableNode === 'number') {
+@@ -94,14 +94,14 @@ export class NativeEventsManager implements INativeEventsManager {
+       }
+       return findNodeHandle(scrollableNode) ?? -1;
+     }
+-    if (this.#componentOptions?.setNativeProps) {
++    if (this._componentOptions?.setNativeProps) {
+       // This case ensures backward compatibility with components that
+       // have their own setNativeProps method passed as an option.
+-      return findNodeHandle(this.#managedComponent) ?? -1;
++      return findNodeHandle(this._managedComponent) ?? -1;
+     }
+     if (!componentUpdate) {
+       // On the first render of a component, we may already receive a resolved view tag.
+-      return this.#managedComponent.getComponentViewTag();
++      return this._managedComponent.getComponentViewTag();
+     }
+     if (componentAnimatedRef?.__nativeTag) {
+       return componentAnimatedRef.__nativeTag ?? -1;

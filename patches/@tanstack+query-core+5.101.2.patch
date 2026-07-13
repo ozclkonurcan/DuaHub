@@ -1,0 +1,2486 @@
+diff --git a/node_modules/@tanstack/query-core/src/focusManager.ts b/node_modules/@tanstack/query-core/src/focusManager.ts
+index 21be261..ebd4fcc 100644
+--- a/node_modules/@tanstack/query-core/src/focusManager.ts
++++ b/node_modules/@tanstack/query-core/src/focusManager.ts
+@@ -7,14 +7,14 @@ type SetupFn = (
+ ) => (() => void) | undefined
+ 
+ export class FocusManager extends Subscribable<Listener> {
+-  #focused?: boolean
+-  #cleanup?: () => void
++  _focused?: boolean
++  _cleanup?: () => void
+ 
+-  #setup: SetupFn
++  _setup: SetupFn
+ 
+   constructor() {
+     super()
+-    this.#setup = (onFocus) => {
++    this._setup = (onFocus) => {
+       // addEventListener does not exist in React Native, but window does
+       // eslint-disable-next-line @typescript-eslint/no-unnecessary-condition
+       if (typeof window !== 'undefined' && window.addEventListener) {
+@@ -32,22 +32,22 @@ export class FocusManager extends Subscribable<Listener> {
+   }
+ 
+   protected onSubscribe(): void {
+-    if (!this.#cleanup) {
+-      this.setEventListener(this.#setup)
++    if (!this._cleanup) {
++      this.setEventListener(this._setup)
+     }
+   }
+ 
+   protected onUnsubscribe() {
+     if (!this.hasListeners()) {
+-      this.#cleanup?.()
+-      this.#cleanup = undefined
++      this._cleanup?.()
++      this._cleanup = undefined
+     }
+   }
+ 
+   setEventListener(setup: SetupFn): void {
+-    this.#setup = setup
+-    this.#cleanup?.()
+-    this.#cleanup = setup((focused) => {
++    this._setup = setup
++    this._cleanup?.()
++    this._cleanup = setup((focused) => {
+       if (typeof focused === 'boolean') {
+         this.setFocused(focused)
+       } else {
+@@ -57,9 +57,9 @@ export class FocusManager extends Subscribable<Listener> {
+   }
+ 
+   setFocused(focused?: boolean): void {
+-    const changed = this.#focused !== focused
++    const changed = this._focused !== focused
+     if (changed) {
+-      this.#focused = focused
++      this._focused = focused
+       this.onFocus()
+     }
+   }
+@@ -72,8 +72,8 @@ export class FocusManager extends Subscribable<Listener> {
+   }
+ 
+   isFocused(): boolean {
+-    if (typeof this.#focused === 'boolean') {
+-      return this.#focused
++    if (typeof this._focused === 'boolean') {
++      return this._focused
+     }
+ 
+     // document global can be unavailable in react native
+diff --git a/node_modules/@tanstack/query-core/src/mutation.ts b/node_modules/@tanstack/query-core/src/mutation.ts
+index 2483b56..32314ed 100644
+--- a/node_modules/@tanstack/query-core/src/mutation.ts
++++ b/node_modules/@tanstack/query-core/src/mutation.ts
+@@ -91,22 +91,22 @@ export class Mutation<
+   options!: MutationOptions<TData, TError, TVariables, TOnMutateResult>
+   readonly mutationId: number
+ 
+-  #client: QueryClient
+-  #observers: Array<
++  _client: QueryClient
++  _observers: Array<
+     MutationObserver<TData, TError, TVariables, TOnMutateResult>
+   >
+-  #mutationCache: MutationCache
+-  #retryer?: Retryer<TData>
++  _mutationCache: MutationCache
++  _retryer?: Retryer<TData>
+ 
+   constructor(
+     config: MutationConfig<TData, TError, TVariables, TOnMutateResult>,
+   ) {
+     super()
+ 
+-    this.#client = config.client
++    this._client = config.client
+     this.mutationId = config.mutationId
+-    this.#mutationCache = config.mutationCache
+-    this.#observers = []
++    this._mutationCache = config.mutationCache
++    this._observers = []
+     this.state = config.state || getDefaultState()
+ 
+     this.setOptions(config.options)
+@@ -126,13 +126,13 @@ export class Mutation<
+   }
+ 
+   addObserver(observer: MutationObserver<any, any, any, any>): void {
+-    if (!this.#observers.includes(observer)) {
+-      this.#observers.push(observer)
++    if (!this._observers.includes(observer)) {
++      this._observers.push(observer)
+ 
+       // Stop the mutation from being garbage collected
+       this.clearGcTimeout()
+ 
+-      this.#mutationCache.notify({
++      this._mutationCache.notify({
+         type: 'observerAdded',
+         mutation: this,
+         observer,
+@@ -141,11 +141,11 @@ export class Mutation<
+   }
+ 
+   removeObserver(observer: MutationObserver<any, any, any, any>): void {
+-    this.#observers = this.#observers.filter((x) => x !== observer)
++    this._observers = this._observers.filter((x) => x !== observer)
+ 
+     this.scheduleGc()
+ 
+-    this.#mutationCache.notify({
++    this._mutationCache.notify({
+       type: 'observerRemoved',
+       mutation: this,
+       observer,
+@@ -153,18 +153,18 @@ export class Mutation<
+   }
+ 
+   protected optionalRemove() {
+-    if (!this.#observers.length) {
++    if (!this._observers.length) {
+       if (this.state.status === 'pending') {
+         this.scheduleGc()
+       } else {
+-        this.#mutationCache.remove(this)
++        this._mutationCache.remove(this)
+       }
+     }
+   }
+ 
+   continue(): Promise<unknown> {
+     return (
+-      this.#retryer?.continue() ??
++      this._retryer?.continue() ??
+       // continuing a mutation assumes that variables are set, mutation must have been dehydrated before
+       this.execute(this.state.variables!)
+     )
+@@ -172,16 +172,16 @@ export class Mutation<
+ 
+   async execute(variables: TVariables): Promise<TData> {
+     const onContinue = () => {
+-      this.#dispatch({ type: 'continue' })
++      this._dispatch({ type: 'continue' })
+     }
+ 
+     const mutationFnContext = {
+-      client: this.#client,
++      client: this._client,
+       meta: this.options.meta,
+       mutationKey: this.options.mutationKey,
+     } satisfies MutationFunctionContext
+ 
+-    this.#retryer = createRetryer({
++    this._retryer = createRetryer({
+       fn: () => {
+         if (!this.options.mutationFn) {
+           return Promise.reject(new Error('No mutationFn found'))
+@@ -190,30 +190,30 @@ export class Mutation<
+         return this.options.mutationFn(variables, mutationFnContext)
+       },
+       onFail: (failureCount, error) => {
+-        this.#dispatch({ type: 'failed', failureCount, error })
++        this._dispatch({ type: 'failed', failureCount, error })
+       },
+       onPause: () => {
+-        this.#dispatch({ type: 'pause' })
++        this._dispatch({ type: 'pause' })
+       },
+       onContinue,
+       retry: this.options.retry ?? 0,
+       retryDelay: this.options.retryDelay,
+       networkMode: this.options.networkMode,
+-      canRun: () => this.#mutationCache.canRun(this),
++      canRun: () => this._mutationCache.canRun(this),
+     })
+ 
+     const restored = this.state.status === 'pending'
+-    const isPaused = !this.#retryer.canStart()
++    const isPaused = !this._retryer.canStart()
+ 
+     try {
+       if (restored) {
+         // Dispatch continue action to unpause restored mutation
+         onContinue()
+       } else {
+-        this.#dispatch({ type: 'pending', variables, isPaused })
++        this._dispatch({ type: 'pending', variables, isPaused })
+         // Notify cache callback
+-        if (this.#mutationCache.config.onMutate) {
+-          await this.#mutationCache.config.onMutate(
++        if (this._mutationCache.config.onMutate) {
++          await this._mutationCache.config.onMutate(
+             variables,
+             this as Mutation<unknown, unknown, unknown, unknown>,
+             mutationFnContext,
+@@ -224,7 +224,7 @@ export class Mutation<
+           mutationFnContext,
+         )
+         if (context !== this.state.context) {
+-          this.#dispatch({
++          this._dispatch({
+             type: 'pending',
+             context,
+             variables,
+@@ -232,10 +232,10 @@ export class Mutation<
+           })
+         }
+       }
+-      const data = await this.#retryer.start()
++      const data = await this._retryer.start()
+ 
+       // Notify cache callback
+-      await this.#mutationCache.config.onSuccess?.(
++      await this._mutationCache.config.onSuccess?.(
+         data,
+         variables,
+         this.state.context,
+@@ -251,7 +251,7 @@ export class Mutation<
+       )
+ 
+       // Notify cache callback
+-      await this.#mutationCache.config.onSettled?.(
++      await this._mutationCache.config.onSettled?.(
+         data,
+         null,
+         this.state.variables,
+@@ -268,12 +268,12 @@ export class Mutation<
+         mutationFnContext,
+       )
+ 
+-      this.#dispatch({ type: 'success', data })
++      this._dispatch({ type: 'success', data })
+       return data
+     } catch (error) {
+       try {
+         // Notify cache callback
+-        await this.#mutationCache.config.onError?.(
++        await this._mutationCache.config.onError?.(
+           error as any,
+           variables,
+           this.state.context,
+@@ -297,7 +297,7 @@ export class Mutation<
+ 
+       try {
+         // Notify cache callback
+-        await this.#mutationCache.config.onSettled?.(
++        await this._mutationCache.config.onSettled?.(
+           undefined,
+           error as any,
+           this.state.variables,
+@@ -321,14 +321,14 @@ export class Mutation<
+         void Promise.reject(e)
+       }
+ 
+-      this.#dispatch({ type: 'error', error: error as TError })
++      this._dispatch({ type: 'error', error: error as TError })
+       throw error
+     } finally {
+-      this.#mutationCache.runNext(this)
++      this._mutationCache.runNext(this)
+     }
+   }
+ 
+-  #dispatch(action: Action<TData, TError, TVariables, TOnMutateResult>): void {
++  _dispatch(action: Action<TData, TError, TVariables, TOnMutateResult>): void {
+     const reducer = (
+       state: MutationState<TData, TError, TVariables, TOnMutateResult>,
+     ): MutationState<TData, TError, TVariables, TOnMutateResult> => {
+@@ -387,10 +387,10 @@ export class Mutation<
+     this.state = reducer(this.state)
+ 
+     notifyManager.batch(() => {
+-      this.#observers.forEach((observer) => {
++      this._observers.forEach((observer) => {
+         observer.onMutationUpdate(action)
+       })
+-      this.#mutationCache.notify({
++      this._mutationCache.notify({
+         mutation: this,
+         type: 'updated',
+         action,
+diff --git a/node_modules/@tanstack/query-core/src/mutationCache.ts b/node_modules/@tanstack/query-core/src/mutationCache.ts
+index d204c90..c16c2d3 100644
+--- a/node_modules/@tanstack/query-core/src/mutationCache.ts
++++ b/node_modules/@tanstack/query-core/src/mutationCache.ts
+@@ -91,15 +91,15 @@ type MutationCacheListener = (event: MutationCacheNotifyEvent) => void
+ // CLASS
+ 
+ export class MutationCache extends Subscribable<MutationCacheListener> {
+-  #mutations: Set<Mutation<any, any, any, any>>
+-  #scopes: Map<string, Array<Mutation<any, any, any, any>>>
+-  #mutationId: number
++  _mutations: Set<Mutation<any, any, any, any>>
++  _scopes: Map<string, Array<Mutation<any, any, any, any>>>
++  _mutationId: number
+ 
+   constructor(public config: MutationCacheConfig = {}) {
+     super()
+-    this.#mutations = new Set()
+-    this.#scopes = new Map()
+-    this.#mutationId = 0
++    this._mutations = new Set()
++    this._scopes = new Map()
++    this._mutationId = 0
+   }
+ 
+   build<TData, TError, TVariables, TOnMutateResult>(
+@@ -110,7 +110,7 @@ export class MutationCache extends Subscribable<MutationCacheListener> {
+     const mutation = new Mutation({
+       client,
+       mutationCache: this,
+-      mutationId: ++this.#mutationId,
++      mutationId: ++this._mutationId,
+       options: client.defaultMutationOptions(options),
+       state,
+     })
+@@ -121,24 +121,24 @@ export class MutationCache extends Subscribable<MutationCacheListener> {
+   }
+ 
+   add(mutation: Mutation<any, any, any, any>): void {
+-    this.#mutations.add(mutation)
++    this._mutations.add(mutation)
+     const scope = scopeFor(mutation)
+     if (typeof scope === 'string') {
+-      const scopedMutations = this.#scopes.get(scope)
++      const scopedMutations = this._scopes.get(scope)
+       if (scopedMutations) {
+         scopedMutations.push(mutation)
+       } else {
+-        this.#scopes.set(scope, [mutation])
++        this._scopes.set(scope, [mutation])
+       }
+     }
+     this.notify({ type: 'added', mutation })
+   }
+ 
+   remove(mutation: Mutation<any, any, any, any>): void {
+-    if (this.#mutations.delete(mutation)) {
++    if (this._mutations.delete(mutation)) {
+       const scope = scopeFor(mutation)
+       if (typeof scope === 'string') {
+-        const scopedMutations = this.#scopes.get(scope)
++        const scopedMutations = this._scopes.get(scope)
+         if (scopedMutations) {
+           if (scopedMutations.length > 1) {
+             const index = scopedMutations.indexOf(mutation)
+@@ -146,7 +146,7 @@ export class MutationCache extends Subscribable<MutationCacheListener> {
+               scopedMutations.splice(index, 1)
+             }
+           } else if (scopedMutations[0] === mutation) {
+-            this.#scopes.delete(scope)
++            this._scopes.delete(scope)
+           }
+         }
+       }
+@@ -160,7 +160,7 @@ export class MutationCache extends Subscribable<MutationCacheListener> {
+   canRun(mutation: Mutation<any, any, any, any>): boolean {
+     const scope = scopeFor(mutation)
+     if (typeof scope === 'string') {
+-      const mutationsWithSameScope = this.#scopes.get(scope)
++      const mutationsWithSameScope = this._scopes.get(scope)
+       const firstPendingMutation = mutationsWithSameScope?.find(
+         (m) => m.state.status === 'pending',
+       )
+@@ -177,7 +177,7 @@ export class MutationCache extends Subscribable<MutationCacheListener> {
+   runNext(mutation: Mutation<any, any, any, any>): Promise<unknown> {
+     const scope = scopeFor(mutation)
+     if (typeof scope === 'string') {
+-      const foundMutation = this.#scopes
++      const foundMutation = this._scopes
+         .get(scope)
+         ?.find((m) => m !== mutation && m.state.isPaused)
+ 
+@@ -189,16 +189,16 @@ export class MutationCache extends Subscribable<MutationCacheListener> {
+ 
+   clear(): void {
+     notifyManager.batch(() => {
+-      this.#mutations.forEach((mutation) => {
++      this._mutations.forEach((mutation) => {
+         this.notify({ type: 'removed', mutation })
+       })
+-      this.#mutations.clear()
+-      this.#scopes.clear()
++      this._mutations.clear()
++      this._scopes.clear()
+     })
+   }
+ 
+   getAll(): Array<Mutation> {
+-    return Array.from(this.#mutations)
++    return Array.from(this._mutations)
+   }
+ 
+   find<
+diff --git a/node_modules/@tanstack/query-core/src/mutationObserver.ts b/node_modules/@tanstack/query-core/src/mutationObserver.ts
+index 2152396..c6ed573 100644
+--- a/node_modules/@tanstack/query-core/src/mutationObserver.ts
++++ b/node_modules/@tanstack/query-core/src/mutationObserver.ts
+@@ -30,15 +30,15 @@ export class MutationObserver<
+ > {
+   options!: MutationObserverOptions<TData, TError, TVariables, TOnMutateResult>
+ 
+-  #client: QueryClient
+-  #currentResult: MutationObserverResult<
++  _client: QueryClient
++  _currentResult: MutationObserverResult<
+     TData,
+     TError,
+     TVariables,
+     TOnMutateResult
+   > = undefined!
+-  #currentMutation?: Mutation<TData, TError, TVariables, TOnMutateResult>
+-  #mutateOptions?: MutateOptions<TData, TError, TVariables, TOnMutateResult>
++  _currentMutation?: Mutation<TData, TError, TVariables, TOnMutateResult>
++  _mutateOptions?: MutateOptions<TData, TError, TVariables, TOnMutateResult>
+ 
+   constructor(
+     client: QueryClient,
+@@ -51,10 +51,10 @@ export class MutationObserver<
+   ) {
+     super()
+ 
+-    this.#client = client
++    this._client = client
+     this.setOptions(options)
+     this.bindMethods()
+-    this.#updateResult()
++    this._updateResult()
+   }
+ 
+   protected bindMethods(): void {
+@@ -73,11 +73,11 @@ export class MutationObserver<
+     const prevOptions = this.options as
+       | MutationObserverOptions<TData, TError, TVariables, TOnMutateResult>
+       | undefined
+-    this.options = this.#client.defaultMutationOptions(options)
++    this.options = this._client.defaultMutationOptions(options)
+     if (!shallowEqualObjects(this.options, prevOptions)) {
+-      this.#client.getMutationCache().notify({
++      this._client.getMutationCache().notify({
+         type: 'observerOptionsUpdated',
+-        mutation: this.#currentMutation,
++        mutation: this._currentMutation,
+         observer: this,
+       })
+     }
+@@ -88,23 +88,23 @@ export class MutationObserver<
+       hashKey(prevOptions.mutationKey) !== hashKey(this.options.mutationKey)
+     ) {
+       this.reset()
+-    } else if (this.#currentMutation?.state.status === 'pending') {
+-      this.#currentMutation.setOptions(this.options)
++    } else if (this._currentMutation?.state.status === 'pending') {
++      this._currentMutation.setOptions(this.options)
+     }
+   }
+ 
+   protected onUnsubscribe(): void {
+     if (!this.hasListeners()) {
+-      this.#currentMutation?.removeObserver(this)
++      this._currentMutation?.removeObserver(this)
+     }
+   }
+ 
+   onMutationUpdate(
+     action: Action<TData, TError, TVariables, TOnMutateResult>,
+   ): void {
+-    this.#updateResult()
++    this._updateResult()
+ 
+-    this.#notify(action)
++    this._notify(action)
+   }
+ 
+   getCurrentResult(): MutationObserverResult<
+@@ -113,41 +113,41 @@ export class MutationObserver<
+     TVariables,
+     TOnMutateResult
+   > {
+-    return this.#currentResult
++    return this._currentResult
+   }
+ 
+   reset(): void {
+     // reset needs to remove the observer from the mutation because there is no way to "get it back"
+     // another mutate call will yield a new mutation!
+-    this.#currentMutation?.removeObserver(this)
+-    this.#currentMutation = undefined
+-    this.#updateResult()
+-    this.#notify()
++    this._currentMutation?.removeObserver(this)
++    this._currentMutation = undefined
++    this._updateResult()
++    this._notify()
+   }
+ 
+   mutate(
+     variables: TVariables,
+     options?: MutateOptions<TData, TError, TVariables, TOnMutateResult>,
+   ): Promise<TData> {
+-    this.#mutateOptions = options
++    this._mutateOptions = options
+ 
+-    this.#currentMutation?.removeObserver(this)
++    this._currentMutation?.removeObserver(this)
+ 
+-    this.#currentMutation = this.#client
++    this._currentMutation = this._client
+       .getMutationCache()
+-      .build(this.#client, this.options)
++      .build(this._client, this.options)
+ 
+-    this.#currentMutation.addObserver(this)
++    this._currentMutation.addObserver(this)
+ 
+-    return this.#currentMutation.execute(variables)
++    return this._currentMutation.execute(variables)
+   }
+ 
+-  #updateResult(): void {
++  _updateResult(): void {
+     const state =
+-      this.#currentMutation?.state ??
++      this._currentMutation?.state ??
+       getDefaultState<TData, TError, TVariables, TOnMutateResult>()
+ 
+-    this.#currentResult = {
++    this._currentResult = {
+       ...state,
+       isPending: state.status === 'pending',
+       isSuccess: state.status === 'success',
+@@ -158,22 +158,22 @@ export class MutationObserver<
+     } as MutationObserverResult<TData, TError, TVariables, TOnMutateResult>
+   }
+ 
+-  #notify(action?: Action<TData, TError, TVariables, TOnMutateResult>): void {
++  _notify(action?: Action<TData, TError, TVariables, TOnMutateResult>): void {
+     notifyManager.batch(() => {
+       // First trigger the mutate callbacks
+-      if (this.#mutateOptions && this.hasListeners()) {
+-        const variables = this.#currentResult.variables!
+-        const onMutateResult = this.#currentResult.context
++      if (this._mutateOptions && this.hasListeners()) {
++        const variables = this._currentResult.variables!
++        const onMutateResult = this._currentResult.context
+ 
+         const context = {
+-          client: this.#client,
++          client: this._client,
+           meta: this.options.meta,
+           mutationKey: this.options.mutationKey,
+         } satisfies MutationFunctionContext
+ 
+         if (action?.type === 'success') {
+           try {
+-            this.#mutateOptions.onSuccess?.(
++            this._mutateOptions.onSuccess?.(
+               action.data,
+               variables,
+               onMutateResult,
+@@ -183,7 +183,7 @@ export class MutationObserver<
+             void Promise.reject(e)
+           }
+           try {
+-            this.#mutateOptions.onSettled?.(
++            this._mutateOptions.onSettled?.(
+               action.data,
+               null,
+               variables,
+@@ -195,7 +195,7 @@ export class MutationObserver<
+           }
+         } else if (action?.type === 'error') {
+           try {
+-            this.#mutateOptions.onError?.(
++            this._mutateOptions.onError?.(
+               action.error,
+               variables,
+               onMutateResult,
+@@ -205,7 +205,7 @@ export class MutationObserver<
+             void Promise.reject(e)
+           }
+           try {
+-            this.#mutateOptions.onSettled?.(
++            this._mutateOptions.onSettled?.(
+               undefined,
+               action.error,
+               variables,
+@@ -220,7 +220,7 @@ export class MutationObserver<
+ 
+       // Then trigger the listeners
+       this.listeners.forEach((listener) => {
+-        listener(this.#currentResult)
++        listener(this._currentResult)
+       })
+     })
+   }
+diff --git a/node_modules/@tanstack/query-core/src/onlineManager.ts b/node_modules/@tanstack/query-core/src/onlineManager.ts
+index 6c59a14..00cc0c9 100644
+--- a/node_modules/@tanstack/query-core/src/onlineManager.ts
++++ b/node_modules/@tanstack/query-core/src/onlineManager.ts
+@@ -4,14 +4,14 @@ type Listener = (online: boolean) => void
+ type SetupFn = (setOnline: Listener) => (() => void) | undefined
+ 
+ export class OnlineManager extends Subscribable<Listener> {
+-  #online = true
+-  #cleanup?: () => void
++  _online = true
++  _cleanup?: () => void
+ 
+-  #setup: SetupFn
++  _setup: SetupFn
+ 
+   constructor() {
+     super()
+-    this.#setup = (onOnline) => {
++    this._setup = (onOnline) => {
+       // addEventListener does not exist in React Native, but window does
+       // eslint-disable-next-line @typescript-eslint/no-unnecessary-condition
+       if (typeof window !== 'undefined' && window.addEventListener) {
+@@ -33,29 +33,29 @@ export class OnlineManager extends Subscribable<Listener> {
+   }
+ 
+   protected onSubscribe(): void {
+-    if (!this.#cleanup) {
+-      this.setEventListener(this.#setup)
++    if (!this._cleanup) {
++      this.setEventListener(this._setup)
+     }
+   }
+ 
+   protected onUnsubscribe() {
+     if (!this.hasListeners()) {
+-      this.#cleanup?.()
+-      this.#cleanup = undefined
++      this._cleanup?.()
++      this._cleanup = undefined
+     }
+   }
+ 
+   setEventListener(setup: SetupFn): void {
+-    this.#setup = setup
+-    this.#cleanup?.()
+-    this.#cleanup = setup(this.setOnline.bind(this))
++    this._setup = setup
++    this._cleanup?.()
++    this._cleanup = setup(this.setOnline.bind(this))
+   }
+ 
+   setOnline(online: boolean): void {
+-    const changed = this.#online !== online
++    const changed = this._online !== online
+ 
+     if (changed) {
+-      this.#online = online
++      this._online = online
+       this.listeners.forEach((listener) => {
+         listener(online)
+       })
+@@ -63,7 +63,7 @@ export class OnlineManager extends Subscribable<Listener> {
+   }
+ 
+   isOnline(): boolean {
+-    return this.#online
++    return this._online
+   }
+ }
+ 
+diff --git a/node_modules/@tanstack/query-core/src/queriesObserver.ts b/node_modules/@tanstack/query-core/src/queriesObserver.ts
+index 4fcf8e5..2fde326 100644
+--- a/node_modules/@tanstack/query-core/src/queriesObserver.ts
++++ b/node_modules/@tanstack/query-core/src/queriesObserver.ts
+@@ -35,16 +35,16 @@ export interface QueriesObserverOptions<
+ export class QueriesObserver<
+   TCombinedResult = Array<QueryObserverResult>,
+ > extends Subscribable<QueriesObserverListener> {
+-  #client: QueryClient
+-  #result!: Array<QueryObserverResult>
+-  #queries: Array<QueryObserverOptions>
+-  #options?: QueriesObserverOptions<TCombinedResult>
+-  #observers: Array<QueryObserver>
+-  #combinedResult?: TCombinedResult
+-  #lastCombine?: CombineFn<TCombinedResult>
+-  #lastResult?: Array<QueryObserverResult>
+-  #lastQueryHashes?: Array<string>
+-  #observerMatches: Array<QueryObserverMatch> = []
++  _client: QueryClient
++  _result!: Array<QueryObserverResult>
++  _queries: Array<QueryObserverOptions>
++  _options?: QueriesObserverOptions<TCombinedResult>
++  _observers: Array<QueryObserver>
++  _combinedResult?: TCombinedResult
++  _lastCombine?: CombineFn<TCombinedResult>
++  _lastResult?: Array<QueryObserverResult>
++  _lastQueryHashes?: Array<string>
++  _observerMatches: Array<QueryObserverMatch> = []
+ 
+   constructor(
+     client: QueryClient,
+@@ -53,20 +53,20 @@ export class QueriesObserver<
+   ) {
+     super()
+ 
+-    this.#client = client
+-    this.#options = options
+-    this.#queries = []
+-    this.#observers = []
+-    this.#result = []
++    this._client = client
++    this._options = options
++    this._queries = []
++    this._observers = []
++    this._result = []
+ 
+     this.setQueries(queries)
+   }
+ 
+   protected onSubscribe(): void {
+     if (this.listeners.size === 1) {
+-      this.#observers.forEach((observer) => {
++      this._observers.forEach((observer) => {
+         observer.subscribe((result) => {
+-          this.#onUpdate(observer, result)
++          this._onUpdate(observer, result)
+         })
+       })
+     }
+@@ -80,7 +80,7 @@ export class QueriesObserver<
+ 
+   destroy(): void {
+     this.listeners = new Set()
+-    this.#observers.forEach((observer) => {
++    this._observers.forEach((observer) => {
+       observer.destroy()
+     })
+   }
+@@ -89,12 +89,12 @@ export class QueriesObserver<
+     queries: Array<QueryObserverOptions>,
+     options?: QueriesObserverOptions<TCombinedResult>,
+   ): void {
+-    this.#queries = queries
+-    this.#options = options
++    this._queries = queries
++    this._options = options
+ 
+     if (process.env.NODE_ENV !== 'production') {
+       const queryHashes = queries.map(
+-        (query) => this.#client.defaultQueryOptions(query).queryHash,
++        (query) => this._client.defaultQueryOptions(query).queryHash,
+       )
+       if (new Set(queryHashes).size !== queryHashes.length) {
+         console.warn(
+@@ -104,9 +104,9 @@ export class QueriesObserver<
+     }
+ 
+     notifyManager.batch(() => {
+-      const prevObservers = this.#observers
++      const prevObservers = this._observers
+ 
+-      const newObserverMatches = this.#findMatchingObservers(this.#queries)
++      const newObserverMatches = this._findMatchingObservers(this._queries)
+ 
+       // set options for the new observers to notify of changes
+       newObserverMatches.forEach((match) =>
+@@ -127,18 +127,18 @@ export class QueriesObserver<
+       const hasResultChange = hasStructuralChange
+         ? true
+         : newResult.some((result, index) => {
+-            const prev = this.#result[index]
++            const prev = this._result[index]
+             return !prev || !shallowEqualObjects(result, prev)
+           })
+ 
+       if (!hasStructuralChange && !hasResultChange) return
+ 
+       if (hasStructuralChange) {
+-        this.#observerMatches = newObserverMatches
+-        this.#observers = newObservers
++        this._observerMatches = newObserverMatches
++        this._observers = newObservers
+       }
+ 
+-      this.#result = newResult
++      this._result = newResult
+ 
+       if (!this.hasListeners()) return
+ 
+@@ -148,25 +148,25 @@ export class QueriesObserver<
+         })
+         difference(newObservers, prevObservers).forEach((observer) => {
+           observer.subscribe((result) => {
+-            this.#onUpdate(observer, result)
++            this._onUpdate(observer, result)
+           })
+         })
+       }
+ 
+-      this.#notify()
++      this._notify()
+     })
+   }
+ 
+   getCurrentResult(): Array<QueryObserverResult> {
+-    return this.#result
++    return this._result
+   }
+ 
+   getQueries() {
+-    return this.#observers.map((observer) => observer.getCurrentQuery())
++    return this._observers.map((observer) => observer.getCurrentQuery())
+   }
+ 
+   getObservers() {
+-    return this.#observers
++    return this._observers
+   }
+ 
+   getOptimisticResult(
+@@ -177,7 +177,7 @@ export class QueriesObserver<
+     combineResult: (r?: Array<QueryObserverResult>) => TCombinedResult,
+     trackResult: () => Array<QueryObserverResult>,
+   ] {
+-    const matches = this.#findMatchingObservers(queries)
++    const matches = this._findMatchingObservers(queries)
+     const result = matches.map((match) =>
+       match.observer.getOptimisticResult(match.defaultedQueryOptions),
+     )
+@@ -188,15 +188,15 @@ export class QueriesObserver<
+     return [
+       result,
+       (r?: Array<QueryObserverResult>) => {
+-        return this.#combineResult(r ?? result, combine, queryHashes)
++        return this._combineResult(r ?? result, combine, queryHashes)
+       },
+       () => {
+-        return this.#trackResult(result, matches)
++        return this._trackResult(result, matches)
+       },
+     ]
+   }
+ 
+-  #trackResult(
++  _trackResult(
+     result: Array<QueryObserverResult>,
+     matches: Array<QueryObserverMatch>,
+   ) {
+@@ -213,13 +213,13 @@ export class QueriesObserver<
+     })
+   }
+ 
+-  #combineResult(
++  _combineResult(
+     input: Array<QueryObserverResult>,
+     combine: CombineFn<TCombinedResult> | undefined,
+     queryHashes?: Array<string>,
+   ): TCombinedResult {
+     if (combine) {
+-      const lastHashes = this.#lastQueryHashes
++      const lastHashes = this._lastQueryHashes
+       const queryHashesChanged =
+         queryHashes !== undefined &&
+         lastHashes !== undefined &&
+@@ -227,45 +227,45 @@ export class QueriesObserver<
+           queryHashes.some((hash, i) => hash !== lastHashes[i]))
+ 
+       if (
+-        !this.#combinedResult ||
+-        this.#result !== this.#lastResult ||
++        !this._combinedResult ||
++        this._result !== this._lastResult ||
+         queryHashesChanged ||
+-        combine !== this.#lastCombine
++        combine !== this._lastCombine
+       ) {
+-        this.#lastCombine = combine
+-        this.#lastResult = this.#result
++        this._lastCombine = combine
++        this._lastResult = this._result
+ 
+         if (queryHashes !== undefined) {
+-          this.#lastQueryHashes = queryHashes
++          this._lastQueryHashes = queryHashes
+         }
+-        this.#combinedResult = replaceEqualDeep(
+-          this.#combinedResult,
++        this._combinedResult = replaceEqualDeep(
++          this._combinedResult,
+           combine(input),
+         )
+       }
+ 
+-      return this.#combinedResult
++      return this._combinedResult
+     }
+     return input as any
+   }
+ 
+-  #shouldSkipCombine(): boolean {
++  _shouldSkipCombine(): boolean {
+     return (
+-      this.#options?.combine !== undefined &&
+-      this.#observers.some((observer, index) => {
++      this._options?.combine !== undefined &&
++      this._observers.some((observer, index) => {
+         return (
+-          observer.options.suspense && this.#result[index]?.data === undefined
++          observer.options.suspense && this._result[index]?.data === undefined
+         )
+       })
+     )
+   }
+ 
+-  #findMatchingObservers(
++  _findMatchingObservers(
+     queries: Array<QueryObserverOptions>,
+   ): Array<QueryObserverMatch> {
+     const prevObserversMap = new Map<string, Array<QueryObserver>>()
+ 
+-    this.#observers.forEach((observer) => {
++    this._observers.forEach((observer) => {
+       const key = observer.options.queryHash
+       if (!key) return
+ 
+@@ -281,10 +281,10 @@ export class QueriesObserver<
+     const observers: Array<QueryObserverMatch> = []
+ 
+     queries.forEach((options) => {
+-      const defaultedOptions = this.#client.defaultQueryOptions(options)
++      const defaultedOptions = this._client.defaultQueryOptions(options)
+       const match = prevObserversMap.get(defaultedOptions.queryHash)?.shift()
+       const observer =
+-        match ?? new QueryObserver(this.#client, defaultedOptions)
++        match ?? new QueryObserver(this._client, defaultedOptions)
+ 
+       observers.push({
+         defaultedQueryOptions: defaultedOptions,
+@@ -295,27 +295,27 @@ export class QueriesObserver<
+     return observers
+   }
+ 
+-  #onUpdate(observer: QueryObserver, result: QueryObserverResult): void {
+-    const index = this.#observers.indexOf(observer)
++  _onUpdate(observer: QueryObserver, result: QueryObserverResult): void {
++    const index = this._observers.indexOf(observer)
+     if (index !== -1) {
+-      this.#result = replaceAt(this.#result, index, result)
+-      this.#notify()
++      this._result = replaceAt(this._result, index, result)
++      this._notify()
+     }
+   }
+ 
+-  #notify(): void {
++  _notify(): void {
+     if (this.hasListeners()) {
+-      const newTracked = this.#trackResult(this.#result, this.#observerMatches)
+-      const shouldSkipCombine = this.#shouldSkipCombine()
+-      const previousResult = this.#combinedResult
++      const newTracked = this._trackResult(this._result, this._observerMatches)
++      const shouldSkipCombine = this._shouldSkipCombine()
++      const previousResult = this._combinedResult
+       const newResult = shouldSkipCombine
+         ? previousResult
+-        : this.#combineResult(newTracked, this.#options?.combine)
++        : this._combineResult(newTracked, this._options?.combine)
+ 
+       if (shouldSkipCombine || previousResult !== newResult) {
+         notifyManager.batch(() => {
+           this.listeners.forEach((listener) => {
+-            listener(this.#result)
++            listener(this._result)
+           })
+         })
+       }
+diff --git a/node_modules/@tanstack/query-core/src/query.ts b/node_modules/@tanstack/query-core/src/query.ts
+index 62bc9a1..e3989fb 100644
+--- a/node_modules/@tanstack/query-core/src/query.ts
++++ b/node_modules/@tanstack/query-core/src/query.ts
+@@ -162,30 +162,30 @@ export class Query<
+   queryHash: string
+   options!: QueryOptions<TQueryFnData, TError, TData, TQueryKey>
+   state: QueryState<TData, TError>
+-  #queryType?: 'infinite'
++  _queryType?: 'infinite'
+ 
+-  #initialState: QueryState<TData, TError>
+-  #revertState?: QueryState<TData, TError>
+-  #cache: QueryCache
+-  #client: QueryClient
+-  #retryer?: Retryer<TData>
++  _initialState: QueryState<TData, TError>
++  _revertState?: QueryState<TData, TError>
++  _cache: QueryCache
++  _client: QueryClient
++  _retryer?: Retryer<TData>
+   observers: Array<QueryObserver<any, any, any, any, any>>
+-  #defaultOptions?: QueryOptions<TQueryFnData, TError, TData, TQueryKey>
+-  #abortSignalConsumed: boolean
++  _defaultOptions?: QueryOptions<TQueryFnData, TError, TData, TQueryKey>
++  _abortSignalConsumed: boolean
+ 
+   constructor(config: QueryConfig<TQueryFnData, TError, TData, TQueryKey>) {
+     super()
+ 
+-    this.#abortSignalConsumed = false
+-    this.#defaultOptions = config.defaultOptions
++    this._abortSignalConsumed = false
++    this._defaultOptions = config.defaultOptions
+     this.setOptions(config.options)
+     this.observers = []
+-    this.#client = config.client
+-    this.#cache = this.#client.getQueryCache()
++    this._client = config.client
++    this._cache = this._client.getQueryCache()
+     this.queryKey = config.queryKey
+     this.queryHash = config.queryHash
+-    this.#initialState = getDefaultState(this.options)
+-    this.state = config.state ?? this.#initialState
++    this._initialState = getDefaultState(this.options)
++    this.state = config.state ?? this._initialState
+     this.scheduleGc()
+   }
+   get meta(): QueryMeta | undefined {
+@@ -193,20 +193,20 @@ export class Query<
+   }
+ 
+   get queryType() {
+-    return this.#queryType
++    return this._queryType
+   }
+ 
+   get promise(): Promise<TData> | undefined {
+-    return this.#retryer?.promise
++    return this._retryer?.promise
+   }
+ 
+   setOptions(
+     options?: QueryOptions<TQueryFnData, TError, TData, TQueryKey>,
+   ): void {
+-    this.options = { ...this.#defaultOptions, ...options }
++    this.options = { ...this._defaultOptions, ...options }
+ 
+     if (options?._type) {
+-      this.#queryType = options._type
++      this._queryType = options._type
+     }
+ 
+     this.updateGcTime(this.options.gcTime)
+@@ -218,14 +218,14 @@ export class Query<
+         this.setState(
+           successState(defaultState.data, defaultState.dataUpdatedAt),
+         )
+-        this.#initialState = defaultState
++        this._initialState = defaultState
+       }
+     }
+   }
+ 
+   protected optionalRemove() {
+     if (!this.observers.length && this.state.fetchStatus === 'idle') {
+-      this.#cache.remove(this)
++      this._cache.remove(this)
+     }
+   }
+ 
+@@ -236,7 +236,7 @@ export class Query<
+     const data = replaceData(this.state.data, newData, this.options)
+ 
+     // Set data and mark it as cached
+-    this.#dispatch({
++    this._dispatch({
+       data,
+       type: 'success',
+       dataUpdatedAt: options?.updatedAt,
+@@ -247,12 +247,12 @@ export class Query<
+   }
+ 
+   setState(state: Partial<QueryState<TData, TError>>): void {
+-    this.#dispatch({ type: 'setState', state })
++    this._dispatch({ type: 'setState', state })
+   }
+ 
+   cancel(options?: CancelOptions): Promise<void> {
+-    const promise = this.#retryer?.promise
+-    this.#retryer?.cancel(options)
++    const promise = this._retryer?.promise
++    this._retryer?.cancel(options)
+     return promise ? promise.then(noop).catch(noop) : Promise.resolve()
+   }
+ 
+@@ -263,7 +263,7 @@ export class Query<
+   }
+ 
+   get resetState(): QueryState<TData, TError> {
+-    return this.#initialState
++    return this._initialState
+   }
+ 
+   reset(): void {
+@@ -336,7 +336,7 @@ export class Query<
+     observer?.refetch({ cancelRefetch: false })
+ 
+     // Continue fetch if currently paused
+-    this.#retryer?.continue()
++    this._retryer?.continue()
+   }
+ 
+   onOnline(): void {
+@@ -345,7 +345,7 @@ export class Query<
+     observer?.refetch({ cancelRefetch: false })
+ 
+     // Continue fetch if currently paused
+-    this.#retryer?.continue()
++    this._retryer?.continue()
+   }
+ 
+   addObserver(observer: QueryObserver<any, any, any, any, any>): void {
+@@ -355,7 +355,7 @@ export class Query<
+       // Stop the query from being garbage collected
+       this.clearGcTimeout()
+ 
+-      this.#cache.notify({ type: 'observerAdded', query: this, observer })
++      this._cache.notify({ type: 'observerAdded', query: this, observer })
+     }
+   }
+ 
+@@ -366,18 +366,18 @@ export class Query<
+       if (!this.observers.length) {
+         // If the transport layer does not support cancellation
+         // we'll let the query continue so the result can be cached
+-        if (this.#retryer) {
+-          if (this.#abortSignalConsumed || this.#isInitialPausedFetch()) {
+-            this.#retryer.cancel({ revert: true })
++        if (this._retryer) {
++          if (this._abortSignalConsumed || this._isInitialPausedFetch()) {
++            this._retryer.cancel({ revert: true })
+           } else {
+-            this.#retryer.cancelRetry()
++            this._retryer.cancelRetry()
+           }
+         }
+ 
+         this.scheduleGc()
+       }
+ 
+-      this.#cache.notify({ type: 'observerRemoved', query: this, observer })
++      this._cache.notify({ type: 'observerRemoved', query: this, observer })
+     }
+   }
+ 
+@@ -385,7 +385,7 @@ export class Query<
+     return this.observers.length
+   }
+ 
+-  #isInitialPausedFetch(): boolean {
++  _isInitialPausedFetch(): boolean {
+     return (
+       this.state.fetchStatus === 'paused' && this.state.status === 'pending'
+     )
+@@ -393,7 +393,7 @@ export class Query<
+ 
+   invalidate(): void {
+     if (!this.state.isInvalidated) {
+-      this.#dispatch({ type: 'invalidate' })
++      this._dispatch({ type: 'invalidate' })
+     }
+   }
+ 
+@@ -406,16 +406,16 @@ export class Query<
+       // If the promise in the retryer is already rejected, we have to definitely
+       // re-start the fetch; there is a chance that the query is still in a
+       // pending state when that happens
+-      this.#retryer?.status() !== 'rejected'
++      this._retryer?.status() !== 'rejected'
+     ) {
+       if (this.state.data !== undefined && fetchOptions?.cancelRefetch) {
+         // Silently cancel current fetch if the user wants to cancel refetch
+         this.cancel({ silent: true })
+-      } else if (this.#retryer) {
++      } else if (this._retryer) {
+         // make sure that retries that were potentially cancelled due to unmounts can continue
+-        this.#retryer.continueRetry()
++        this._retryer.continueRetry()
+         // Return current promise if we are already fetching
+-        return this.#retryer.promise
++        return this._retryer.promise
+       }
+     }
+ 
+@@ -450,7 +450,7 @@ export class Query<
+       Object.defineProperty(object, 'signal', {
+         enumerable: true,
+         get: () => {
+-          this.#abortSignalConsumed = true
++          this._abortSignalConsumed = true
+           return abortController.signal
+         },
+       })
+@@ -466,7 +466,7 @@ export class Query<
+           QueryFunctionContext<TQueryKey>,
+           'signal'
+         > = {
+-          client: this.#client,
++          client: this._client,
+           queryKey: this.queryKey,
+           meta: this.meta,
+         }
+@@ -476,7 +476,7 @@ export class Query<
+ 
+       const queryFnContext = createQueryFnContext()
+ 
+-      this.#abortSignalConsumed = false
++      this._abortSignalConsumed = false
+       if (this.options.persister) {
+         return this.options.persister(
+           queryFn,
+@@ -502,7 +502,7 @@ export class Query<
+         fetchOptions,
+         options: this.options,
+         queryKey: this.queryKey,
+-        client: this.#client,
++        client: this._client,
+         state: this.state,
+         fetchFn,
+       }
+@@ -514,7 +514,7 @@ export class Query<
+     const context = createFetchContext()
+ 
+     const behavior =
+-      this.#queryType === 'infinite'
++      this._queryType === 'infinite'
+         ? (infiniteQueryBehavior(
+             (this.options as { pages?: number }).pages,
+           ) as QueryBehavior<TQueryFnData, TError, TData, TQueryKey>)
+@@ -522,18 +522,18 @@ export class Query<
+     behavior?.onFetch(context, this as unknown as Query)
+ 
+     // Store state in case the current fetch needs to be reverted
+-    this.#revertState = this.state
++    this._revertState = this.state
+ 
+     // Set to fetching state if not already in it
+     if (
+       this.state.fetchStatus === 'idle' ||
+       this.state.fetchMeta !== context.fetchOptions?.meta
+     ) {
+-      this.#dispatch({ type: 'fetch', meta: context.fetchOptions?.meta })
++      this._dispatch({ type: 'fetch', meta: context.fetchOptions?.meta })
+     }
+ 
+     // Try to fetch the data
+-    this.#retryer = createRetryer({
++    this._retryer = createRetryer({
+       initialPromise: fetchOptions?.initialPromise as
+         | Promise<TData>
+         | undefined,
+@@ -541,20 +541,20 @@ export class Query<
+       onCancel: (error) => {
+         if (error instanceof CancelledError && error.revert) {
+           this.setState({
+-            ...this.#revertState,
++            ...this._revertState,
+             fetchStatus: 'idle' as const,
+           })
+         }
+         abortController.abort()
+       },
+       onFail: (failureCount, error) => {
+-        this.#dispatch({ type: 'failed', failureCount, error })
++        this._dispatch({ type: 'failed', failureCount, error })
+       },
+       onPause: () => {
+-        this.#dispatch({ type: 'pause' })
++        this._dispatch({ type: 'pause' })
+       },
+       onContinue: () => {
+-        this.#dispatch({ type: 'continue' })
++        this._dispatch({ type: 'continue' })
+       },
+       retry: context.options.retry,
+       retryDelay: context.options.retryDelay,
+@@ -563,7 +563,7 @@ export class Query<
+     })
+ 
+     try {
+-      const data = await this.#retryer.start()
++      const data = await this._retryer.start()
+       // this is more of a runtime guard
+       // eslint-disable-next-line @typescript-eslint/no-unnecessary-condition
+       if (data === undefined) {
+@@ -578,8 +578,8 @@ export class Query<
+       this.setData(data)
+ 
+       // Notify cache callback
+-      this.#cache.config.onSuccess?.(data, this as Query<any, any, any, any>)
+-      this.#cache.config.onSettled?.(
++      this._cache.config.onSuccess?.(data, this as Query<any, any, any, any>)
++      this._cache.config.onSettled?.(
+         data,
+         this.state.error as any,
+         this as Query<any, any, any, any>,
+@@ -590,7 +590,7 @@ export class Query<
+         if (error.silent) {
+           // silent cancellation implies a new fetch is going to be started,
+           // so we piggyback onto that promise
+-          return this.#retryer.promise
++          return this._retryer.promise
+         } else if (error.revert) {
+           // transform error into reverted state data
+           // if the initial fetch was cancelled, we have no data, so we have
+@@ -601,17 +601,17 @@ export class Query<
+           return this.state.data
+         }
+       }
+-      this.#dispatch({
++      this._dispatch({
+         type: 'error',
+         error: error as TError,
+       })
+ 
+       // Notify cache callback
+-      this.#cache.config.onError?.(
++      this._cache.config.onError?.(
+         error as any,
+         this as Query<any, any, any, any>,
+       )
+-      this.#cache.config.onSettled?.(
++      this._cache.config.onSettled?.(
+         this.state.data,
+         error as any,
+         this as Query<any, any, any, any>,
+@@ -624,7 +624,7 @@ export class Query<
+     }
+   }
+ 
+-  #dispatch(action: Action<TData, TError>): void {
++  _dispatch(action: Action<TData, TError>): void {
+     const reducer = (
+       state: QueryState<TData, TError>,
+     ): QueryState<TData, TError> => {
+@@ -664,7 +664,7 @@ export class Query<
+           }
+           // If fetching ends successfully, we don't need revertState as a fallback anymore.
+           // For manual updates, capture the state to revert to it in case of a cancellation.
+-          this.#revertState = action.manual ? newState : undefined
++          this._revertState = action.manual ? newState : undefined
+ 
+           return newState
+         case 'error':
+@@ -702,7 +702,7 @@ export class Query<
+         observer.onQueryUpdate()
+       })
+ 
+-      this.#cache.notify({ query: this, type: 'updated', action })
++      this._cache.notify({ query: this, type: 'updated', action })
+     })
+   }
+ }
+diff --git a/node_modules/@tanstack/query-core/src/queryCache.ts b/node_modules/@tanstack/query-core/src/queryCache.ts
+index dd7123e..3953ff6 100644
+--- a/node_modules/@tanstack/query-core/src/queryCache.ts
++++ b/node_modules/@tanstack/query-core/src/queryCache.ts
+@@ -90,11 +90,11 @@ export interface QueryStore {
+ // CLASS
+ 
+ export class QueryCache extends Subscribable<QueryCacheListener> {
+-  #queries: QueryStore
++  _queries: QueryStore
+ 
+   constructor(public config: QueryCacheConfig = {}) {
+     super()
+-    this.#queries = new Map<string, Query>()
++    this._queries = new Map<string, Query>()
+   }
+ 
+   build<
+@@ -131,8 +131,8 @@ export class QueryCache extends Subscribable<QueryCacheListener> {
+   }
+ 
+   add(query: Query<any, any, any, any>): void {
+-    if (!this.#queries.has(query.queryHash)) {
+-      this.#queries.set(query.queryHash, query)
++    if (!this._queries.has(query.queryHash)) {
++      this._queries.set(query.queryHash, query)
+ 
+       this.notify({
+         type: 'added',
+@@ -142,13 +142,13 @@ export class QueryCache extends Subscribable<QueryCacheListener> {
+   }
+ 
+   remove(query: Query<any, any, any, any>): void {
+-    const queryInMap = this.#queries.get(query.queryHash)
++    const queryInMap = this._queries.get(query.queryHash)
+ 
+     if (queryInMap) {
+       query.destroy()
+ 
+       if (queryInMap === query) {
+-        this.#queries.delete(query.queryHash)
++        this._queries.delete(query.queryHash)
+       }
+ 
+       this.notify({ type: 'removed', query })
+@@ -171,13 +171,13 @@ export class QueryCache extends Subscribable<QueryCacheListener> {
+   >(
+     queryHash: string,
+   ): Query<TQueryFnData, TError, TData, TQueryKey> | undefined {
+-    return this.#queries.get(queryHash) as
++    return this._queries.get(queryHash) as
+       | Query<TQueryFnData, TError, TData, TQueryKey>
+       | undefined
+   }
+ 
+   getAll(): Array<Query> {
+-    return [...this.#queries.values()]
++    return [...this._queries.values()]
+   }
+ 
+   find<TQueryFnData = unknown, TError = DefaultError, TData = TQueryFnData>(
+diff --git a/node_modules/@tanstack/query-core/src/queryClient.ts b/node_modules/@tanstack/query-core/src/queryClient.ts
+index d82106c..34927b8 100644
+--- a/node_modules/@tanstack/query-core/src/queryClient.ts
++++ b/node_modules/@tanstack/query-core/src/queryClient.ts
+@@ -57,64 +57,64 @@ interface MutationDefaults {
+ // CLASS
+ 
+ export class QueryClient {
+-  #queryCache: QueryCache
+-  #mutationCache: MutationCache
+-  #defaultOptions: DefaultOptions
+-  #queryDefaults: Map<string, QueryDefaults>
+-  #mutationDefaults: Map<string, MutationDefaults>
+-  #mountCount: number
+-  #unsubscribeFocus?: () => void
+-  #unsubscribeOnline?: () => void
++  _queryCache: QueryCache
++  _mutationCache: MutationCache
++  _defaultOptions: DefaultOptions
++  _queryDefaults: Map<string, QueryDefaults>
++  _mutationDefaults: Map<string, MutationDefaults>
++  _mountCount: number
++  _unsubscribeFocus?: () => void
++  _unsubscribeOnline?: () => void
+ 
+   constructor(config: QueryClientConfig = {}) {
+-    this.#queryCache = config.queryCache || new QueryCache()
+-    this.#mutationCache = config.mutationCache || new MutationCache()
+-    this.#defaultOptions = config.defaultOptions || {}
+-    this.#queryDefaults = new Map()
+-    this.#mutationDefaults = new Map()
+-    this.#mountCount = 0
++    this._queryCache = config.queryCache || new QueryCache()
++    this._mutationCache = config.mutationCache || new MutationCache()
++    this._defaultOptions = config.defaultOptions || {}
++    this._queryDefaults = new Map()
++    this._mutationDefaults = new Map()
++    this._mountCount = 0
+   }
+ 
+   mount(): void {
+-    this.#mountCount++
+-    if (this.#mountCount !== 1) return
++    this._mountCount++
++    if (this._mountCount !== 1) return
+ 
+-    this.#unsubscribeFocus = focusManager.subscribe(async (focused) => {
++    this._unsubscribeFocus = focusManager.subscribe(async (focused) => {
+       if (focused) {
+         await this.resumePausedMutations()
+-        this.#queryCache.onFocus()
++        this._queryCache.onFocus()
+       }
+     })
+-    this.#unsubscribeOnline = onlineManager.subscribe(async (online) => {
++    this._unsubscribeOnline = onlineManager.subscribe(async (online) => {
+       if (online) {
+         await this.resumePausedMutations()
+-        this.#queryCache.onOnline()
++        this._queryCache.onOnline()
+       }
+     })
+   }
+ 
+   unmount(): void {
+-    this.#mountCount--
+-    if (this.#mountCount !== 0) return
++    this._mountCount--
++    if (this._mountCount !== 0) return
+ 
+-    this.#unsubscribeFocus?.()
+-    this.#unsubscribeFocus = undefined
++    this._unsubscribeFocus?.()
++    this._unsubscribeFocus = undefined
+ 
+-    this.#unsubscribeOnline?.()
+-    this.#unsubscribeOnline = undefined
++    this._unsubscribeOnline?.()
++    this._unsubscribeOnline = undefined
+   }
+ 
+   isFetching<TQueryFilters extends QueryFilters<any> = QueryFilters>(
+     filters?: TQueryFilters,
+   ): number {
+-    return this.#queryCache.findAll({ ...filters, fetchStatus: 'fetching' })
++    return this._queryCache.findAll({ ...filters, fetchStatus: 'fetching' })
+       .length
+   }
+ 
+   isMutating<
+     TMutationFilters extends MutationFilters<any, any> = MutationFilters,
+   >(filters?: TMutationFilters): number {
+-    return this.#mutationCache.findAll({ ...filters, status: 'pending' }).length
++    return this._mutationCache.findAll({ ...filters, status: 'pending' }).length
+   }
+ 
+   /**
+@@ -131,7 +131,7 @@ export class QueryClient {
+   >(queryKey: TTaggedQueryKey): TInferredQueryFnData | undefined {
+     const options = this.defaultQueryOptions({ queryKey })
+ 
+-    return this.#queryCache.get<TInferredQueryFnData>(options.queryHash)?.state
++    return this._queryCache.get<TInferredQueryFnData>(options.queryHash)?.state
+       .data
+   }
+ 
+@@ -144,7 +144,7 @@ export class QueryClient {
+     options: EnsureQueryDataOptions<TQueryFnData, TError, TData, TQueryKey>,
+   ): Promise<TData> {
+     const defaultedOptions = this.defaultQueryOptions(options)
+-    const query = this.#queryCache.build(this, defaultedOptions)
++    const query = this._queryCache.build(this, defaultedOptions)
+     const cachedData = query.state.data
+ 
+     if (cachedData === undefined) {
+@@ -165,7 +165,7 @@ export class QueryClient {
+     TQueryFnData = unknown,
+     TQueryFilters extends QueryFilters<any> = QueryFilters,
+   >(filters: TQueryFilters): Array<[QueryKey, TQueryFnData | undefined]> {
+-    return this.#queryCache.findAll(filters).map(({ queryKey, state }) => {
++    return this._queryCache.findAll(filters).map(({ queryKey, state }) => {
+       const data = state.data as TQueryFnData | undefined
+       return [queryKey, data]
+     })
+@@ -191,7 +191,7 @@ export class QueryClient {
+       QueryKey
+     >({ queryKey })
+ 
+-    const query = this.#queryCache.get<TInferredQueryFnData>(
++    const query = this._queryCache.get<TInferredQueryFnData>(
+       defaultedOptions.queryHash,
+     )
+     const prevData = query?.state.data
+@@ -201,7 +201,7 @@ export class QueryClient {
+       return undefined
+     }
+ 
+-    return this.#queryCache
++    return this._queryCache
+       .build(this, defaultedOptions)
+       .setData(data, { ...options, manual: true })
+   }
+@@ -218,7 +218,7 @@ export class QueryClient {
+     options?: SetDataOptions,
+   ): Array<[QueryKey, TQueryFnData | undefined]> {
+     return notifyManager.batch(() =>
+-      this.#queryCache
++      this._queryCache
+         .findAll(filters)
+         .map(({ queryKey }) => [
+           queryKey,
+@@ -237,7 +237,7 @@ export class QueryClient {
+     queryKey: TTaggedQueryKey,
+   ): QueryState<TInferredQueryFnData, TInferredError> | undefined {
+     const options = this.defaultQueryOptions({ queryKey })
+-    return this.#queryCache.get<TInferredQueryFnData, TInferredError>(
++    return this._queryCache.get<TInferredQueryFnData, TInferredError>(
+       options.queryHash,
+     )?.state
+   }
+@@ -245,7 +245,7 @@ export class QueryClient {
+   removeQueries<TTaggedQueryKey extends QueryKey = QueryKey>(
+     filters?: QueryFilters<TTaggedQueryKey>,
+   ): void {
+-    const queryCache = this.#queryCache
++    const queryCache = this._queryCache
+     notifyManager.batch(() => {
+       queryCache.findAll(filters).forEach((query) => {
+         queryCache.remove(query)
+@@ -257,7 +257,7 @@ export class QueryClient {
+     filters?: QueryFilters<TTaggedQueryKey>,
+     options?: ResetOptions,
+   ): Promise<void> {
+-    const queryCache = this.#queryCache
++    const queryCache = this._queryCache
+ 
+     return notifyManager.batch(() => {
+       queryCache.findAll(filters).forEach((query) => {
+@@ -280,7 +280,7 @@ export class QueryClient {
+     const defaultedCancelOptions = { revert: true, ...cancelOptions }
+ 
+     const promises = notifyManager.batch(() =>
+-      this.#queryCache
++      this._queryCache
+         .findAll(filters)
+         .map((query) => query.cancel(defaultedCancelOptions)),
+     )
+@@ -293,7 +293,7 @@ export class QueryClient {
+     options: InvalidateOptions = {},
+   ): Promise<void> {
+     return notifyManager.batch(() => {
+-      this.#queryCache.findAll(filters).forEach((query) => {
++      this._queryCache.findAll(filters).forEach((query) => {
+         query.invalidate()
+       })
+ 
+@@ -319,7 +319,7 @@ export class QueryClient {
+       cancelRefetch: options.cancelRefetch ?? true,
+     }
+     const promises = notifyManager.batch(() =>
+-      this.#queryCache
++      this._queryCache
+         .findAll(filters)
+         .filter((query) => !query.isDisabled() && !query.isStatic())
+         .map((query) => {
+@@ -358,7 +358,7 @@ export class QueryClient {
+       defaultedOptions.retry = false
+     }
+ 
+-    const query = this.#queryCache.build(this, defaultedOptions)
++    const query = this._queryCache.build(this, defaultedOptions)
+ 
+     return query.isStaleByTime(
+       resolveStaleTime(defaultedOptions.staleTime, query),
+@@ -437,25 +437,25 @@ export class QueryClient {
+ 
+   resumePausedMutations(): Promise<unknown> {
+     if (onlineManager.isOnline()) {
+-      return this.#mutationCache.resumePausedMutations()
++      return this._mutationCache.resumePausedMutations()
+     }
+     return Promise.resolve()
+   }
+ 
+   getQueryCache(): QueryCache {
+-    return this.#queryCache
++    return this._queryCache
+   }
+ 
+   getMutationCache(): MutationCache {
+-    return this.#mutationCache
++    return this._mutationCache
+   }
+ 
+   getDefaultOptions(): DefaultOptions {
+-    return this.#defaultOptions
++    return this._defaultOptions
+   }
+ 
+   setDefaultOptions(options: DefaultOptions): void {
+-    this.#defaultOptions = options
++    this._defaultOptions = options
+   }
+ 
+   setQueryDefaults<
+@@ -472,7 +472,7 @@ export class QueryClient {
+       >
+     >,
+   ): void {
+-    this.#queryDefaults.set(hashKey(queryKey), {
++    this._queryDefaults.set(hashKey(queryKey), {
+       queryKey,
+       defaultOptions: options,
+     })
+@@ -481,7 +481,7 @@ export class QueryClient {
+   getQueryDefaults(
+     queryKey: QueryKey,
+   ): OmitKeyof<QueryObserverOptions<any, any, any, any, any>, 'queryKey'> {
+-    const defaults = [...this.#queryDefaults.values()]
++    const defaults = [...this._queryDefaults.values()]
+ 
+     const result: OmitKeyof<
+       QueryObserverOptions<any, any, any, any, any>,
+@@ -508,7 +508,7 @@ export class QueryClient {
+       'mutationKey'
+     >,
+   ): void {
+-    this.#mutationDefaults.set(hashKey(mutationKey), {
++    this._mutationDefaults.set(hashKey(mutationKey), {
+       mutationKey,
+       defaultOptions: options,
+     })
+@@ -517,7 +517,7 @@ export class QueryClient {
+   getMutationDefaults(
+     mutationKey: MutationKey,
+   ): OmitKeyof<MutationObserverOptions<any, any, any, any>, 'mutationKey'> {
+-    const defaults = [...this.#mutationDefaults.values()]
++    const defaults = [...this._mutationDefaults.values()]
+ 
+     const result: OmitKeyof<
+       MutationObserverOptions<any, any, any, any>,
+@@ -575,7 +575,7 @@ export class QueryClient {
+     }
+ 
+     const defaultedOptions = {
+-      ...this.#defaultOptions.queries,
++      ...this._defaultOptions.queries,
+       ...this.getQueryDefaults(options.queryKey),
+       ...options,
+       _defaulted: true,
+@@ -621,7 +621,7 @@ export class QueryClient {
+       return options
+     }
+     return {
+-      ...this.#defaultOptions.mutations,
++      ...this._defaultOptions.mutations,
+       ...(options?.mutationKey &&
+         this.getMutationDefaults(options.mutationKey)),
+       ...options,
+@@ -630,7 +630,7 @@ export class QueryClient {
+   }
+ 
+   clear(): void {
+-    this.#queryCache.clear()
+-    this.#mutationCache.clear()
++    this._queryCache.clear()
++    this._mutationCache.clear()
+   }
+ }
+diff --git a/node_modules/@tanstack/query-core/src/queryObserver.ts b/node_modules/@tanstack/query-core/src/queryObserver.ts
+index 954c969..c44739b 100644
+--- a/node_modules/@tanstack/query-core/src/queryObserver.ts
++++ b/node_modules/@tanstack/query-core/src/queryObserver.ts
+@@ -44,29 +44,29 @@ export class QueryObserver<
+   TQueryData = TQueryFnData,
+   TQueryKey extends QueryKey = QueryKey,
+ > extends Subscribable<QueryObserverListener<TData, TError>> {
+-  #client: QueryClient
+-  #currentQuery: Query<TQueryFnData, TError, TQueryData, TQueryKey> = undefined!
+-  #currentQueryInitialState: QueryState<TQueryData, TError> = undefined!
+-  #currentResult: QueryObserverResult<TData, TError> = undefined!
+-  #currentResultState?: QueryState<TQueryData, TError>
+-  #currentResultOptions?: QueryObserverOptions<
++  _client: QueryClient
++  _currentQuery: Query<TQueryFnData, TError, TQueryData, TQueryKey> = undefined!
++  _currentQueryInitialState: QueryState<TQueryData, TError> = undefined!
++  _currentResult: QueryObserverResult<TData, TError> = undefined!
++  _currentResultState?: QueryState<TQueryData, TError>
++  _currentResultOptions?: QueryObserverOptions<
+     TQueryFnData,
+     TError,
+     TData,
+     TQueryData,
+     TQueryKey
+   >
+-  #currentThenable: Thenable<TData>
+-  #selectError: TError | null
+-  #selectFn?: (data: TQueryData) => TData
+-  #selectResult?: TData
++  _currentThenable: Thenable<TData>
++  _selectError: TError | null
++  _selectFn?: (data: TQueryData) => TData
++  _selectResult?: TData
+   // This property keeps track of the last query with defined data.
+   // It will be used to pass the previous data and query to the placeholder function between renders.
+-  #lastQueryWithDefinedData?: Query<TQueryFnData, TError, TQueryData, TQueryKey>
+-  #staleTimeoutId?: ManagedTimerId
+-  #refetchIntervalId?: ManagedTimerId
+-  #currentRefetchInterval?: number | false
+-  #trackedProps = new Set<keyof QueryObserverResult>()
++  _lastQueryWithDefinedData?: Query<TQueryFnData, TError, TQueryData, TQueryKey>
++  _staleTimeoutId?: ManagedTimerId
++  _refetchIntervalId?: ManagedTimerId
++  _currentRefetchInterval?: number | false
++  _trackedProps = new Set<keyof QueryObserverResult>()
+ 
+   constructor(
+     client: QueryClient,
+@@ -80,9 +80,9 @@ export class QueryObserver<
+   ) {
+     super()
+ 
+-    this.#client = client
+-    this.#selectError = null
+-    this.#currentThenable = pendingThenable()
++    this._client = client
++    this._selectError = null
++    this._currentThenable = pendingThenable()
+ 
+     this.bindMethods()
+     this.setOptions(options)
+@@ -94,15 +94,15 @@ export class QueryObserver<
+ 
+   protected onSubscribe(): void {
+     if (this.listeners.size === 1) {
+-      this.#currentQuery.addObserver(this)
++      this._currentQuery.addObserver(this)
+ 
+-      if (shouldFetchOnMount(this.#currentQuery, this.options)) {
+-        this.#executeFetch()
++      if (shouldFetchOnMount(this._currentQuery, this.options)) {
++        this._executeFetch()
+       } else {
+         this.updateResult()
+       }
+ 
+-      this.#updateTimers()
++      this._updateTimers()
+     }
+   }
+ 
+@@ -114,7 +114,7 @@ export class QueryObserver<
+ 
+   shouldFetchOnReconnect(): boolean {
+     return shouldFetchOn(
+-      this.#currentQuery,
++      this._currentQuery,
+       this.options,
+       this.options.refetchOnReconnect,
+     )
+@@ -122,7 +122,7 @@ export class QueryObserver<
+ 
+   shouldFetchOnWindowFocus(): boolean {
+     return shouldFetchOn(
+-      this.#currentQuery,
++      this._currentQuery,
+       this.options,
+       this.options.refetchOnWindowFocus,
+     )
+@@ -130,9 +130,9 @@ export class QueryObserver<
+ 
+   destroy(): void {
+     this.listeners = new Set()
+-    this.#clearStaleTimeout()
+-    this.#clearRefetchInterval()
+-    this.#currentQuery.removeObserver(this)
++    this._clearStaleTimeout()
++    this._clearRefetchInterval()
++    this._currentQuery.removeObserver(this)
+   }
+ 
+   setOptions(
+@@ -145,15 +145,15 @@ export class QueryObserver<
+     >,
+   ): void {
+     const prevOptions = this.options
+-    const prevQuery = this.#currentQuery
++    const prevQuery = this._currentQuery
+ 
+-    this.options = this.#client.defaultQueryOptions(options)
++    this.options = this._client.defaultQueryOptions(options)
+ 
+     if (
+       this.options.enabled !== undefined &&
+       typeof this.options.enabled !== 'boolean' &&
+       typeof this.options.enabled !== 'function' &&
+-      typeof resolveQueryBoolean(this.options.enabled, this.#currentQuery) !==
++      typeof resolveQueryBoolean(this.options.enabled, this._currentQuery) !==
+         'boolean'
+     ) {
+       throw new Error(
+@@ -161,16 +161,16 @@ export class QueryObserver<
+       )
+     }
+ 
+-    this.#updateQuery()
+-    this.#currentQuery.setOptions(this.options)
++    this._updateQuery()
++    this._currentQuery.setOptions(this.options)
+ 
+     if (
+       prevOptions._defaulted &&
+       !shallowEqualObjects(this.options, prevOptions)
+     ) {
+-      this.#client.getQueryCache().notify({
++      this._client.getQueryCache().notify({
+         type: 'observerOptionsUpdated',
+-        query: this.#currentQuery,
++        query: this._currentQuery,
+         observer: this,
+       })
+     }
+@@ -181,13 +181,13 @@ export class QueryObserver<
+     if (
+       mounted &&
+       shouldFetchOptionally(
+-        this.#currentQuery,
++        this._currentQuery,
+         prevQuery,
+         this.options,
+         prevOptions,
+       )
+     ) {
+-      this.#executeFetch()
++      this._executeFetch()
+     }
+ 
+     // Update result
+@@ -196,26 +196,26 @@ export class QueryObserver<
+     // Update stale interval if needed
+     if (
+       mounted &&
+-      (this.#currentQuery !== prevQuery ||
+-        resolveQueryBoolean(this.options.enabled, this.#currentQuery) !==
+-          resolveQueryBoolean(prevOptions.enabled, this.#currentQuery) ||
+-        resolveStaleTime(this.options.staleTime, this.#currentQuery) !==
+-          resolveStaleTime(prevOptions.staleTime, this.#currentQuery))
++      (this._currentQuery !== prevQuery ||
++        resolveQueryBoolean(this.options.enabled, this._currentQuery) !==
++          resolveQueryBoolean(prevOptions.enabled, this._currentQuery) ||
++        resolveStaleTime(this.options.staleTime, this._currentQuery) !==
++          resolveStaleTime(prevOptions.staleTime, this._currentQuery))
+     ) {
+-      this.#updateStaleTimeout()
++      this._updateStaleTimeout()
+     }
+ 
+-    const nextRefetchInterval = this.#computeRefetchInterval()
++    const nextRefetchInterval = this._computeRefetchInterval()
+ 
+     // Update refetch interval if needed
+     if (
+       mounted &&
+-      (this.#currentQuery !== prevQuery ||
+-        resolveQueryBoolean(this.options.enabled, this.#currentQuery) !==
+-          resolveQueryBoolean(prevOptions.enabled, this.#currentQuery) ||
+-        nextRefetchInterval !== this.#currentRefetchInterval)
++      (this._currentQuery !== prevQuery ||
++        resolveQueryBoolean(this.options.enabled, this._currentQuery) !==
++          resolveQueryBoolean(prevOptions.enabled, this._currentQuery) ||
++        nextRefetchInterval !== this._currentRefetchInterval)
+     ) {
+-      this.#updateRefetchInterval(nextRefetchInterval)
++      this._updateRefetchInterval(nextRefetchInterval)
+     }
+   }
+ 
+@@ -228,7 +228,7 @@ export class QueryObserver<
+       TQueryKey
+     >,
+   ): QueryObserverResult<TData, TError> {
+-    const query = this.#client.getQueryCache().build(this.#client, options)
++    const query = this._client.getQueryCache().build(this._client, options)
+ 
+     const result = this.createResult(query, options)
+ 
+@@ -249,15 +249,15 @@ export class QueryObserver<
+ 
+       // When keeping the previous data, the result doesn't change until new
+       // data arrives.
+-      this.#currentResult = result
+-      this.#currentResultOptions = this.options
+-      this.#currentResultState = this.#currentQuery.state
++      this._currentResult = result
++      this._currentResultOptions = this.options
++      this._currentResultState = this._currentQuery.state
+     }
+     return result
+   }
+ 
+   getCurrentResult(): QueryObserverResult<TData, TError> {
+-    return this.#currentResult
++    return this._currentResult
+   }
+ 
+   trackResult(
+@@ -272,9 +272,9 @@ export class QueryObserver<
+           this.trackProp('data')
+           if (
+             !this.options.experimental_prefetchInRender &&
+-            this.#currentThenable.status === 'pending'
++            this._currentThenable.status === 'pending'
+           ) {
+-            this.#currentThenable.reject(
++            this._currentThenable.reject(
+               new Error(
+                 'experimental_prefetchInRender feature flag is not enabled',
+               ),
+@@ -287,11 +287,11 @@ export class QueryObserver<
+   }
+ 
+   trackProp(key: keyof QueryObserverResult) {
+-    this.#trackedProps.add(key)
++    this._trackedProps.add(key)
+   }
+ 
+   getCurrentQuery(): Query<TQueryFnData, TError, TQueryData, TQueryKey> {
+-    return this.#currentQuery
++    return this._currentQuery
+   }
+ 
+   refetch({ ...options }: RefetchOptions = {}): Promise<
+@@ -311,11 +311,11 @@ export class QueryObserver<
+       TQueryKey
+     >,
+   ): Promise<QueryObserverResult<TData, TError>> {
+-    const defaultedOptions = this.#client.defaultQueryOptions(options)
++    const defaultedOptions = this._client.defaultQueryOptions(options)
+ 
+-    const query = this.#client
++    const query = this._client
+       .getQueryCache()
+-      .build(this.#client, defaultedOptions)
++      .build(this._client, defaultedOptions)
+ 
+     return query.fetch().then(() => this.createResult(query, defaultedOptions))
+   }
+@@ -323,23 +323,23 @@ export class QueryObserver<
+   protected fetch(
+     fetchOptions: ObserverFetchOptions,
+   ): Promise<QueryObserverResult<TData, TError>> {
+-    return this.#executeFetch({
++    return this._executeFetch({
+       ...fetchOptions,
+       cancelRefetch: fetchOptions.cancelRefetch ?? true,
+     }).then(() => {
+       this.updateResult()
+-      return this.#currentResult
++      return this._currentResult
+     })
+   }
+ 
+-  #executeFetch(
++  _executeFetch(
+     fetchOptions?: Omit<ObserverFetchOptions, 'initialPromise'>,
+   ): Promise<TQueryData | undefined> {
+     // Make sure we reference the latest query as the current one might have been removed
+-    this.#updateQuery()
++    this._updateQuery()
+ 
+     // Fetch
+-    let promise: Promise<TQueryData | undefined> = this.#currentQuery.fetch(
++    let promise: Promise<TQueryData | undefined> = this._currentQuery.fetch(
+       this.options,
+       fetchOptions,
+     )
+@@ -351,82 +351,82 @@ export class QueryObserver<
+     return promise
+   }
+ 
+-  #updateStaleTimeout(): void {
+-    this.#clearStaleTimeout()
++  _updateStaleTimeout(): void {
++    this._clearStaleTimeout()
+     const staleTime = resolveStaleTime(
+       this.options.staleTime,
+-      this.#currentQuery,
++      this._currentQuery,
+     )
+ 
+     if (
+       environmentManager.isServer() ||
+-      this.#currentResult.isStale ||
++      this._currentResult.isStale ||
+       !isValidTimeout(staleTime)
+     ) {
+       return
+     }
+ 
+-    const time = timeUntilStale(this.#currentResult.dataUpdatedAt, staleTime)
++    const time = timeUntilStale(this._currentResult.dataUpdatedAt, staleTime)
+ 
+     // The timeout is sometimes triggered 1 ms before the stale time expiration.
+     // To mitigate this issue we always add 1 ms to the timeout.
+     const timeout = time + 1
+ 
+-    this.#staleTimeoutId = timeoutManager.setTimeout(() => {
+-      if (!this.#currentResult.isStale) {
++    this._staleTimeoutId = timeoutManager.setTimeout(() => {
++      if (!this._currentResult.isStale) {
+         this.updateResult()
+       }
+     }, timeout)
+   }
+ 
+-  #computeRefetchInterval() {
++  _computeRefetchInterval() {
+     return (
+       (typeof this.options.refetchInterval === 'function'
+-        ? this.options.refetchInterval(this.#currentQuery)
++        ? this.options.refetchInterval(this._currentQuery)
+         : this.options.refetchInterval) ?? false
+     )
+   }
+ 
+-  #updateRefetchInterval(nextInterval: number | false): void {
+-    this.#clearRefetchInterval()
++  _updateRefetchInterval(nextInterval: number | false): void {
++    this._clearRefetchInterval()
+ 
+-    this.#currentRefetchInterval = nextInterval
++    this._currentRefetchInterval = nextInterval
+ 
+     if (
+       environmentManager.isServer() ||
+-      resolveQueryBoolean(this.options.enabled, this.#currentQuery) === false ||
+-      !isValidTimeout(this.#currentRefetchInterval) ||
+-      this.#currentRefetchInterval === 0
++      resolveQueryBoolean(this.options.enabled, this._currentQuery) === false ||
++      !isValidTimeout(this._currentRefetchInterval) ||
++      this._currentRefetchInterval === 0
+     ) {
+       return
+     }
+ 
+-    this.#refetchIntervalId = timeoutManager.setInterval(() => {
++    this._refetchIntervalId = timeoutManager.setInterval(() => {
+       if (
+         this.options.refetchIntervalInBackground ||
+         focusManager.isFocused()
+       ) {
+-        this.#executeFetch()
++        this._executeFetch()
+       }
+-    }, this.#currentRefetchInterval)
++    }, this._currentRefetchInterval)
+   }
+ 
+-  #updateTimers(): void {
+-    this.#updateStaleTimeout()
+-    this.#updateRefetchInterval(this.#computeRefetchInterval())
++  _updateTimers(): void {
++    this._updateStaleTimeout()
++    this._updateRefetchInterval(this._computeRefetchInterval())
+   }
+ 
+-  #clearStaleTimeout(): void {
+-    if (this.#staleTimeoutId !== undefined) {
+-      timeoutManager.clearTimeout(this.#staleTimeoutId)
+-      this.#staleTimeoutId = undefined
++  _clearStaleTimeout(): void {
++    if (this._staleTimeoutId !== undefined) {
++      timeoutManager.clearTimeout(this._staleTimeoutId)
++      this._staleTimeoutId = undefined
+     }
+   }
+ 
+-  #clearRefetchInterval(): void {
+-    if (this.#refetchIntervalId !== undefined) {
+-      timeoutManager.clearInterval(this.#refetchIntervalId)
+-      this.#refetchIntervalId = undefined
++  _clearRefetchInterval(): void {
++    if (this._refetchIntervalId !== undefined) {
++      timeoutManager.clearInterval(this._refetchIntervalId)
++      this._refetchIntervalId = undefined
+     }
+   }
+ 
+@@ -440,17 +440,17 @@ export class QueryObserver<
+       TQueryKey
+     >,
+   ): QueryObserverResult<TData, TError> {
+-    const prevQuery = this.#currentQuery
++    const prevQuery = this._currentQuery
+     const prevOptions = this.options
+-    const prevResult = this.#currentResult as
++    const prevResult = this._currentResult as
+       | QueryObserverResult<TData, TError>
+       | undefined
+-    const prevResultState = this.#currentResultState
+-    const prevResultOptions = this.#currentResultOptions
++    const prevResultState = this._currentResultState
++    const prevResultOptions = this._currentResultOptions
+     const queryChange = query !== prevQuery
+     const queryInitialState = queryChange
+       ? query.state
+-      : this.#currentQueryInitialState
++      : this._currentQueryInitialState
+ 
+     const { state } = query
+     let newState = { ...state }
+@@ -507,8 +507,8 @@ export class QueryObserver<
+             ? (
+                 options.placeholderData as unknown as PlaceholderDataFunction<TQueryData>
+               )(
+-                this.#lastQueryWithDefinedData?.state.data,
+-                this.#lastQueryWithDefinedData as any,
++                this._lastQueryWithDefinedData?.state.data,
++                this._lastQueryWithDefinedData as any,
+               )
+             : options.placeholderData
+       }
+@@ -531,25 +531,25 @@ export class QueryObserver<
+       if (
+         prevResult &&
+         data === prevResultState?.data &&
+-        options.select === this.#selectFn
++        options.select === this._selectFn
+       ) {
+-        data = this.#selectResult
++        data = this._selectResult
+       } else {
+         try {
+-          this.#selectFn = options.select
++          this._selectFn = options.select
+           data = options.select(data as any)
+           data = replaceData(prevResult?.data, data, options)
+-          this.#selectResult = data
+-          this.#selectError = null
++          this._selectResult = data
++          this._selectError = null
+         } catch (selectError) {
+-          this.#selectError = selectError as TError
++          this._selectError = selectError as TError
+         }
+       }
+     }
+ 
+-    if (this.#selectError) {
+-      error = this.#selectError
+-      data = this.#selectResult
++    if (this._selectError) {
++      error = this._selectError
++      data = this._selectResult
+       errorUpdatedAt = Date.now()
+       status = 'error'
+     }
+@@ -588,7 +588,7 @@ export class QueryObserver<
+       isRefetchError: isError && hasData,
+       isStale: isStale(query, options),
+       refetch: this.refetch,
+-      promise: this.#currentThenable,
++      promise: this._currentThenable,
+       isEnabled: resolveQueryBoolean(options.enabled, query) !== false,
+     }
+ 
+@@ -610,14 +610,14 @@ export class QueryObserver<
+        */
+       const recreateThenable = () => {
+         const pending =
+-          (this.#currentThenable =
++          (this._currentThenable =
+           nextResult.promise =
+             pendingThenable())
+ 
+         finalizeThenableIfPossible(pending)
+       }
+ 
+-      const prevThenable = this.#currentThenable
++      const prevThenable = this._currentThenable
+       switch (prevThenable.status) {
+         case 'pending':
+           // Finalize the previous thenable if it was pending
+@@ -643,17 +643,17 @@ export class QueryObserver<
+   }
+ 
+   updateResult(): void {
+-    const prevResult = this.#currentResult as
++    const prevResult = this._currentResult as
+       | QueryObserverResult<TData, TError>
+       | undefined
+ 
+-    const nextResult = this.createResult(this.#currentQuery, this.options)
++    const nextResult = this.createResult(this._currentQuery, this.options)
+ 
+-    this.#currentResultState = this.#currentQuery.state
+-    this.#currentResultOptions = this.options
++    this._currentResultState = this._currentQuery.state
++    this._currentResultOptions = this.options
+ 
+-    if (this.#currentResultState.data !== undefined) {
+-      this.#lastQueryWithDefinedData = this.#currentQuery
++    if (this._currentResultState.data !== undefined) {
++      this._lastQueryWithDefinedData = this._currentQuery
+     }
+ 
+     // Only notify and update result if something has changed
+@@ -661,7 +661,7 @@ export class QueryObserver<
+       return
+     }
+ 
+-    this.#currentResult = nextResult
++    this._currentResult = nextResult
+ 
+     const shouldNotifyListeners = (): boolean => {
+       if (!prevResult) {
+@@ -676,42 +676,42 @@ export class QueryObserver<
+ 
+       if (
+         notifyOnChangePropsValue === 'all' ||
+-        (!notifyOnChangePropsValue && !this.#trackedProps.size)
++        (!notifyOnChangePropsValue && !this._trackedProps.size)
+       ) {
+         return true
+       }
+ 
+       const includedProps = new Set(
+-        notifyOnChangePropsValue ?? this.#trackedProps,
++        notifyOnChangePropsValue ?? this._trackedProps,
+       )
+ 
+       if (this.options.throwOnError) {
+         includedProps.add('error')
+       }
+ 
+-      return Object.keys(this.#currentResult).some((key) => {
++      return Object.keys(this._currentResult).some((key) => {
+         const typedKey = key as keyof QueryObserverResult
+-        const changed = this.#currentResult[typedKey] !== prevResult[typedKey]
++        const changed = this._currentResult[typedKey] !== prevResult[typedKey]
+ 
+         return changed && includedProps.has(typedKey)
+       })
+     }
+ 
+-    this.#notify({ listeners: shouldNotifyListeners() })
++    this._notify({ listeners: shouldNotifyListeners() })
+   }
+ 
+-  #updateQuery(): void {
+-    const query = this.#client.getQueryCache().build(this.#client, this.options)
++  _updateQuery(): void {
++    const query = this._client.getQueryCache().build(this._client, this.options)
+ 
+-    if (query === this.#currentQuery) {
++    if (query === this._currentQuery) {
+       return
+     }
+ 
+-    const prevQuery = this.#currentQuery as
++    const prevQuery = this._currentQuery as
+       | Query<TQueryFnData, TError, TQueryData, TQueryKey>
+       | undefined
+-    this.#currentQuery = query
+-    this.#currentQueryInitialState = query.state
++    this._currentQuery = query
++    this._currentQueryInitialState = query.state
+ 
+     if (this.hasListeners()) {
+       prevQuery?.removeObserver(this)
+@@ -723,22 +723,22 @@ export class QueryObserver<
+     this.updateResult()
+ 
+     if (this.hasListeners()) {
+-      this.#updateTimers()
++      this._updateTimers()
+     }
+   }
+ 
+-  #notify(notifyOptions: { listeners: boolean }): void {
++  _notify(notifyOptions: { listeners: boolean }): void {
+     notifyManager.batch(() => {
+       // First, trigger the listeners
+       if (notifyOptions.listeners) {
+         this.listeners.forEach((listener) => {
+-          listener(this.#currentResult)
++          listener(this._currentResult)
+         })
+       }
+ 
+       // Then the cache listeners
+-      this.#client.getQueryCache().notify({
+-        query: this.#currentQuery,
++      this._client.getQueryCache().notify({
++        query: this._currentQuery,
+         type: 'observerResultsUpdated',
+       })
+     })
+diff --git a/node_modules/@tanstack/query-core/src/removable.ts b/node_modules/@tanstack/query-core/src/removable.ts
+index 62e5242..f0ec5b0 100644
+--- a/node_modules/@tanstack/query-core/src/removable.ts
++++ b/node_modules/@tanstack/query-core/src/removable.ts
+@@ -5,7 +5,7 @@ import type { ManagedTimerId } from './timeoutManager'
+ 
+ export abstract class Removable {
+   gcTime!: number
+-  #gcTimeout?: ManagedTimerId
++  _gcTimeout?: ManagedTimerId
+ 
+   destroy(): void {
+     this.clearGcTimeout()
+@@ -15,7 +15,7 @@ export abstract class Removable {
+     this.clearGcTimeout()
+ 
+     if (isValidTimeout(this.gcTime)) {
+-      this.#gcTimeout = timeoutManager.setTimeout(() => {
++      this._gcTimeout = timeoutManager.setTimeout(() => {
+         this.optionalRemove()
+       }, this.gcTime)
+     }
+@@ -30,9 +30,9 @@ export abstract class Removable {
+   }
+ 
+   protected clearGcTimeout() {
+-    if (this.#gcTimeout !== undefined) {
+-      timeoutManager.clearTimeout(this.#gcTimeout)
+-      this.#gcTimeout = undefined
++    if (this._gcTimeout !== undefined) {
++      timeoutManager.clearTimeout(this._gcTimeout)
++      this._gcTimeout = undefined
+     }
+   }
+ 
+diff --git a/node_modules/@tanstack/query-core/src/timeoutManager.ts b/node_modules/@tanstack/query-core/src/timeoutManager.ts
+index 6f74050..e715b4d 100644
+--- a/node_modules/@tanstack/query-core/src/timeoutManager.ts
++++ b/node_modules/@tanstack/query-core/src/timeoutManager.ts
+@@ -69,14 +69,14 @@ export class TimeoutManager implements Omit<TimeoutProvider, 'name'> {
+   //
+   // We settle for type safety for the TimeoutProvider type, and accept that
+   // this class is unsafe internally to allow for extension.
+-  #provider: TimeoutProvider<any> = defaultTimeoutProvider
+-  #providerCalled = false
++  _provider: TimeoutProvider<any> = defaultTimeoutProvider
++  _providerCalled = false
+ 
+   setTimeoutProvider<TTimerId extends ManagedTimerId>(
+     provider: TimeoutProvider<TTimerId>,
+   ): void {
+     if (process.env.NODE_ENV !== 'production') {
+-      if (this.#providerCalled && provider !== this.#provider) {
++      if (this._providerCalled && provider !== this._provider) {
+         // After changing providers, `clearTimeout` will not work as expected for
+         // timeouts from the previous provider.
+         //
+@@ -90,37 +90,37 @@ export class TimeoutManager implements Omit<TimeoutProvider, 'name'> {
+         // some API call to set the initial provider.
+         console.error(
+           `[timeoutManager]: Switching provider after calls to previous provider might result in unexpected behavior.`,
+-          { previous: this.#provider, provider },
++          { previous: this._provider, provider },
+         )
+       }
+     }
+ 
+-    this.#provider = provider
++    this._provider = provider
+     if (process.env.NODE_ENV !== 'production') {
+-      this.#providerCalled = false
++      this._providerCalled = false
+     }
+   }
+ 
+   setTimeout(callback: TimeoutCallback, delay: number): ManagedTimerId {
+     if (process.env.NODE_ENV !== 'production') {
+-      this.#providerCalled = true
++      this._providerCalled = true
+     }
+-    return this.#provider.setTimeout(callback, delay)
++    return this._provider.setTimeout(callback, delay)
+   }
+ 
+   clearTimeout(timeoutId: ManagedTimerId | undefined): void {
+-    this.#provider.clearTimeout(timeoutId)
++    this._provider.clearTimeout(timeoutId)
+   }
+ 
+   setInterval(callback: TimeoutCallback, delay: number): ManagedTimerId {
+     if (process.env.NODE_ENV !== 'production') {
+-      this.#providerCalled = true
++      this._providerCalled = true
+     }
+-    return this.#provider.setInterval(callback, delay)
++    return this._provider.setInterval(callback, delay)
+   }
+ 
+   clearInterval(intervalId: ManagedTimerId | undefined): void {
+-    this.#provider.clearInterval(intervalId)
++    this._provider.clearInterval(intervalId)
+   }
+ }
+ 
