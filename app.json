@@ -52,7 +52,13 @@
       "expo-sqlite",
       "expo-font",
       "expo-web-browser",
-      "expo-asset"
+      "expo-asset",
+      [
+        "expo-notifications",
+        {
+          "mode": "production"
+        }
+      ]
     ],
     "experiments": {
       "typedRoutes": true,
